@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>登录 - i18n CMS 多语言文案管理平台</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen font-sans">
+<div class="max-w-[1000px] w-full bg-white rounded-2xl shadow-2xl overflow-hidden flex min-h-[600px]">
+<!-- 左侧宣传区 -->
+<div class="w-1/2 bg-slate-900 p-12 text-white flex flex-col justify-between relative overflow-hidden">
+<div class="relative z-10">
+<div class="flex items-center gap-2 mb-12">
+<div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+<iconify-icon class="text-2xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-2xl font-bold tracking-tight">i18n CMS</span>
+</div>
+<h1 class="text-4xl font-extrabold leading-tight mb-6">全球业务文案<br/>一体化管理专家</h1>
+<p class="text-slate-400 text-lg leading-relaxed mb-8">
+                    打破 Excel 管理的混乱。建立从创建、翻译、审核到 S3 一键发布的标准化流程。
+                </p>
+<div class="space-y-4">
+<div class="flex items-center gap-3">
+<iconify-icon class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
+<span class="text-slate-300">多语种实时对照编辑</span>
+</div>
+<div class="flex items-center gap-3">
+<iconify-icon class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
+<span class="text-slate-300">基于 S3 的自动化部署</span>
+</div>
+<div class="flex items-center gap-3">
+<iconify-icon class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
+<span class="text-slate-300">智能 Key 生成与资产复用</span>
+</div>
+</div>
+</div>
+<div class="relative z-10 pt-10 border-t border-slate-800">
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<img alt="User 1" class="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/071786a2443741f2a49f44dc7d576043.jpg"/>
+<img alt="User 2" class="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1f0a47e706444ae9e80f2f5e92ca0c7.jpg"/>
+<img alt="User 3" class="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-700" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/01d480db540e40bba80d09de9d2961ca.jpg"/>
+</div>
+<p class="text-sm text-slate-500">已帮助 200+ 跨国团队提升翻译效率</p>
+</div>
+</div>
+<!-- 装饰性背景 -->
+<div class="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl"></div>
+</div>
+<!-- 右侧登录表单 -->
+<div class="w-1/2 p-16 flex flex-col justify-center">
+<div class="mb-10 text-center lg:text-left">
+<h2 class="text-2xl font-bold text-slate-800">欢迎回来</h2>
+<p class="text-slate-500 mt-2">今天是 2026年04月14日，请登录系统</p>
+</div>
+<form action="dashboard.html" class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">工作账号</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+<iconify-icon icon="mdi:account-outline"></iconify-icon>
+</span>
+<input class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-800" placeholder="请输入邮箱/用户名" type="text" value="admin@vesync.com"/>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">安全密码</label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+<iconify-icon icon="mdi:lock-outline"></iconify-icon>
+</span>
+<input class="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-slate-800" placeholder="请输入密码" type="password" value="••••••••"/>
+</div>
+</div>
+<div class="flex items-center justify-between text-sm">
+<label class="flex items-center gap-2 cursor-pointer text-slate-600">
+<input checked="" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox"/>
+                        记住我
+                    </label>
+<a class="text-blue-600 hover:underline" href="#">忘记密码？</a>
+</div>
+<button class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200" type="submit">
+                    立即登录
+                </button>
+</form>
+<div class="mt-10 border-t border-slate-100 pt-8">
+<p class="text-center text-slate-400 text-xs">
+                    © 2026 i18n CMS 多语言管理系统 | V1.0 Internal
+                </p>
+</div>
+</div>
+</div>
+</body>
+</html>

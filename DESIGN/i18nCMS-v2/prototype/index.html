@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>i18n CMS · 多语言文案管理系统（交互原型）</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="logo" @click="goProjects">
+          <span class="logo-mark">i18n</span>
+          <span class="logo-text">CMS</span>
+        </div>
+        <nav class="crumbs">
+          <span class="crumb" :class="{active: view==='projects'}" @click="goProjects">项目</span>
+          <template v-if="currentProject">
+            <span class="crumb-sep">/</span>
+            <span class="crumb" :class="{active: view==='pages'}" @click="openProject(currentProject)">{{ currentProject.name }}</span>
+          </template>
+          <template v-if="currentPage && view==='copies'">
+            <span class="crumb-sep">/</span>
+            <span class="crumb active">{{ currentPage.name }}</span>
+          </template>
+        </nav>
+      </div>
+      <div class="topbar-right">
+        <div class="badge-proto">交互原型 · 仅展示交互</div>
+        <button class="icon-btn" title="语种管理" @click="showLangSettings = true">🌐</button>
+        <div class="avatar" title="当前用户：Vision">V</div>
+      </div>
+    </header>
+
+    <!-- ============ PROJECTS VIEW ============ -->
+    <main v-if="view==='projects'" class="page">
+      <div class="page-head">
+        <div>
+          <h1>项目管理</h1>
+          <p class="muted">集中管理全部多语言文案项目</p>
+        </div>
+        <div class="page-head-actions">
+          <div class="search">
+            <span class="search-ico">🔍</span>
+            <input v-model="projectSearch" placeholder="按项目名称搜索" />
+          </div>
+          <button class="btn primary" @click="openCreateProject">＋ 新建项目</button>
+        </div>
+      </div>
+
+      <div class="card-grid">
+        <div v-for="p in filteredProjects" :key="p.id" class="proj-card" @click="openProject(p)">
+          <div class="proj-card-top">
+            <div class="proj-icon" :style="{background:p.color}">{{ p.name.slice(0,1) }}</div>
+            <div class="proj-card-actions" @click.stop>
+              <button class="icon-btn sm" title="编辑" @click="openEditProject(p)">✏️</button>
+              <button class="icon-btn sm danger" title="删除" @click="confirmDeleteProject(p)">🗑️</button>
+            </div>
+          </div>
+          <h3>{{ p.name }}</h3>
+          <p class="proj-desc">{{ p.description }}</p>
+          <div class="lang-chips">
+            <span v-for="l in p.languages.slice(0,5)" :key="l" class="chip">{{ langLabel(l) }}</span>
+            <span v-if="p.languages.length>5" class="chip ghost">+{{ p.languages.length-5 }}</span>
+          </div>
+          <div class="proj-card-foot">
+            <span class="stat"><b>{{ p.languages.length }}</b> 语种</span>
+            <span class="stat"><b>{{ countCopies(p) }}</b> 文案</span>
+            <div class="members">
+              <span v-for="(m,i) in p.members.slice(0,3)" :key="i" class="mini-avatar" :title="m.name+' · '+m.role">{{ m.name.slice(0,1) }}</span>
+              <span v-if="p.members.length>3" class="mini-avatar more">+{{ p.members.length-3 }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="proj-card add" @click="openCreateProject">
+          <div class="add-inner">＋<span>新建项目</span></div>
+        </div>
+      </div>
+      <div v-if="filteredProjects.length===0" class="empty">没有匹配「{{ projectSearch }}」的项目</div>
+    </main>
+
+    <!-- ============ PAGE MANAGEMENT VIEW ============ -->
+    <main v-if="view==='pages' && currentProject" class="page">
+      <div class="proj-overview">
+        <div class="proj-overview-main">
+          <div class="proj-icon lg" :style="{background:currentProject.color}">{{ currentProject.name.slice(0,1) }}</div>
+          <div>
+            <h1>{{ currentProject.name }}
+              <button class="icon-btn sm" title="编辑项目信息" @click="openEditProject(currentProject)">✏️</button>
+            </h1>
+            <p class="muted">{{ currentProject.description }}</p>
+            <div class="lang-chips">
+              <span v-for="l in currentProject.languages" :key="l" class="chip">
+                {{ langLabel(l) }}
+                <span class="chip-x" title="删除语种" @click="removeLanguage(l)">×</span>
+              </span>
+              <button class="chip add-chip" @click="showAddLang = true">＋ 新增语种</button>
+            </div>
+            <div class="members mt">
+              <span v-for="(m,i) in currentProject.members" :key="i" class="mini-avatar" :title="m.role">{{ m.name.slice(0,1) }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="proj-overview-actions">
+          <div class="version-pill">
+            <span>版本</span>
+            <select v-model="currentVersion">
+              <option value="draft">草稿（未打版本）</option>
+              <option v-for="v in currentProject.versions" :key="v.id" :value="v.id">{{ v.name }}</option>
+            </select>
+          </div>
+          <button class="btn" @click="view='versions'">🏷️ 版本管理</button>
+          <button class="btn" @click="openTagVersion">＋ 打版本</button>
+          <button class="btn" @click="openExport">⬆️ 导出文案</button>
+        </div>
+      </div>
+
+      <div class="sub-head">
+        <h2>页面管理 <span class="muted sm">（分组）</span></h2>
+        <button class="btn primary" @click="openCreatePage">＋ 添加页面</button>
+      </div>
+
+      <div class="card-grid pages">
+        <div v-for="pg in currentProject.pages" :key="pg.id" class="page-card" @click="openPage(pg)">
+          <div class="page-thumb" :class="{empty:!pg.screenshot}">
+            <template v-if="pg.screenshot">🖼️ 页面截图</template>
+            <template v-else>无截图</template>
+          </div>
+          <div class="page-card-body">
+            <h3>{{ pg.name }}</h3>
+            <div class="page-card-foot">
+              <span class="stat"><b>{{ pg.copies.length }}</b> 文案</span>
+              <div class="page-card-actions" @click.stop>
+                <button class="icon-btn sm" title="重命名" @click="renamePage(pg)">✏️</button>
+                <button class="icon-btn sm danger" title="删除" @click="deletePage(pg)">🗑️</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page-card add" @click="openCreatePage">
+          <div class="add-inner">＋<span>添加页面</span></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ============ COPY MANAGEMENT VIEW ============ -->
+    <main v-if="view==='copies' && currentPage" class="page">
+      <div class="sub-head wrap">
+        <div>
+          <h1>{{ currentPage.name }} <span class="muted sm">· 文案管理</span></h1>
+          <p class="muted">参考 Excel 编辑交互 · 支持批量粘贴 · 变量占位符 {user_name}</p>
+        </div>
+        <div class="copy-toolbar">
+          <div class="search wide">
+            <span class="search-ico">🔍</span>
+            <input v-model="copySearch" placeholder="按 Key / 文案内容搜索" />
+            <select v-model="searchScope" class="scope">
+              <option value="page">当前页面</option>
+              <option value="project">当前项目</option>
+              <option value="all">所有项目</option>
+            </select>
+          </div>
+          <button class="btn" @click="openImport">⬇️ 导入</button>
+          <button class="btn" @click="openExport">⬆️ 导出</button>
+          <button class="btn primary" @click="addCopyRow">＋ 新增文案</button>
+        </div>
+      </div>
+
+      <div v-if="selectedCopies.length" class="bulk-bar">
+        <span>已选 {{ selectedCopies.length }} 条</span>
+        <button class="btn xs" @click="openMigrate">迁移到页面</button>
+        <button class="btn xs" @click="openCopyTo">复制到页面</button>
+        <button class="btn xs danger" @click="bulkDelete">批量删除</button>
+        <button class="btn xs ghost" @click="selectedCopies=[]">取消选择</button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="grid">
+          <thead>
+            <tr>
+              <th class="ck"><input type="checkbox" :checked="allSelected" @change="toggleAll" /></th>
+              <th class="key-col">Key</th>
+              <th v-for="l in currentProject.languages" :key="l">
+                {{ langLabel(l) }} <span class="lang-code">{{ l }}</span>
+              </th>
+              <th class="op-col">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in pagedCopies" :key="row.id" :class="{sel: selectedCopies.includes(row.id)}">
+              <td class="ck"><input type="checkbox" :value="row.id" v-model="selectedCopies" /></td>
+              <td class="key-col">
+                <input class="cell-input key" v-model="row.key" placeholder="自动生成" />
+              </td>
+              <td v-for="l in currentProject.languages" :key="l">
+                <div class="cell-flex">
+                  <input class="cell-input" v-model="row.values[l]" :placeholder="l==='en'?'输入英文，自动生成 Key':'输入文案'" />
+                  <button class="rich-btn" title="富文本编辑" @click="openRich(row,l)">Aa</button>
+                </div>
+              </td>
+              <td class="op-col">
+                <button class="icon-btn sm" title="复制" @click="quickCopyTo(row)">⧉</button>
+                <button class="icon-btn sm danger" title="删除" @click="deleteCopy(row)">🗑️</button>
+              </td>
+            </tr>
+            <tr v-if="pagedCopies.length===0">
+              <td :colspan="currentProject.languages.length+3" class="empty-cell">无文案，点击「新增文案」或「导入」开始</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <span class="muted">共 {{ filteredCopies.length }} 条</span>
+        <div class="pager-ctrl">
+          <button class="btn xs" :disabled="copyPage<=1" @click="copyPage--">‹ 上一页</button>
+          <span>{{ copyPage }} / {{ totalCopyPages }}</span>
+          <button class="btn xs" :disabled="copyPage>=totalCopyPages" @click="copyPage++">下一页 ›</button>
+        </div>
+      </div>
+
+      <!-- cross-project reuse hint -->
+      <div v-if="searchScope!=='page' && copySearch" class="reuse-banner">
+        正在跨{{ searchScope==='all'?'所有项目':'项目' }}搜索，命中的其他来源文案可一键
+        <button class="link" @click="toast('已复制到当前页面（演示）')">复制复用</button> 到当前页面。
+      </div>
+    </main>
+
+    <!-- ============ VERSION MANAGEMENT VIEW ============ -->
+    <main v-if="view==='versions' && currentProject" class="page">
+      <div class="sub-head wrap">
+        <div>
+          <h1>版本管理 <span class="muted sm">· {{ currentProject.name }}</span></h1>
+          <p class="muted">可追溯 · 可对比 · 可回滚。未打版本的修改视为草稿。</p>
+        </div>
+        <div>
+          <button class="btn" @click="view='pages'">← 返回</button>
+          <button class="btn primary" @click="openTagVersion">＋ 打版本</button>
+        </div>
+      </div>
+
+      <div class="version-layout">
+        <div class="version-list">
+          <div class="version-item draft">
+            <div class="v-dot draft"></div>
+            <div class="v-body">
+              <div class="v-name">草稿 <span class="tag warn">当前编辑中</span></div>
+              <div class="muted sm">基于最新版本的未提交修改</div>
+            </div>
+          </div>
+          <div v-for="(v,i) in currentProject.versions" :key="v.id" class="version-item">
+            <div class="v-dot"></div>
+            <div class="v-body">
+              <div class="v-name">{{ v.name }} <span v-if="i===0" class="tag ok">最新</span></div>
+              <div class="muted sm">{{ v.createdAt }} · {{ v.author }} · {{ v.note }}</div>
+              <div class="v-actions">
+                <button class="btn xs" @click="openDiff(v)">对比当前</button>
+                <button class="btn xs" @click="viewVersion(v)">查看</button>
+                <button class="btn xs" @click="openExport">导出</button>
+                <button class="btn xs warn" @click="openRollback(v)">回滚</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ===================== MODALS ===================== -->
+
+    <!-- Create / Edit Project -->
+    <div v-if="showProjectModal" class="overlay" @click.self="showProjectModal=false">
+      <div class="modal">
+        <div class="modal-head"><h3>{{ projectForm.id ? '编辑项目' : '新建项目' }}</h3><button class="x" @click="showProjectModal=false">×</button></div>
+        <div class="modal-body">
+          <label class="field"><span>项目名称</span><input v-model="projectForm.name" placeholder="如：VeSync App" /></label>
+          <label class="field"><span>项目描述</span><textarea v-model="projectForm.description" placeholder="一句话说明项目用途"></textarea></label>
+          <div class="field">
+            <span>支持语种</span>
+            <div class="lang-pick">
+              <label v-for="l in allLanguages" :key="l.code" class="lang-opt" :class="{on:projectForm.languages.includes(l.code)}">
+                <input type="checkbox" :value="l.code" v-model="projectForm.languages" /> {{ l.label }} <i>{{ l.code }}</i>
+              </label>
+            </div>
+          </div>
+          <label class="field"><span>项目成员（逗号分隔）</span><input v-model="projectForm.membersText" placeholder="Vision, Amy, Tom" /></label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showProjectModal=false">取消</button>
+          <button class="btn primary" @click="saveProject">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Page (with screenshot OCR mock) -->
+    <div v-if="showPageModal" class="overlay" @click.self="closePageModal">
+      <div class="modal">
+        <div class="modal-head"><h3>添加页面</h3><button class="x" @click="closePageModal">×</button></div>
+        <div class="modal-body">
+          <label class="field"><span>页面名称</span><input v-model="pageForm.name" placeholder="如：login / home" /></label>
+          <div class="field">
+            <span>上传页面截图（可选，用于一键识别文案）</span>
+            <div class="upload" :class="{filled:pageForm.uploaded}" @click="pageForm.uploaded=true">
+              <template v-if="!pageForm.uploaded">📤 点击上传截图</template>
+              <template v-else>🖼️ screenshot.png · 已上传</template>
+            </div>
+          </div>
+          <div v-if="!ocrResult.length">
+            <button class="btn" :disabled="!pageForm.uploaded" @click="runOcr">🔎 保存并识别文案</button>
+            <span class="muted sm" v-if="ocrLoading"> 识别中…</span>
+          </div>
+          <div v-else class="ocr-result">
+            <div class="ocr-head">识别结果（勾选要录入的文案）</div>
+            <label v-for="(o,i) in ocrResult" :key="i" class="ocr-item">
+              <input type="checkbox" v-model="o.pick" /> <span>{{ o.text }}</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="closePageModal">取消</button>
+          <button class="btn primary" @click="savePage">{{ ocrResult.length ? '保存页面与文案' : '直接保存空页面' }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rich text editor -->
+    <div v-if="showRich" class="overlay" @click.self="showRich=false">
+      <div class="modal">
+        <div class="modal-head"><h3>富文本编辑 · {{ langLabel(richCtx.lang) }}</h3><button class="x" @click="showRich=false">×</button></div>
+        <div class="modal-body">
+          <div class="rich-toolbar">
+            <button title="加粗"><b>B</b></button>
+            <button title="斜体"><i>I</i></button>
+            <button title="颜色">🎨</button>
+            <button title="超链接">🔗</button>
+            <button title="变量">{ }</button>
+          </div>
+          <div class="rich-edit" contenteditable="true">{{ richCtx.value }}</div>
+          <p class="muted sm">支持加粗、颜色、超链接、变量占位符等（演示）</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showRich=false">取消</button>
+          <button class="btn primary" @click="saveRich">应用</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Import -->
+    <div v-if="showImport" class="overlay" @click.self="showImport=false">
+      <div class="modal lg">
+        <div class="modal-head"><h3>导入文案</h3><button class="x" @click="showImport=false">×</button></div>
+        <div class="modal-body">
+          <div class="seg">
+            <button v-for="f in ['JSON','Excel','CSV']" :key="f" :class="{on:importFormat===f}" @click="importFormat=f">{{ f }}</button>
+          </div>
+          <div class="upload mt" :class="{filled:importLoaded}" @click="loadImportPreview">
+            <template v-if="!importLoaded">📤 选择 {{ importFormat }} 文件</template>
+            <template v-else>📄 data.{{ importFormat.toLowerCase() }} · 已解析</template>
+          </div>
+          <div v-if="importLoaded" class="import-preview">
+            <div class="legend"><span class="dot add"></span>新增 <span class="dot upd"></span>覆盖</div>
+            <div v-for="grp in importPreview" :key="grp.page" class="imp-group">
+              <label class="imp-page"><input type="checkbox" checked /> 📁 {{ grp.page }}</label>
+              <label v-for="(it,i) in grp.items" :key="i" class="imp-row" :class="it.type">
+                <input type="checkbox" v-model="it.pick" />
+                <span class="imp-key">{{ it.key }}</span>
+                <span class="imp-val">{{ it.value }}</span>
+                <span class="imp-tag" :class="it.type">{{ it.type==='add'?'新增':'覆盖' }}</span>
+              </label>
+            </div>
+            <p class="muted sm">覆盖支持跨页面；新增文案归属当前页面。</p>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showImport=false">取消</button>
+          <button class="btn primary" :disabled="!importLoaded" @click="doImport">导入所选</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Export -->
+    <div v-if="showExport" class="overlay" @click.self="showExport=false">
+      <div class="modal lg">
+        <div class="modal-head"><h3>导出文案</h3><button class="x" @click="showExport=false">×</button></div>
+        <div class="modal-body export-body">
+          <div class="export-col">
+            <div class="seg">
+              <button :class="{on:exportFormat==='JSON'}" @click="exportFormat='JSON'">JSON</button>
+              <button :class="{on:exportFormat==='Excel'}" @click="exportFormat='Excel'">Excel</button>
+            </div>
+            <label class="check mt" v-if="exportFormat==='JSON'"><input type="checkbox" v-model="exportSplit" /> 按语种拆分为多个文件</label>
+            <label class="check" v-if="exportFormat==='Excel'"><input type="checkbox" checked /> 附带页面截图</label>
+            <div class="field mt"><span>选择语种（默认全部）</span>
+              <div class="lang-pick sm">
+                <label v-for="l in currentProject.languages" :key="l" class="lang-opt on"><input type="checkbox" checked /> {{ langLabel(l) }}</label>
+              </div>
+            </div>
+          </div>
+          <div class="export-col">
+            <div class="field"><span>选择文案（树级勾选，默认全选）</span></div>
+            <div class="tree">
+              <label class="tree-root"><input type="checkbox" checked /> 📦 {{ currentProject.name }}</label>
+              <label v-for="pg in currentProject.pages" :key="pg.id" class="tree-node">
+                <input type="checkbox" checked /> 📁 {{ pg.name }} <i class="muted">({{ pg.copies.length }})</i>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showExport=false">取消</button>
+          <button class="btn primary" @click="doExport">导出 {{ exportFormat }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tag version -->
+    <div v-if="showTagVersion" class="overlay" @click.self="showTagVersion=false">
+      <div class="modal">
+        <div class="modal-head"><h3>打版本</h3><button class="x" @click="showTagVersion=false">×</button></div>
+        <div class="modal-body">
+          <p class="muted">将当前项目的完整快照（项目/页面/文案）存为新版本。</p>
+          <label class="field"><span>版本号</span><input v-model="tagForm.name" /></label>
+          <label class="field"><span>版本说明</span><textarea v-model="tagForm.note" placeholder="本次版本的更新内容"></textarea></label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showTagVersion=false">取消</button>
+          <button class="btn primary" @click="saveTagVersion">确认打版本</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diff / Rollback -->
+    <div v-if="showDiff" class="overlay" @click.self="showDiff=false">
+      <div class="modal lg">
+        <div class="modal-head"><h3>{{ diffMode==='rollback'?'回滚预览':'版本对比' }} · {{ diffVersion?.name }} ⇄ 当前</h3><button class="x" @click="showDiff=false">×</button></div>
+        <div class="modal-body">
+          <div class="legend"><span class="dot add"></span>新增 <span class="dot upd"></span>修改 <span class="dot del"></span>删除</div>
+          <div class="diff-list">
+            <div v-for="(d,i) in diffData" :key="i" class="diff-row" :class="d.type">
+              <span class="diff-key">{{ d.key }}</span>
+              <span class="diff-old">{{ d.old || '—' }}</span>
+              <span class="diff-arrow">→</span>
+              <span class="diff-new">{{ d.new || '—' }}</span>
+              <span class="imp-tag" :class="d.type">{{ d.type==='add'?'新增':d.type==='del'?'删除':'修改' }}</span>
+            </div>
+          </div>
+          <p class="muted sm">按 id 级别对比（页面id / 文案id）：id 相同则修改，不同则删除+新增。</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showDiff=false">关闭</button>
+          <button v-if="diffMode==='rollback'" class="btn warn" @click="doRollback">确认回滚到 {{ diffVersion?.name }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Migrate / Copy to page -->
+    <div v-if="showMove" class="overlay" @click.self="showMove=false">
+      <div class="modal">
+        <div class="modal-head"><h3>{{ moveMode==='migrate'?'迁移文案':'复制文案' }}（{{ moveCount }} 条）</h3><button class="x" @click="showMove=false">×</button></div>
+        <div class="modal-body">
+          <label class="field"><span>目标页面</span>
+            <select v-model="moveTarget">
+              <option v-for="pg in currentProject.pages" :key="pg.id" :value="pg.id">{{ pg.name }}</option>
+            </select>
+          </label>
+          <p class="muted sm" v-if="moveMode==='copy'">复制时 Key 按冲突规则重新生成（key_xx）。</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showMove=false">取消</button>
+          <button class="btn primary" @click="doMove">确认</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add language -->
+    <div v-if="showAddLang" class="overlay" @click.self="showAddLang=false">
+      <div class="modal sm">
+        <div class="modal-head"><h3>新增语种</h3><button class="x" @click="showAddLang=false">×</button></div>
+        <div class="modal-body">
+          <div class="lang-pick">
+            <label v-for="l in availableToAdd" :key="l.code" class="lang-opt"><input type="radio" name="addlang" :value="l.code" v-model="addLangCode" /> {{ l.label }} <i>{{ l.code }}</i></label>
+          </div>
+          <p v-if="availableToAdd.length===0" class="muted">已添加全部预设语种。</p>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showAddLang=false">取消</button>
+          <button class="btn primary" :disabled="!addLangCode" @click="addLanguage">添加</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Language settings -->
+    <div v-if="showLangSettings" class="overlay" @click.self="showLangSettings=false">
+      <div class="modal lg">
+        <div class="modal-head"><h3>语种管理 · 系统预设 List</h3><button class="x" @click="showLangSettings=false">×</button></div>
+        <div class="modal-body">
+          <p class="muted">语言码遵循系统预设规范（参考 VeSync Wiki）。导入时强制校验语言码合法性。</p>
+          <table class="grid simple">
+            <thead><tr><th>语言</th><th>语言码</th><th>状态</th></tr></thead>
+            <tbody>
+              <tr v-for="l in allLanguages" :key="l.code"><td>{{ l.label }}</td><td><code>{{ l.code }}</code></td><td><span class="tag ok">合法</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="modal-foot"><button class="btn primary" @click="showLangSettings=false">关闭</button></div>
+      </div>
+    </div>
+
+    <!-- Confirm -->
+    <div v-if="confirm.show" class="overlay" @click.self="confirm.show=false">
+      <div class="modal sm">
+        <div class="modal-head"><h3>{{ confirm.title }}</h3><button class="x" @click="confirm.show=false">×</button></div>
+        <div class="modal-body"><p>{{ confirm.message }}</p></div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="confirm.show=false">取消</button>
+          <button class="btn danger" @click="confirm.ok()">确认删除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <transition name="fade">
+      <div v-if="toastMsg" class="toast">{{ toastMsg }}</div>
+    </transition>
+  </div>
+
+  <script src="./vue.global.prod.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

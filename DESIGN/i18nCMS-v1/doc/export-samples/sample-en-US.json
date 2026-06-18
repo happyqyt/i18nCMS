@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "schemaVersion": "1.0",
+    "project": "h5mall",
+    "projectName": "C端H5商城",
+    "directoryId": "product",
+    "directoryKey": "layout_product",
+    "directoryPath": ["h5mall", "home", "product"],
+    "language": "en-US",
+    "version": "v1.2.3",
+    "exportedAt": "2026-04-16T10:24:00+08:00",
+    "exportedBy": "elin.qiu@vesync.com",
+    "cdnUrl": "https://cdn.vesync.com/i18n/layout_product/en-US.json",
+    "totalMessages": 14,
+    "totalDirectories": 4,
+    "checksum": "sha256:7c9e1a4d2b8f5c3e6d0a9b7f4c2e8d1a5b6f3c9e2d7a4b8c1f5e9d2a6c3b7f1e"
+  },
+
+  "PD_TITLE": "Product Details",
+  "PD_SUBTITLE": "Hi {user_name}, welcome to {brand} flagship store",
+  "BUY_NOW_BTN": "Buy Now",
+  "ADD_TO_CART": "Add to Cart",
+  "OUT_OF_STOCK": "Out of Stock",
+  "PRICE_FORMAT": "From <b>${price}</b>",
+
+  "layout_product_spec": {
+    "SPEC_COLOR": "Color",
+    "SPEC_SIZE": "Size (optional)",
+    "SPEC_MATERIAL": "Material",
+    "SPEC_TIP": "Please select specifications before purchase"
+  },
+
+  "layout_product_review": {
+    "REVIEW_TITLE": "Customer Reviews",
+    "REVIEW_EMPTY": "No reviews yet, <a>be the first</a>",
+    "REVIEW_COUNT": "{count} reviews in total",
+    "layout_review_image": {
+      "IMG_REVIEW_BTN": "Add Photo/Video",
+      "IMG_REVIEW_TIP": "Up to 9 images can be uploaded"
+    }
+  },
+
+  "layout_product_recommend": {
+    "RECOMMEND_TITLE": "You May Also Like",
+    "RECOMMEND_MORE": "See More",
+    "RECOMMEND_EMPTY": "No recommended products"
+  },
+
+  "layout_product_qa": {
+    "QA_TITLE": "FAQ",
+    "QA_ASK_BTN": "Ask a Question",
+    "QA_ANSWER_BY": "Answered by {user} on {date}"
+  }
+}

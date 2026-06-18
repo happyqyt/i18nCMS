@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "schemaVersion": "1.0",
+    "project": "h5mall",
+    "projectName": "C端H5商城",
+    "directoryId": "product",
+    "directoryKey": "layout_product",
+    "directoryPath": ["h5mall", "home", "product"],
+    "language": "ja-JP",
+    "version": "v1.2.3",
+    "exportedAt": "2026-04-16T10:24:00+08:00",
+    "exportedBy": "elin.qiu@vesync.com",
+    "cdnUrl": "https://cdn.vesync.com/i18n/layout_product/ja-JP.json",
+    "totalMessages": 14,
+    "totalDirectories": 4,
+    "checksum": "sha256:9b4e7a2c1f8d3e6b5a0c9f2e4d7b1a8c3e6f9d2a5b7c4e1f8d3a6b9c2e5f4d7a"
+  },
+
+  "PD_TITLE": "商品詳細",
+  "PD_SUBTITLE": "こんにちは{user_name}さん、{brand}旗艦店へようこそ",
+  "BUY_NOW_BTN": "今すぐ購入",
+  "ADD_TO_CART": "カートに入れる",
+  "OUT_OF_STOCK": "在庫切れ",
+  "PRICE_FORMAT": "<b>¥{price}</b>から",
+
+  "layout_product_spec": {
+    "SPEC_COLOR": "カラー",
+    "SPEC_SIZE": "サイズ（任意）",
+    "SPEC_MATERIAL": "素材",
+    "SPEC_TIP": "規格を選択してからご購入ください"
+  },
+
+  "layout_product_review": {
+    "REVIEW_TITLE": "ユーザーレビュー",
+    "REVIEW_EMPTY": "レビューはまだありません、<a>最初のレビューを書く</a>",
+    "REVIEW_COUNT": "合計 {count} 件のレビュー",
+    "layout_review_image": {
+      "IMG_REVIEW_BTN": "写真/動画を追加",
+      "IMG_REVIEW_TIP": "最大 9 枚までアップロードできます"
+    }
+  },
+
+  "layout_product_recommend": {
+    "RECOMMEND_TITLE": "おすすめ商品",
+    "RECOMMEND_MORE": "もっと見る",
+    "RECOMMEND_EMPTY": "おすすめ商品はありません"
+  },
+
+  "layout_product_qa": {
+    "QA_TITLE": "よくある質問",
+    "QA_ASK_BTN": "質問する",
+    "QA_ANSWER_BY": "{user} が {date} に回答"
+  }
+}

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>版本管理 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+    .sidebar-active { background-color: #334155; color: white; border-left: 4px solid #3b82f6; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm" href="version.html">版本管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="review.html">审核中心</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400">
+</div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/37d3efe1c120478c909808e6d31faa2e.jpg"/>
+</div>
+</div>
+</header>
+<div class="flex-1 flex overflow-hidden">
+<!-- 左侧树形目录 -->
+<aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 text-slate-300">
+<div class="p-4 border-b border-slate-800 flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500">目录结构</span>
+</div>
+<div class="flex-1 overflow-y-auto p-2 space-y-1 text-sm">
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>C端H5商城</span>
+</div>
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>首页模块</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer sidebar-active" style="margin-left: calc(2rem - 4px);">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>商品详情</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>结算流程</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>Levoit</span>
+</div>
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>Data Digest</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>Summary Page</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>Sleep Tracking</span>
+</div>
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>个人中心</span>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-800 px-3">
+<span class="text-[10px] text-slate-500 uppercase font-bold">公共资源</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-purple-400" icon="mdi:database"></iconify-icon>
+<span>常用错误提示码</span>
+</div>
+</div>
+</aside>
+<!-- 主内容区 -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- 工具栏 -->
+<div class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="font-bold text-slate-800">商品详情</h2>
+<span class="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">草稿</span>
+</div>
+</div>
+<!-- 主内容:版本列表 + 版本对比 -->
+<div class="flex-1 overflow-auto bg-white p-6 space-y-6">
+<!-- 版本列表 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+<div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+<h3 class="font-bold flex items-center gap-2">
+<iconify-icon class="text-blue-500" icon="mdi:format-list-numbered"></iconify-icon>
+版本列表
+</h3>
+<div class="text-xs text-slate-500">共 8 个版本</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">版本号</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">操作人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">发布时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">备注</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100" id="versionTableBody">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="font-mono text-xs font-bold text-blue-600">v5</span>
+<span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-[10px] font-bold">最新版本</span>
+</div>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+Gemini
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 10:24</td>
+<td class="px-6 py-4 text-slate-600">新增商品可用性字段,优化按钮文案</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-300 cursor-not-allowed text-xs" disabled>最新版本</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-slate-700">v4</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+John Doe
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-14 16:50</td>
+<td class="px-6 py-4 text-slate-600">修复日语翻译错误</td>
+<td class="px-6 py-4 text-center">
+<button onclick="rollbackVersion('v1.4')" class="text-amber-600 hover:text-amber-700 font-bold text-xs">回滚到此版本</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-slate-700">v3</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/37d3efe1c120478c909808e6d31faa2e.jpg"/>
+张三
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-12 09:30</td>
+<td class="px-6 py-4 text-slate-600">新增商品评价模块文案</td>
+<td class="px-6 py-4 text-center">
+<button onclick="rollbackVersion('v1.3')" class="text-amber-600 hover:text-amber-700 font-bold text-xs">回滚到此版本</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-slate-700">v2</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+李四
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-10 14:20</td>
+<td class="px-6 py-4 text-slate-600">更新促销活动相关文案</td>
+<td class="px-6 py-4 text-center">
+<button onclick="rollbackVersion('v1.2')" class="text-amber-600 hover:text-amber-700 font-bold text-xs">回滚到此版本</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4">
+<span class="font-mono text-xs font-bold text-slate-700">v1</span>
+</td>
+<td class="px-6 py-4 flex items-center gap-2">
+<img class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/37d3efe1c120478c909808e6d31faa2e.jpg"/>
+王五
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-08 11:15</td>
+<td class="px-6 py-4 text-slate-600">添加德语和法语翻译</td>
+<td class="px-6 py-4 text-center">
+<button onclick="rollbackVersion('v1.1')" class="text-amber-600 hover:text-amber-700 font-bold text-xs">回滚到此版本</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<!-- 版本对比 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+<div class="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+<h3 class="font-bold flex items-center gap-2">
+<iconify-icon class="text-purple-500" icon="mdi:compare"></iconify-icon>
+版本对比 (Diff View)
+</h3>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<select id="versionFrom" onchange="handleVersionChange()" class="text-xs border-slate-200 rounded px-2 py-1 font-mono">
+<option value="">请选择版本</option>
+<option value="v5">v5</option>
+<option value="v4">v4</option>
+<option value="v3">v3</option>
+<option value="v2">v2</option>
+<option value="v1">v1</option>
+</select>
+</div>
+<iconify-icon icon="mdi:arrow-left-right" class="text-slate-400"></iconify-icon>
+<div class="flex items-center gap-2">
+<select id="versionTo" onchange="handleVersionChange()" class="text-xs border-slate-200 rounded px-2 py-1 font-mono">
+<option value="">请选择版本</option>
+<option value="v5">v5</option>
+<option value="v4">v4</option>
+<option value="v3">v3</option>
+<option value="v2">v2</option>
+<option value="v1">v1</option>
+</select>
+</div>
+<button onclick="compareVersions()" class="flex items-center gap-1 px-3 py-1.5 bg-purple-600 text-white rounded text-xs hover:bg-purple-700 font-bold">
+<iconify-icon icon="mdi:compare-horizontal"></iconify-icon>
+开始对比
+</button>
+</div>
+</div>
+<div class="p-6">
+<div id="diffPlaceholder" class="text-center py-12 text-slate-400">
+<iconify-icon icon="mdi:compare" class="text-6xl mb-4"></iconify-icon>
+<p class="text-sm">请选择两个版本进行对比</p>
+<p class="text-xs mt-2">支持任意两个版本之间的差异比对</p>
+</div>
+<div id="diffContent" class="hidden">
+<div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="text-xs text-slate-500">对比版本:</span>
+<span id="compareFrom" class="font-mono text-xs font-bold text-red-600">v1.4</span>
+<iconify-icon icon="mdi:arrow-right" class="text-slate-400"></iconify-icon>
+<span id="compareTo" class="font-mono text-xs font-bold text-green-600">v1.5</span>
+</div>
+</div>
+<div class="flex gap-4 text-xs">
+<span class="text-green-600 flex items-center gap-1">
+<iconify-icon icon="mdi:plus-circle"></iconify-icon>
+<span id="addedCount">2</span> 新增
+</span>
+<span class="text-amber-600 flex items-center gap-1">
+<iconify-icon icon="mdi:pencil"></iconify-icon>
+<span id="modifiedCount">1</span> 修改
+</span>
+<span class="text-red-600 flex items-center gap-1">
+<iconify-icon icon="mdi:minus-circle"></iconify-icon>
+<span id="deletedCount">0</span> 删除
+</span>
+</div>
+</div>
+<div class="bg-slate-900 rounded-lg p-6 font-mono text-xs text-slate-300 overflow-x-auto">
+<div class="space-y-1" id="diffLines">
+<div class="text-slate-500">1 {</div>
+<div class="text-slate-500">2   "PD_TITLE_DESC": "Selected quality, presenting the best choice for you.",</div>
+<div class="flex">
+<span class="w-8 text-slate-600 text-right pr-2">3</span>
+<span class="text-red-400 bg-red-500/10 flex-1 px-2">- "BUY_NOW_BTN": "Buy Now",</span>
+</div>
+<div class="flex">
+<span class="w-8 text-slate-600 text-right pr-2">4</span>
+<span class="text-green-400 bg-green-500/10 flex-1 px-2">+ "BUY_NOW_BTN": "Order Now &amp; Get Discount",</span>
+</div>
+<div class="flex">
+<span class="w-8 text-slate-600 text-right pr-2">5</span>
+<span class="text-slate-500 flex-1 px-2">"ADD_TO_CART": "Add to Cart",</span>
+</div>
+<div class="flex">
+<span class="w-8 text-slate-600 text-right pr-2">6</span>
+<span class="text-green-400 bg-green-500/10 flex-1 px-2">+ "PD_AVAILABILITY": "In Stock",</span>
+</div>
+<div class="flex">
+<span class="w-8 text-slate-600 text-right pr-2">7</span>
+<span class="text-green-400 bg-green-500/10 flex-1 px-2">+ "PD_STOCK_STATUS": "Available Now",</span>
+</div>
+<div class="text-slate-500">8 }</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- 底部状态栏 -->
+<footer class="h-8 bg-slate-100 border-t border-slate-200 flex items-center px-4 shrink-0 text-[10px] text-slate-500 gap-6">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span>最新版本: v1.5 - 2026-04-16 10:24</span>
+</div>
+<div class="ml-auto flex gap-4">
+<span>商品详情 (layout_pd)</span>
+</div>
+</footer>
+</main>
+</div>
+
+<script>
+// 版本回滚
+function rollbackVersion(version) {
+    if (confirm(`确定要回滚到版本 ${version} 吗？\n\n此操作将创建一个新版本,内容与 ${version} 相同。`)) {
+        console.log('回滚到版本:', version);
+        alert(`正在回滚到 ${version}...`);
+    }
+}
+
+// 监听版本选择变化
+function handleVersionChange() {
+    const versionFrom = document.getElementById('versionFrom').value;
+    const versionTo = document.getElementById('versionTo').value;
+    
+    // 如果两个版本都选择了，自动触发对比
+    if (versionFrom && versionTo) {
+        // 可以选择是否自动对比，这里注释掉自动对比
+        // compareVersions();
+    }
+}
+
+// 对比版本
+function compareVersions() {
+    const versionFrom = document.getElementById('versionFrom').value;
+    const versionTo = document.getElementById('versionTo').value;
+    
+    if (!versionFrom || !versionTo) {
+        alert('请选择两个版本进行对比');
+        return;
+    }
+    
+    if (versionFrom === versionTo) {
+        alert('请选择不同的版本进行对比');
+        return;
+    }
+    
+    // 显示对比结果
+    document.getElementById('diffPlaceholder').classList.add('hidden');
+    document.getElementById('diffContent').classList.remove('hidden');
+    document.getElementById('compareFrom').textContent = versionFrom;
+    document.getElementById('compareTo').textContent = versionTo;
+    
+    console.log(`对比版本: ${versionFrom} -> ${versionTo}`);
+}
+</script>
+</body>
+</html>

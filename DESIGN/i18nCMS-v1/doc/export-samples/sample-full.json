@@ -1,0 +1,375 @@
+{
+  "_meta": {
+    "schemaVersion": "1.0",
+    "project": "h5mall",
+    "projectName": "C端H5商城",
+    "directoryId": "product",
+    "directoryKey": "layout_product",
+    "directoryPath": ["h5mall", "home", "product"],
+    "languages": ["zh-CN", "en-US", "ja-JP"],
+    "defaultLanguage": "en-US",
+    "version": "v1.2.3",
+    "exportedAt": "2026-04-16T10:24:00+08:00",
+    "exportedBy": "elin.qiu@vesync.com",
+    "totalMessages": 14,
+    "totalDirectories": 4,
+    "checksum": "sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2"
+  },
+
+  "tree": {
+    "type": "directory",
+    "id": "product",
+    "key": "layout_product",
+    "name": "商品详情",
+    "description": "商品详情页主目录",
+    "reviewers": [
+      { "name": "张三", "email": "zhang.san@vesync.com" },
+      { "name": "李四", "email": "li.si@vesync.com" }
+    ],
+    "screenshots": [
+      {
+        "name": "product_detail_main.png",
+        "url": "https://cdn.vesync.com/i18n-assets/product/detail_main.png",
+        "size": 215430,
+        "uploadedAt": "2026-03-01T10:00:00+08:00"
+      }
+    ],
+    "createdBy": "elin.qiu@vesync.com",
+    "createdAt": "2026-03-01T10:00:00+08:00",
+    "updatedAt": "2026-04-14T11:20:00+08:00",
+    "status": "published",
+
+    "messages": [
+      {
+        "type": "message",
+        "id": "msg_10001",
+        "key": "PD_TITLE",
+        "status": "published",
+        "mode": "single",
+        "translations": {
+          "zh-CN": "商品详情",
+          "en-US": "Product Details",
+          "ja-JP": "商品詳細"
+        },
+        "createdBy": "elin.qiu@vesync.com",
+        "createdAt": "2026-03-01T10:00:00+08:00",
+        "updatedAt": "2026-04-14T11:20:00+08:00"
+      },
+      {
+        "type": "message",
+        "id": "msg_10002",
+        "key": "PD_SUBTITLE",
+        "status": "published",
+        "mode": "single",
+        "translations": {
+          "zh-CN": "Hi {user_name}，欢迎来到{brand}旗舰店",
+          "en-US": "Hi {user_name}, welcome to {brand} flagship store",
+          "ja-JP": "こんにちは{user_name}さん、{brand}旗艦店へようこそ"
+        },
+        "variables": ["user_name", "brand"],
+        "createdAt": "2026-03-01T10:00:00+08:00",
+        "updatedAt": "2026-03-15T09:10:00+08:00"
+      },
+      {
+        "type": "message",
+        "id": "msg_10003",
+        "key": "BUY_NOW_BTN",
+        "status": "published",
+        "mode": "single",
+        "translations": {
+          "zh-CN": "立即购买",
+          "en-US": "Buy Now",
+          "ja-JP": "今すぐ購入"
+        }
+      },
+      {
+        "type": "message",
+        "id": "msg_10004",
+        "key": "ADD_TO_CART",
+        "status": "published",
+        "mode": "single",
+        "translations": {
+          "zh-CN": "加入购物车",
+          "en-US": "Add to Cart",
+          "ja-JP": "カートに入れる"
+        }
+      },
+      {
+        "type": "message",
+        "id": "msg_10005",
+        "key": "OUT_OF_STOCK",
+        "status": "published",
+        "mode": "single",
+        "translations": {
+          "zh-CN": "暂无库存",
+          "en-US": "Out of Stock",
+          "ja-JP": "在庫切れ"
+        }
+      },
+      {
+        "type": "message",
+        "id": "msg_10006",
+        "key": "PRICE_FORMAT",
+        "status": "published",
+        "mode": "single",
+        "hasHtml": true,
+        "translations": {
+          "zh-CN": "<b>¥{price}</b> 起",
+          "en-US": "From <b>${price}</b>",
+          "ja-JP": "<b>¥{price}</b>から"
+        },
+        "variables": ["price"]
+      }
+    ],
+
+    "children": [
+      {
+        "type": "directory",
+        "id": "product_spec",
+        "key": "layout_product_spec",
+        "name": "规格参数",
+        "reviewers": [
+          { "name": "张三", "email": "zhang.san@vesync.com" }
+        ],
+        "createdAt": "2026-03-02T14:00:00+08:00",
+        "updatedAt": "2026-04-10T16:30:00+08:00",
+        "status": "published",
+        "messages": [
+          {
+            "type": "message",
+            "id": "msg_20001",
+            "key": "SPEC_COLOR",
+            "status": "published",
+            "translations": {
+              "zh-CN": "颜色",
+              "en-US": "Color",
+              "ja-JP": "カラー"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_20002",
+            "key": "SPEC_SIZE",
+            "status": "published",
+            "translations": {
+              "zh-CN": "尺寸（可选）",
+              "en-US": "Size (optional)",
+              "ja-JP": "サイズ（任意）"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_20003",
+            "key": "SPEC_MATERIAL",
+            "status": "published",
+            "translations": {
+              "zh-CN": "材质",
+              "en-US": "Material",
+              "ja-JP": "素材"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_20004",
+            "key": "SPEC_TIP",
+            "status": "published",
+            "translations": {
+              "zh-CN": "请选择规格后购买",
+              "en-US": "Please select specifications before purchase",
+              "ja-JP": "規格を選択してからご購入ください"
+            }
+          }
+        ],
+        "children": []
+      },
+
+      {
+        "type": "directory",
+        "id": "product_review",
+        "key": "layout_product_review",
+        "name": "用户评价",
+        "reviewers": [
+          { "name": "李四", "email": "li.si@vesync.com" }
+        ],
+        "createdAt": "2026-03-03T09:00:00+08:00",
+        "updatedAt": "2026-04-12T10:20:00+08:00",
+        "status": "published",
+        "messages": [
+          {
+            "type": "message",
+            "id": "msg_30001",
+            "key": "REVIEW_TITLE",
+            "status": "published",
+            "translations": {
+              "zh-CN": "用户评价",
+              "en-US": "Customer Reviews",
+              "ja-JP": "ユーザーレビュー"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_30002",
+            "key": "REVIEW_EMPTY",
+            "status": "published",
+            "hasHtml": true,
+            "translations": {
+              "zh-CN": "暂无评价，<a>抢先评价</a>",
+              "en-US": "No reviews yet, <a>be the first</a>",
+              "ja-JP": "レビューはまだありません、<a>最初のレビューを書く</a>"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_30003",
+            "key": "REVIEW_COUNT",
+            "status": "published",
+            "translations": {
+              "zh-CN": "共 {count} 条评价",
+              "en-US": "{count} reviews in total",
+              "ja-JP": "合計 {count} 件のレビュー"
+            },
+            "variables": ["count"]
+          }
+        ],
+        "children": [
+          {
+            "type": "directory",
+            "id": "review_image",
+            "key": "layout_review_image",
+            "name": "评价图片",
+            "reviewers": [
+              { "name": "李四", "email": "li.si@vesync.com" }
+            ],
+            "createdAt": "2026-03-20T11:00:00+08:00",
+            "updatedAt": "2026-04-12T10:20:00+08:00",
+            "status": "published",
+            "messages": [
+              {
+                "type": "message",
+                "id": "msg_40001",
+                "key": "IMG_REVIEW_BTN",
+                "status": "published",
+                "translations": {
+                  "zh-CN": "添加照片/视频",
+                  "en-US": "Add Photo/Video",
+                  "ja-JP": "写真/動画を追加"
+                }
+              },
+              {
+                "type": "message",
+                "id": "msg_40002",
+                "key": "IMG_REVIEW_TIP",
+                "status": "published",
+                "translations": {
+                  "zh-CN": "最多可上传 9 张图片",
+                  "en-US": "Up to 9 images can be uploaded",
+                  "ja-JP": "最大 9 枚までアップロードできます"
+                }
+              }
+            ],
+            "children": []
+          }
+        ]
+      },
+
+      {
+        "type": "directory",
+        "id": "product_recommend",
+        "key": "layout_product_recommend",
+        "name": "推荐商品",
+        "reviewers": [
+          { "name": "王五", "email": "wang.wu@vesync.com" }
+        ],
+        "createdAt": "2026-03-05T10:00:00+08:00",
+        "updatedAt": "2026-04-08T15:30:00+08:00",
+        "status": "published",
+        "messages": [
+          {
+            "type": "message",
+            "id": "msg_50001",
+            "key": "RECOMMEND_TITLE",
+            "status": "published",
+            "translations": {
+              "zh-CN": "你可能还喜欢",
+              "en-US": "You May Also Like",
+              "ja-JP": "おすすめ商品"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_50002",
+            "key": "RECOMMEND_MORE",
+            "status": "published",
+            "translations": {
+              "zh-CN": "查看更多",
+              "en-US": "See More",
+              "ja-JP": "もっと見る"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_50003",
+            "key": "RECOMMEND_EMPTY",
+            "status": "published",
+            "translations": {
+              "zh-CN": "暂无推荐商品",
+              "en-US": "No recommended products",
+              "ja-JP": "おすすめ商品はありません"
+            }
+          }
+        ],
+        "children": []
+      },
+
+      {
+        "type": "directory",
+        "id": "product_qa",
+        "key": "layout_product_qa",
+        "name": "常见问题",
+        "reviewers": [
+          { "name": "赵六", "email": "zhao.liu@vesync.com" }
+        ],
+        "createdAt": "2026-03-06T09:00:00+08:00",
+        "updatedAt": "2026-04-15T14:10:00+08:00",
+        "status": "published",
+        "messages": [
+          {
+            "type": "message",
+            "id": "msg_60001",
+            "key": "QA_TITLE",
+            "status": "published",
+            "translations": {
+              "zh-CN": "常见问题",
+              "en-US": "FAQ",
+              "ja-JP": "よくある質問"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_60002",
+            "key": "QA_ASK_BTN",
+            "status": "published",
+            "translations": {
+              "zh-CN": "我要提问",
+              "en-US": "Ask a Question",
+              "ja-JP": "質問する"
+            }
+          },
+          {
+            "type": "message",
+            "id": "msg_60003",
+            "key": "QA_ANSWER_BY",
+            "status": "published",
+            "translations": {
+              "zh-CN": "{user} 回答于 {date}",
+              "en-US": "Answered by {user} on {date}",
+              "ja-JP": "{user} が {date} に回答"
+            },
+            "variables": ["user", "date"]
+          }
+        ],
+        "children": []
+      }
+    ]
+  }
+}

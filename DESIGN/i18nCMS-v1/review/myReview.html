@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>我的审核 - 审核中心 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+.tab-active {
+    color: #2563eb;
+    border-bottom: 2px solid #2563eb;
+    font-weight: 600;
+}
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30 shadow-sm">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="../index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shadow-lg shadow-blue-100">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="../dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="../statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="../version.html">版本管理</a>
+<div class="relative group">
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm flex items-center gap-1" href="#">
+审核中心
+<iconify-icon icon="mdi:chevron-down" class="text-sm"></iconify-icon>
+</a>
+<div class="absolute top-full left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg py-2 min-w-[140px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+<a class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50" href="toReview.html">我的操作</a>
+<a class="block px-4 py-2 text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 font-medium" href="myReview.html">我的审核</a>
+</div>
+</div>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400">
+</div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+</div>
+</div>
+</header>
+<div class="flex-1 flex flex-col p-8 max-w-[1400px] mx-auto w-full overflow-y-auto">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h1 class="text-2xl font-bold text-slate-800">我的审核</h1>
+<p class="text-slate-500 text-sm mt-1">处理待我审核的文案变更申请</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-sm bg-white hover:bg-slate-50 font-medium transition-colors">
+<iconify-icon icon="mdi:filter-outline"></iconify-icon>
+筛选条件
+</button>
+<button onclick="batchReject()" class="flex items-center gap-2 px-5 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 font-bold transition-all shadow-lg shadow-red-100">
+<iconify-icon icon="mdi:close-multiple"></iconify-icon>
+批量驳回
+</button>
+<button onclick="batchApprove()" class="flex items-center gap-2 px-5 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 font-bold transition-all shadow-lg shadow-green-100">
+<iconify-icon icon="mdi:check-all"></iconify-icon>
+批量通过
+</button>
+</div>
+</div>
+
+<!-- Tab导航和统计数据 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm mb-6">
+<div class="px-6 py-4 flex items-center justify-between border-b border-slate-200">
+<div class="flex items-center gap-8">
+<button onclick="switchTab('pending')" class="tab-btn tab-active pb-2 text-sm transition-colors" data-tab="pending">
+待审核
+</button>
+<button onclick="switchTab('approved')" class="tab-btn pb-2 text-sm text-slate-500 hover:text-slate-800 transition-colors" data-tab="approved">
+已通过
+</button>
+<button onclick="switchTab('rejected')" class="tab-btn pb-2 text-sm text-slate-500 hover:text-slate-800 transition-colors" data-tab="rejected">
+已驳回
+</button>
+</div>
+<div class="flex items-center gap-6 text-sm">
+<div class="flex items-center gap-2">
+<iconify-icon class="text-amber-500" icon="mdi:clock-alert"></iconify-icon>
+<span class="text-slate-500">待审核:</span>
+<span class="font-bold text-amber-600">12</span>
+</div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle"></iconify-icon>
+<span class="text-slate-500">已通过:</span>
+<span class="font-bold text-green-600">45</span>
+</div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-red-500" icon="mdi:close-circle"></iconify-icon>
+<span class="text-slate-500">已驳回:</span>
+<span class="font-bold text-red-600">5</span>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 数据表格 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm">
+<!-- 待审核列表 -->
+<div id="tab-content-pending" class="tab-content">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider w-12"><input type="checkbox" class="rounded" id="selectAll" onchange="toggleSelectAll()"/></th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">文案 Key</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">所属目录</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">变更类型</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">状态</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center"><input type="checkbox" class="rounded row-checkbox"/></td>
+<td class="px-6 py-4 font-mono text-xs text-blue-600">USER_PROFILE_TITLE</td>
+<td class="px-6 py-4 text-slate-700">个人中心</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">新增</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+<span>张三</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 11:20</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="approveItem(this)" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-bold">通过</button>
+<button onclick="rejectItem(this)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">驳回</button>
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center"><input type="checkbox" class="rounded row-checkbox"/></td>
+<td class="px-6 py-4 font-mono text-xs text-blue-600">CHECKOUT_CONFIRM_BTN</td>
+<td class="px-6 py-4 text-slate-700">结算流程</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">修改</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+<span>李四</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 10:45</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="approveItem(this)" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-bold">通过</button>
+<button onclick="rejectItem(this)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">驳回</button>
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 text-center"><input type="checkbox" class="rounded row-checkbox"/></td>
+<td class="px-6 py-4 font-mono text-xs text-blue-600">PRODUCT_DISCOUNT_TAG</td>
+<td class="px-6 py-4 text-slate-700">商品详情</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-bold text-xs">删除</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/37d3efe1c120478c909808e6d31faa2e.jpg"/>
+<span>王五</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 09:30</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="approveItem(this)" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs font-bold">通过</button>
+<button onclick="rejectItem(this)" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-xs font-bold">驳回</button>
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-slate-100">
+<div class="flex items-center justify-between">
+<div class="text-slate-400 text-xs">共计 12 条待审核,当前展示 1-3 条</div>
+<div class="flex gap-2">
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">上一页</button>
+<button class="px-2 py-1 bg-slate-800 text-white rounded text-xs">1</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">2</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">下一页</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 已通过列表 -->
+<div id="tab-content-approved" class="tab-content hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">文案 Key</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">所属目录</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">变更类型</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">审核时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">状态</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-blue-600">HOME_PROMO_BANNER</td>
+<td class="px-6 py-4 text-slate-700">首页模块</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">修改</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+<span>张三</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 08:15</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 09:30</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">已通过</span>
+</td>
+<td class="px-6 py-4 text-center">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-blue-600">SEARCH_PLACEHOLDER</td>
+<td class="px-6 py-4 text-slate-700">搜索模块</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">新增</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+<span>李四</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 16:50</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 18:20</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">已通过</span>
+</td>
+<td class="px-6 py-4 text-center">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-slate-100">
+<div class="flex items-center justify-between">
+<div class="text-slate-400 text-xs">共计 45 条已通过,当前展示 1-2 条</div>
+<div class="flex gap-2">
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">上一页</button>
+<button class="px-2 py-1 bg-slate-800 text-white rounded text-xs">1</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">2</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">下一页</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 已驳回列表 -->
+<div id="tab-content-rejected" class="tab-content hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">文案 Key</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">所属目录</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">变更类型</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">驳回时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">状态</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-blue-600">LOGIN_ERROR_MSG</td>
+<td class="px-6 py-4 text-slate-700">用户登录</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">修改</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+<span>李四</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 17:30</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 18:45</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-bold text-xs">已驳回</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+<button onclick="viewRejectReason(this)" class="text-red-600 hover:text-red-700" title="查看驳回原因">
+<iconify-icon icon="mdi:message-text-outline"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-mono text-xs text-blue-600">PAYMENT_METHOD_TITLE</td>
+<td class="px-6 py-4 text-slate-700">支付模块</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">新增</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<img alt="Avatar" class="w-6 h-6 rounded-full" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/37d3efe1c120478c909808e6d31faa2e.jpg"/>
+<span>王五</span>
+</div>
+</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 15:10</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 16:20</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-bold text-xs">已驳回</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+<button onclick="viewRejectReason(this)" class="text-red-600 hover:text-red-700" title="查看驳回原因">
+<iconify-icon icon="mdi:message-text-outline"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-slate-100">
+<div class="flex items-center justify-between">
+<div class="text-slate-400 text-xs">共计 5 条已驳回,当前展示 1-2 条</div>
+<div class="flex gap-2">
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">上一页</button>
+<button class="px-2 py-1 bg-slate-800 text-white rounded text-xs">1</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs">下一页</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 底部状态栏 -->
+<!-- <footer class="h-8 bg-slate-100 border-t border-slate-200 flex items-center px-4 shrink-0 text-[10px] text-slate-500 gap-6">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span>审核系统在线</span>
+</div>
+<div class="ml-auto flex gap-4">
+<span>当前审核员: Elin</span>
+</div>
+</footer> -->
+
+<!-- 驳回原因弹窗（单个驳回） -->
+<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">驳回原因</h3>
+<button onclick="closeRejectModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6">
+<label class="block text-sm font-medium text-slate-700 mb-2">
+请输入驳回原因 <span class="text-red-500">*</span>
+</label>
+<textarea id="rejectReason" rows="5" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="请详细说明驳回的理由,以便提交人改进..."></textarea>
+<div class="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:information" class="text-amber-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-amber-800">
+<p>驳回后,提交人将收到通知并可以根据您的反馈进行修改后重新提交</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeRejectModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmReject()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">确认驳回</button>
+</div>
+</div>
+</div>
+
+<!-- 批量驳回原因弹窗 -->
+<div id="batchRejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">批量驳回原因</h3>
+<button onclick="closeBatchRejectModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6">
+<p class="text-sm text-slate-600 mb-3">已选择 <span id="batchRejectCount" class="font-bold text-red-600">0</span> 条申请</p>
+<label class="block text-sm font-medium text-slate-700 mb-2">
+请输入驳回原因 <span class="text-red-500">*</span>
+</label>
+<textarea id="batchRejectReason" rows="5" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="请详细说明批量驳回的理由,该原因将应用于所有选中的申请..."></textarea>
+<div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:alert" class="text-red-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-red-800">
+<p class="font-medium">注意: 所有选中的申请将使用相同的驳回原因</p>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeBatchRejectModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmBatchReject()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">确认批量驳回</button>
+</div>
+</div>
+</div>
+
+<!-- 查看驳回原因弹窗 -->
+<div id="viewReasonModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">驳回原因</h3>
+<button onclick="closeViewReasonModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6">
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">文案 Key</label>
+<div class="px-3 py-2 bg-slate-50 rounded-md font-mono text-sm text-blue-600" id="viewReasonKey">LOGIN_ERROR_MSG</div>
+</div>
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">驳回原因</label>
+<div class="px-3 py-2 bg-slate-50 rounded-md text-sm text-slate-700 min-h-[100px]" id="viewReasonContent">
+文案表述不够准确,建议修改为更友好的提示信息。另外,日文翻译存在语法错误,需要重新检查。
+</div>
+</div>
+<div class="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+<iconify-icon icon="mdi:information" class="text-red-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-red-800">
+<p class="font-medium">审核员: Elin</p>
+<p class="text-xs text-red-600 mt-1">驳回时间: 2026-04-15 18:45</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeViewReasonModal()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">关闭</button>
+</div>
+</div>
+</div>
+
+<script>
+let currentRejectRow = null;
+
+// Tab切换
+function switchTab(tabName) {
+    // 隐藏所有tab内容
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // 移除所有tab按钮的active状态
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('tab-active');
+        btn.classList.add('text-slate-500', 'hover:text-slate-800');
+        btn.classList.remove('text-blue-600');
+    });
+    
+    // 显示对应的tab内容
+    document.getElementById('tab-content-' + tabName).classList.remove('hidden');
+    
+    // 激活对应的tab按钮
+    const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+    activeBtn.classList.add('tab-active');
+    activeBtn.classList.remove('text-slate-500', 'hover:text-slate-800');
+    activeBtn.classList.add('text-blue-600');
+}
+
+// 全选/取消全选
+function toggleSelectAll() {
+    const selectAll = document.getElementById('selectAll');
+    const checkboxes = document.querySelectorAll('.row-checkbox:not([disabled])');
+    checkboxes.forEach(cb => {
+        cb.checked = selectAll.checked;
+    });
+}
+
+// 通过单个申请
+function approveItem(btn) {
+    const row = btn.closest('tr');
+    const keyCell = row.querySelector('td:nth-child(2)');
+    const key = keyCell ? keyCell.innerText : '未知';
+    
+    if (confirm(`确定通过申请"${key}"吗?`)) {
+        console.log('通过申请:', key);
+        row.remove();
+        alert('审核已通过');
+    }
+}
+
+// 驳回单个申请
+function rejectItem(btn) {
+    currentRejectRow = btn.closest('tr');
+    document.getElementById('rejectModal').classList.remove('hidden');
+}
+
+// 关闭单个驳回弹窗
+function closeRejectModal() {
+    document.getElementById('rejectModal').classList.add('hidden');
+    document.getElementById('rejectReason').value = '';
+    currentRejectRow = null;
+}
+
+// 确认单个驳回
+function confirmReject() {
+    const reason = document.getElementById('rejectReason').value.trim();
+    
+    if (!reason) {
+        alert('请输入驳回原因');
+        return;
+    }
+    
+    if (currentRejectRow) {
+        const keyCell = currentRejectRow.querySelector('td:nth-child(2)');
+        const key = keyCell ? keyCell.innerText : '未知';
+        
+        console.log('驳回申请:', key, '原因:', reason);
+        currentRejectRow.remove();
+        alert('已驳回申请');
+        closeRejectModal();
+    }
+}
+
+// 批量通过
+function batchApprove() {
+    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked:not([disabled])');
+    
+    if (checkedBoxes.length === 0) {
+        alert('请先选择要通过的申请');
+        return;
+    }
+    
+    if (confirm(`确定批量通过选中的 ${checkedBoxes.length} 个申请吗?`)) {
+        checkedBoxes.forEach(cb => {
+            const row = cb.closest('tr');
+            row.remove();
+        });
+        
+        document.getElementById('selectAll').checked = false;
+        alert(`已批量通过 ${checkedBoxes.length} 个申请`);
+    }
+}
+
+// 批量驳回
+function batchReject() {
+    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked:not([disabled])');
+    
+    if (checkedBoxes.length === 0) {
+        alert('请先选择要驳回的申请');
+        return;
+    }
+    
+    document.getElementById('batchRejectCount').innerText = checkedBoxes.length;
+    document.getElementById('batchRejectModal').classList.remove('hidden');
+}
+
+// 关闭批量驳回弹窗
+function closeBatchRejectModal() {
+    document.getElementById('batchRejectModal').classList.add('hidden');
+    document.getElementById('batchRejectReason').value = '';
+}
+
+// 确认批量驳回
+function confirmBatchReject() {
+    const reason = document.getElementById('batchRejectReason').value.trim();
+    
+    if (!reason) {
+        alert('请输入驳回原因');
+        return;
+    }
+    
+    const checkedBoxes = document.querySelectorAll('.row-checkbox:checked:not([disabled])');
+    
+    if (confirm(`确定批量驳回选中的 ${checkedBoxes.length} 个申请吗?`)) {
+        checkedBoxes.forEach(cb => {
+            const row = cb.closest('tr');
+            row.remove();
+        });
+        
+        document.getElementById('selectAll').checked = false;
+        alert(`已批量驳回 ${checkedBoxes.length} 个申请`);
+        closeBatchRejectModal();
+    }
+}
+
+// 查看详情
+function viewDetail(btn) {
+    const row = btn.closest('tr');
+    const keyCell = row.querySelector('td:nth-child(2)') || row.querySelector('td:nth-child(1)');
+    const key = keyCell ? keyCell.innerText : '未知';
+    alert(`查看详情: ${key}\n\n(这里会显示变更前后的对比详情)`);
+}
+
+// 查看驳回原因
+function viewRejectReason(btn) {
+    const row = btn.closest('tr');
+    const keyCell = row.querySelector('td:nth-child(1)');
+    const key = keyCell ? keyCell.innerText : '未知';
+    
+    document.getElementById('viewReasonKey').innerText = key;
+    document.getElementById('viewReasonModal').classList.remove('hidden');
+}
+
+// 关闭查看驳回原因弹窗
+function closeViewReasonModal() {
+    document.getElementById('viewReasonModal').classList.add('hidden');
+}
+
+// 点击弹窗外部关闭
+document.getElementById('rejectModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRejectModal();
+    }
+});
+
+document.getElementById('batchRejectModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeBatchRejectModal();
+    }
+});
+
+document.getElementById('viewReasonModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeViewReasonModal();
+    }
+});
+</script>
+</body>
+</html>

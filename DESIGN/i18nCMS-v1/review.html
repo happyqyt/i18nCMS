@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>审核中心 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30 shadow-sm">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shadow-lg shadow-blue-100">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="version.html">版本管理</a>
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm" href="review.html">审核中心</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400">
+</div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+</div>
+</div>
+</header>
+<div class="flex-1 flex flex-col p-8 max-w-[1400px] mx-auto w-full overflow-y-auto">
+<!-- <div class="flex items-center justify-between mb-6">
+<div>
+<h1 class="text-2xl font-bold text-slate-800">审核中心</h1>
+<p class="text-slate-500 text-sm mt-1">管理和处理文案审核申请</p>
+</div>
+</div> -->
+
+<!-- 筛选表单 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm mb-6 p-6">
+<div class="grid grid-cols-4 gap-4">
+<!-- 发起人 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">发起人</label>
+<input type="text" id="filterSubmitter" placeholder="请输入发起人姓名" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+<!-- 审核人 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">审核人</label>
+<input type="text" id="filterReviewer" placeholder="请输入审核人姓名" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+<!-- 时间范围 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">时间范围</label>
+<select id="filterTimeRange" onchange="toggleCustomTimeRange()" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">全部</option>
+<option value="today">今天</option>
+<option value="week">最近7天</option>
+<option value="month">最近30天</option>
+<option value="custom">自定义时间</option>
+</select>
+</div>
+<!-- 审核单状态 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">审核单状态</label>
+<select id="filterStatus" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">全部</option>
+<option value="pending">待审核</option>
+<option value="approved">已通过</option>
+<option value="rejected">已驳回</option>
+<option value="revoked">已撤销</option>
+</select>
+</div>
+</div>
+<!-- 自定义时间范围 -->
+<div id="customTimeRangePanel" class="hidden mt-4 grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">开始时间</label>
+<input type="date" id="filterStartDate" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">结束时间</label>
+<input type="date" id="filterEndDate" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 mt-4">
+<button onclick="resetFilter()" class="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+<iconify-icon icon="mdi:refresh"></iconify-icon>
+重置
+</button>
+<button onclick="applyFilter()" class="flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700 transition-colors shadow-sm">
+<iconify-icon icon="mdi:magnify"></iconify-icon>
+查询
+</button>
+</div>
+</div>
+
+<!-- 数据表格 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">发起目录</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">发起人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">当前审核人</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">提交时间</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">状态</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100" id="reviewTableBody">
+<!-- 待审核 - 当前用户是审核人 -->
+<tr class="hover:bg-slate-50 transition-colors" data-status="pending" data-submitter="张三" data-reviewer="Elin" data-path="C端H5商城 / 个人中心" data-key="USER_PROFILE_TITLE" data-changetype="新增" data-remark="需要在个人中心页面添加用户资料标题文案">
+<td class="px-6 py-4 text-slate-700 text-sm">C端H5商城 / 个人中心</td>
+<td class="px-6 py-4 text-slate-700">张三</td>
+<td class="px-6 py-4 text-slate-700">Elin</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 11:20</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="openReviewModal(this)" class="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs font-bold">审核</button>
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+
+<!-- 待审核 - 当前用户是发起人 -->
+<tr class="hover:bg-slate-50 transition-colors" data-status="pending" data-submitter="Elin" data-reviewer="审核员A" data-path="C端H5商城 / 首页模块 / 商品详情" data-key="PD_NEW_ARRIVAL" data-changetype="新增" data-change-key="demo_full" data-remark="新品上架需要添加"新品到货"的提示文案">
+<td class="px-6 py-4 text-slate-700 text-sm">C端H5商城 / 首页模块 / 商品详情</td>
+<td class="px-6 py-4 text-slate-700">Elin</td>
+<td class="px-6 py-4 text-slate-700">审核员A</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 10:30</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="revokeItem(this)" class="px-3 py-1 bg-orange-500 text-white rounded hover:bg-orange-600 text-xs font-bold">撤销</button>
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+
+<!-- 已通过 -->
+<tr class="hover:bg-slate-50 transition-colors" data-status="approved" data-submitter="张三" data-reviewer="Elin" data-path="C端H5商城 / 首页模块" data-key="HOME_BANNER_TEXT" data-changetype="修改" data-reviewtime="2026-04-16 12:30" data-remark="优化首页横幅文案，使其更加简洁明了">
+<td class="px-6 py-4 text-slate-700 text-sm">C端H5商城 / 首页模块</td>
+<td class="px-6 py-4 text-slate-700">张三</td>
+<td class="px-6 py-4 text-slate-700">Elin</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-16 09:15</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-bold text-xs">已通过</span>
+</td>
+<td class="px-6 py-4 text-center">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</td>
+</tr>
+
+<!-- 已驳回 -->
+<tr class="hover:bg-slate-50 transition-colors" data-status="rejected" data-submitter="李四" data-reviewer="Elin" data-path="C端H5商城 / 用户登录" data-key="LOGIN_ERROR_MSG" data-changetype="修改" data-reviewtime="2026-04-15 18:45" data-rejectreason="文案表述不够准确,建议修改为更友好的提示信息。另外,日文翻译存在语法错误,需要重新检查。" data-remark="修改登录错误提示信息，提升用户体验">
+<td class="px-6 py-4 text-slate-700 text-sm">C端H5商城 / 用户登录</td>
+<td class="px-6 py-4 text-slate-700">李四</td>
+<td class="px-6 py-4 text-slate-700">Elin</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 17:30</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-bold text-xs">已驳回</span>
+</td>
+<td class="px-6 py-4 text-center">
+<div class="flex items-center justify-center gap-2">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+<button onclick="viewRejectReason(this)" class="text-red-600 hover:text-red-700" title="查看驳回原因">
+<iconify-icon icon="mdi:message-text-outline"></iconify-icon>
+</button>
+</div>
+</td>
+</tr>
+
+<!-- 已撤销 -->
+<tr class="hover:bg-slate-50 transition-colors" data-status="revoked" data-submitter="Elin" data-reviewer="审核员B" data-path="C端H5商城 / 订单管理" data-key="ORDER_CANCEL_BTN" data-changetype="修改" data-reviewtime="2026-04-15 11:45" data-remark="调整订单取消按钮文案">
+<td class="px-6 py-4 text-slate-700 text-sm">C端H5商城 / 订单管理</td>
+<td class="px-6 py-4 text-slate-700">Elin</td>
+<td class="px-6 py-4 text-slate-700">审核员B</td>
+<td class="px-6 py-4 text-slate-500 text-xs">2026-04-15 10:30</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-slate-100 text-slate-700 rounded-full font-bold text-xs">已撤销</span>
+</td>
+<td class="px-6 py-4 text-center">
+<button onclick="viewDetail(this)" class="text-blue-600 hover:text-blue-700" title="查看详情">
+<iconify-icon icon="mdi:eye"></iconify-icon>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<!-- 统计信息和分页 -->
+<div class="p-6 border-t border-slate-100">
+<div class="flex items-center justify-between">
+<!-- 左侧统计 -->
+<div class="flex items-center gap-6 text-sm">
+<div class="text-slate-600">
+共计 <span id="totalCount" class="font-bold text-blue-600">5</span> 条数据
+</div>
+<div class="h-4 w-[1px] bg-slate-200"></div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-amber-500" icon="mdi:clock-outline"></iconify-icon>
+<span class="text-slate-500">待审核:</span>
+<span id="pendingCount" class="font-bold text-amber-600">2</span>
+</div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-green-500" icon="mdi:check-circle"></iconify-icon>
+<span class="text-slate-500">已通过:</span>
+<span id="approvedCount" class="font-bold text-green-600">1</span>
+</div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-red-500" icon="mdi:close-circle"></iconify-icon>
+<span class="text-slate-500">已驳回:</span>
+<span id="rejectedCount" class="font-bold text-red-600">1</span>
+</div>
+<div class="flex items-center gap-2">
+<iconify-icon class="text-slate-500" icon="mdi:undo-variant"></iconify-icon>
+<span class="text-slate-500">已撤销:</span>
+<span id="revokedCount" class="font-bold text-slate-600">1</span>
+</div>
+</div>
+<!-- 右侧分页 -->
+<div class="flex items-center gap-2">
+<button class="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs transition-colors">上一页</button>
+<button class="px-3 py-1 bg-slate-800 text-white rounded text-xs">1</button>
+<button class="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs transition-colors">2</button>
+<button class="px-3 py-1 border border-slate-200 rounded hover:bg-slate-50 text-xs transition-colors">下一页</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 底部状态栏 -->
+<!-- <footer class="h-8 bg-slate-100 border-t border-slate-200 flex items-center px-4 shrink-0 text-[10px] text-slate-500 gap-6">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span>审核系统在线</span>
+</div>
+<div class="ml-auto flex gap-4">
+<span>当前用户: Elin</span>
+</div>
+</footer> -->
+
+<!-- 审核弹窗 -->
+<div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[700px] max-h-[90vh] overflow-hidden flex flex-col">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
+<h3 class="text-lg font-bold text-slate-800">审核申请</h3>
+<button onclick="closeReviewModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6 overflow-y-auto flex-1">
+<!-- 基本信息 -->
+<div class="mb-6">
+<h4 class="text-sm font-bold text-slate-800 mb-3">基本信息</h4>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<span class="text-slate-500">发起目录:</span>
+<span id="reviewDirectory" class="ml-2 text-slate-700">C端H5商城 / 个人中心</span>
+</div>
+<div>
+<span class="text-slate-500">发起人:</span>
+<span id="reviewSubmitter" class="ml-2 text-slate-700">张三</span>
+</div>
+<div class="col-span-2">
+<span class="text-slate-500">备注说明:</span>
+<span id="reviewRemark" class="ml-2 text-slate-700">这是发起人提交时填写的备注信息</span>
+</div>
+</div>
+</div>
+
+<!-- 变更内容 -->
+<div class="mb-6">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-bold text-slate-800">变更内容</h4>
+<div class="flex items-center gap-3 text-xs">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-slate-600">新增</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-slate-600">修改</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-slate-600">删除</span>
+</div>
+</div>
+</div>
+<div class="border border-slate-200 rounded-md overflow-hidden">
+<div id="reviewChangeScopeTree" class="max-h-[400px] overflow-y-auto p-2 font-mono text-xs">
+<!-- 动态生成 -->
+</div>
+</div>
+</div>
+
+<!-- 审核结果 -->
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">
+审核结果 <span class="text-red-500">*</span>
+</label>
+<select id="reviewResult" onchange="toggleRejectReasonField()" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">请选择审核结果</option>
+<option value="approved">通过</option>
+<option value="rejected">驳回</option>
+</select>
+</div>
+
+<!-- 驳回原因（条件显示） -->
+<div id="rejectReasonField" class="hidden">
+<label class="block text-sm font-medium text-slate-700 mb-2">
+驳回原因 <span class="text-red-500">*</span>
+</label>
+<textarea id="reviewRejectReason" rows="5" class="w-full px-3 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="请详细说明驳回的理由,以便提交人改进..."></textarea>
+<div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:information" class="text-amber-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-amber-800">
+<p>驳回后,提交人将收到通知并可以根据您的反馈进行修改后重新提交</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 shrink-0">
+<button onclick="closeReviewModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="submitReview()" class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">提交审核</button>
+</div>
+</div>
+</div>
+
+<!-- 申请单详情弹窗 -->
+<div id="detailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[800px] max-h-[90vh] overflow-hidden flex flex-col">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
+<h3 class="text-lg font-bold text-slate-800">申请单详情</h3>
+<button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6 overflow-y-auto flex-1">
+<!-- 基本信息 -->
+<div class="mb-6">
+<h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+<iconify-icon icon="mdi:information-outline" class="text-blue-600"></iconify-icon>
+基本信息
+</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-start gap-3">
+<span class="text-slate-500 text-sm min-w-[80px]">发起目录:</span>
+<span id="detailDirectory" class="text-sm text-slate-700">C端H5商城 / 个人中心</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-slate-500 text-sm min-w-[80px]">发起人:</span>
+<span id="detailSubmitter" class="text-sm text-slate-700">张三</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-slate-500 text-sm min-w-[80px]">提交时间:</span>
+<span id="detailSubmitTime" class="text-sm text-slate-700">2026-04-16 11:20</span>
+</div>
+<div class="flex items-start gap-3">
+<span class="text-slate-500 text-sm min-w-[80px]">当前状态:</span>
+<span id="detailStatus" class="text-sm">
+<span class="px-2 py-1 bg-amber-100 text-amber-700 rounded-full font-bold text-xs">待审核</span>
+</span>
+</div>
+<div class="col-span-2 flex items-start gap-3">
+<span class="text-slate-500 text-sm min-w-[80px]">备注说明:</span>
+<span id="detailRemark" class="text-sm text-slate-700 flex-1">需要在个人中心页面添加用户资料标题文案</span>
+</div>
+</div>
+</div>
+
+<!-- 审核流程 -->
+<div class="mb-6">
+<h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+<iconify-icon icon="mdi:timeline-check" class="text-blue-600"></iconify-icon>
+审核流程
+</h4>
+<div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+<div id="detailReviewFlow" class="space-y-3">
+<!-- 动态生成审核流 -->
+</div>
+</div>
+</div>
+
+<!-- 驳回原因（仅驳回时显示） -->
+<div id="detailRejectReasonWrapper" class="hidden mb-6">
+<h4 class="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
+<iconify-icon icon="mdi:alert-circle" class="text-red-600"></iconify-icon>
+驳回原因
+</h4>
+<div class="px-4 py-3 bg-red-50 border border-red-200 rounded-md text-sm text-slate-700" id="detailRejectReason">
+文案表述不够准确,建议修改为更友好的提示信息。
+</div>
+</div>
+
+<!-- 变更内容 -->
+<div class="mb-6">
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+<iconify-icon icon="mdi:file-compare" class="text-blue-600"></iconify-icon>
+变更内容
+</h4>
+<div class="flex items-center gap-3 text-xs">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-slate-600">新增</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-slate-600">修改</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-slate-600">删除</span>
+</div>
+</div>
+</div>
+<div class="border border-slate-200 rounded-md overflow-hidden">
+<div id="detailChangeScopeTree" class="max-h-[500px] overflow-y-auto p-2 font-mono text-xs">
+<!-- 动态生成 -->
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 shrink-0">
+<button onclick="closeDetailModal()" class="px-5 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">关闭</button>
+</div>
+</div>
+</div>
+
+<!-- 查看驳回原因弹窗 -->
+<div id="viewReasonModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">驳回原因</h3>
+<button onclick="closeViewReasonModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6">
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">驳回原因</label>
+<div class="px-4 py-3 bg-red-50 border border-red-200 rounded-md text-sm text-slate-700 min-h-[100px]" id="viewReasonContent">
+文案表述不够准确,建议修改为更友好的提示信息。另外,日文翻译存在语法错误,需要重新检查。
+</div>
+</div>
+<div class="flex items-start gap-2 p-3 bg-slate-50 border border-slate-200 rounded-md">
+<iconify-icon icon="mdi:information" class="text-blue-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-slate-700">
+<p class="font-medium">审核员: Elin</p>
+<p class="text-xs text-slate-500 mt-1">驳回时间: 2026-04-15 18:45</p>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeViewReasonModal()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">关闭</button>
+</div>
+</div>
+</div>
+
+<script>
+const currentUser = 'Elin'; // 当前登录用户
+let currentRejectRow = null;
+
+// ==================== 变更范围 - 目录树 + diff view（只供查看） ====================
+
+// 类型样式映射
+const changeTypeStyles = {
+    added: {
+        bg: 'bg-green-50',
+        border: 'border-l-4 border-green-500',
+        badge: 'bg-green-100 text-green-700',
+        badgeText: '新增',
+        icon: 'mdi:plus-circle',
+        iconColor: 'text-green-500'
+    },
+    modified: {
+        bg: 'bg-amber-50',
+        border: 'border-l-4 border-amber-500',
+        badge: 'bg-amber-100 text-amber-700',
+        badgeText: '修改',
+        icon: 'mdi:pencil-circle',
+        iconColor: 'text-amber-500'
+    },
+    deleted: {
+        bg: 'bg-red-50',
+        border: 'border-l-4 border-red-500',
+        badge: 'bg-red-100 text-red-700',
+        badgeText: '删除',
+        icon: 'mdi:minus-circle',
+        iconColor: 'text-red-500'
+    }
+};
+
+// 目录变更字段名映射
+const dirDiffFieldNames = {
+    name: '目录名称',
+    key: '目录 Key',
+    reviewers: '审核员',
+    parent: '父级目录'
+};
+
+// 模拟申请单的变更数据（按申请单 id 索引）
+const mockApplicationChanges = {
+    'default': {
+        id: 'profile',
+        name: '个人中心',
+        type: 'directory',
+        items: [
+            {
+                id: 'PROFILE_TITLE',
+                name: 'PROFILE_TITLE',
+                type: 'added',
+                diff: {
+                    zh: { new: '个人中心' },
+                    en: { new: 'User Profile' },
+                    ja: { new: 'ユーザープロフィール' }
+                }
+            }
+        ],
+        children: []
+    },
+    'demo_full': {
+        id: 'product',
+        name: '商品详情',
+        type: 'directory',
+        dirChange: {
+            type: 'modified',
+            diff: {
+                name: { old: '商品详情页', new: '商品详情' },
+                reviewers: {
+                    old: ['zhang.san@vesync.com'],
+                    new: ['zhang.san@vesync.com', 'li.si@vesync.com']
+                }
+            }
+        },
+        items: [
+            {
+                id: 'PD_TITLE_DESC',
+                name: 'PD_TITLE_DESC',
+                type: 'modified',
+                diff: {
+                    en: { old: 'Selected quality.', new: 'Selected quality, presenting the best choice for you.' },
+                    ja: { old: '厳選された品質。', new: '厳選された品質、あなたに最適な選択を。' }
+                }
+            },
+            {
+                id: 'BUY_NOW_BTN',
+                name: 'BUY_NOW_BTN',
+                type: 'added',
+                diff: {
+                    en: { new: 'Buy Now' },
+                    ja: { new: '今すぐ購入' }
+                }
+            },
+            {
+                id: 'ADD_TO_CART',
+                name: 'ADD_TO_CART',
+                type: 'modified',
+                diff: {
+                    key: { old: 'ADD_CART', new: 'ADD_TO_CART' },
+                    en: { old: 'Add Cart', new: 'Add to Cart' }
+                }
+            },
+            {
+                id: 'OLD_PROMO',
+                name: 'OLD_PROMO',
+                type: 'deleted',
+                diff: {
+                    en: { old: 'Limited time offer' },
+                    ja: { old: '期間限定オファー' }
+                }
+            }
+        ],
+        children: [
+            {
+                id: 'product_spec',
+                name: '规格参数',
+                type: 'directory',
+                dirChange: {
+                    type: 'modified',
+                    diff: {
+                        key: { old: 'spec_params', new: 'product_spec' }
+                    }
+                },
+                items: [
+                    {
+                        id: 'SPEC_COLOR',
+                        name: 'SPEC_COLOR',
+                        type: 'added',
+                        diff: { en: { new: 'Color' }, ja: { new: 'カラー' } }
+                    }
+                ],
+                children: []
+            },
+            {
+                id: 'review_image',
+                name: '图片评价',
+                type: 'directory',
+                dirChange: {
+                    type: 'added',
+                    diff: {
+                        name: { new: '图片评价' },
+                        key: { new: 'review_image' },
+                        parent: { new: '商品评价' },
+                        reviewers: { new: ['wang.wu@vesync.com'] }
+                    }
+                },
+                items: [
+                    {
+                        id: 'IMG_REVIEW_BTN',
+                        name: 'IMG_REVIEW_BTN',
+                        type: 'added',
+                        diff: { en: { new: 'Add Photo/Video' } }
+                    }
+                ],
+                children: []
+            },
+            {
+                id: 'product_qa',
+                name: '问答互动',
+                type: 'directory',
+                dirChange: {
+                    type: 'deleted',
+                    diff: {
+                        name: { old: '问答互动' },
+                        key: { old: 'product_qa' },
+                        reviewers: { old: ['zhao.liu@vesync.com'] }
+                    }
+                },
+                items: [
+                    {
+                        id: 'QA_TITLE',
+                        name: 'QA_TITLE',
+                        type: 'deleted',
+                        diff: { en: { old: 'Questions & Answers' } }
+                    }
+                ],
+                children: []
+            }
+        ]
+    }
+};
+
+// 根据申请单信息获取变更数据
+function getApplicationChangeData(row) {
+    // 实际应从后端获取，根据申请单 ID 或 row 属性匹配
+    const changeKey = row ? row.getAttribute('data-change-key') : null;
+    if (changeKey && mockApplicationChanges[changeKey]) {
+        return mockApplicationChanges[changeKey];
+    }
+    return mockApplicationChanges['default'];
+}
+
+// HTML 转义
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// 计算目录变更摘要（含文案变更 + 子目录自身变更）
+function calcDirectorySummary(node) {
+    const summary = { added: 0, modified: 0, deleted: 0 };
+    (node.items || []).forEach(item => {
+        if (summary[item.type] !== undefined) summary[item.type]++;
+    });
+    (node.children || []).forEach(child => {
+        if (child.dirChange && summary[child.dirChange.type] !== undefined) {
+            summary[child.dirChange.type]++;
+        }
+        const childSummary = calcDirectorySummary(child);
+        summary.added += childSummary.added;
+        summary.modified += childSummary.modified;
+        summary.deleted += childSummary.deleted;
+    });
+    return summary;
+}
+
+// 渲染目录变更详情（name、key、reviewers、parent 等字段变化）
+function renderDirChangeDetails(dirChange, depth) {
+    if (!dirChange || !dirChange.diff) return null;
+
+    const container = document.createElement('div');
+    container.className = 'pb-2 space-y-1';
+    container.style.paddingLeft = `${depth * 20 + 32}px`;
+    container.style.paddingRight = '8px';
+
+    Object.keys(dirChange.diff).forEach(fieldKey => {
+        const fieldDiff = dirChange.diff[fieldKey];
+        const fieldLabel = dirDiffFieldNames[fieldKey] || fieldKey;
+
+        const fieldRow = document.createElement('div');
+        fieldRow.className = 'flex items-start gap-2';
+
+        const fieldTag = document.createElement('span');
+        fieldTag.className = 'text-[10px] text-slate-600 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+        fieldTag.innerText = fieldLabel;
+        fieldRow.appendChild(fieldTag);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'flex-1 space-y-0.5';
+
+        const oldVal = Array.isArray(fieldDiff.old) ? fieldDiff.old.join(', ') : fieldDiff.old;
+        const newVal = Array.isArray(fieldDiff.new) ? fieldDiff.new.join(', ') : fieldDiff.new;
+
+        if (oldVal !== undefined) {
+            const oldLine = document.createElement('div');
+            oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+            oldLine.innerHTML = `<span class="font-bold shrink-0">-</span><span class="break-all">${escapeHtml(oldVal)}</span>`;
+            contentDiv.appendChild(oldLine);
+        }
+        if (newVal !== undefined) {
+            const newLine = document.createElement('div');
+            newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+            newLine.innerHTML = `<span class="font-bold shrink-0">+</span><span class="break-all">${escapeHtml(newVal)}</span>`;
+            contentDiv.appendChild(newLine);
+        }
+
+        fieldRow.appendChild(contentDiv);
+        container.appendChild(fieldRow);
+    });
+
+    return container;
+}
+
+// 渲染文案条目（diff view，只读）
+function renderChangeItem(item, depth) {
+    const style = changeTypeStyles[item.type];
+
+    const itemWrapper = document.createElement('div');
+    itemWrapper.className = `mb-1 ${style.bg} ${style.border} rounded`;
+
+    // 条目头部
+    const itemHeader = document.createElement('div');
+    itemHeader.className = 'flex items-center gap-2 py-1.5 px-2';
+    itemHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+
+    const typeIcon = document.createElement('iconify-icon');
+    typeIcon.setAttribute('icon', style.icon);
+    typeIcon.className = `${style.iconColor} text-base shrink-0`;
+
+    const itemKey = document.createElement('span');
+    itemKey.className = 'font-mono text-xs text-slate-700 font-medium';
+    itemKey.innerText = item.name;
+
+    const typeBadge = document.createElement('span');
+    typeBadge.className = `text-[10px] ${style.badge} px-1.5 py-0.5 rounded ml-1`;
+    typeBadge.innerText = style.badgeText;
+
+    itemHeader.appendChild(typeIcon);
+    itemHeader.appendChild(itemKey);
+    itemHeader.appendChild(typeBadge);
+    itemWrapper.appendChild(itemHeader);
+
+    // diff 内容
+    if (item.diff) {
+        const diffContainer = document.createElement('div');
+        diffContainer.className = 'pb-2 space-y-1';
+        diffContainer.style.paddingLeft = `${depth * 20 + 32}px`;
+        diffContainer.style.paddingRight = '8px';
+
+        Object.keys(item.diff).forEach(fieldKey => {
+            const fieldDiff = item.diff[fieldKey];
+            const isKeyField = fieldKey === 'key';
+            const fieldLabel = isKeyField ? '文案 Key' : fieldKey.toUpperCase();
+
+            const fieldRow = document.createElement('div');
+            fieldRow.className = 'flex items-start gap-2';
+
+            const fieldTag = document.createElement('span');
+            fieldTag.className = isKeyField
+                ? 'text-[10px] text-blue-700 font-bold bg-blue-100 px-1.5 py-0.5 rounded shrink-0 mt-0.5'
+                : 'text-[10px] text-slate-500 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+            fieldTag.innerText = fieldLabel;
+            fieldRow.appendChild(fieldTag);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex-1 space-y-0.5';
+
+            if (fieldDiff.old !== undefined) {
+                const oldLine = document.createElement('div');
+                oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+                const oldContent = isKeyField
+                    ? `<span class="font-mono">${escapeHtml(fieldDiff.old)}</span>`
+                    : `<span class="break-all">${escapeHtml(fieldDiff.old)}</span>`;
+                oldLine.innerHTML = `<span class="font-bold shrink-0">-</span>${oldContent}`;
+                contentDiv.appendChild(oldLine);
+            }
+            if (fieldDiff.new !== undefined) {
+                const newLine = document.createElement('div');
+                newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+                const newContent = isKeyField
+                    ? `<span class="font-mono">${escapeHtml(fieldDiff.new)}</span>`
+                    : `<span class="break-all">${escapeHtml(fieldDiff.new)}</span>`;
+                newLine.innerHTML = `<span class="font-bold shrink-0">+</span>${newContent}`;
+                contentDiv.appendChild(newLine);
+            }
+
+            fieldRow.appendChild(contentDiv);
+            diffContainer.appendChild(fieldRow);
+        });
+
+        itemWrapper.appendChild(diffContainer);
+    }
+
+    return itemWrapper;
+}
+
+// 渲染变更树（只读，无复选框）
+function renderChangeScopeTree(node, container, depth = 0) {
+    const dirChangeType = node.dirChange ? node.dirChange.type : null;
+    const dirStyle = dirChangeType ? changeTypeStyles[dirChangeType] : null;
+
+    const dirNode = document.createElement('div');
+    dirNode.className = 'mb-1';
+    if (dirStyle) {
+        dirNode.classList.add(dirStyle.bg, ...dirStyle.border.split(' '), 'rounded');
+    }
+
+    // 目录头部
+    const dirHeader = document.createElement('div');
+    dirHeader.className = 'flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 rounded cursor-pointer';
+    dirHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+
+    // 折叠箭头
+    const toggleBtn = document.createElement('iconify-icon');
+    toggleBtn.setAttribute('icon', 'mdi:chevron-down');
+    toggleBtn.className = 'text-slate-400 text-base shrink-0 transition-transform';
+
+    // 目录图标
+    const dirIcon = document.createElement('iconify-icon');
+    dirIcon.setAttribute('icon', 'mdi:folder');
+    dirIcon.className = (dirStyle ? dirStyle.iconColor : 'text-blue-500') + ' text-base shrink-0';
+
+    // 目录名称
+    const dirName = document.createElement('span');
+    dirName.className = 'font-bold text-slate-800 text-sm';
+    dirName.innerText = node.name;
+
+    dirHeader.appendChild(toggleBtn);
+    dirHeader.appendChild(dirIcon);
+    dirHeader.appendChild(dirName);
+
+    // 目录变更类型徽章
+    if (dirStyle) {
+        const dirTypeBadge = document.createElement('span');
+        dirTypeBadge.className = `text-[10px] ${dirStyle.badge} px-1.5 py-0.5 rounded ml-1`;
+        dirTypeBadge.innerText = '目录' + dirStyle.badgeText;
+        dirHeader.appendChild(dirTypeBadge);
+    }
+
+    // 摘要徽章
+    const summary = calcDirectorySummary(node);
+    const summaryBadges = document.createElement('div');
+    summaryBadges.className = 'flex items-center gap-1 ml-auto';
+
+    if (summary.added > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded';
+        badge.innerText = `+${summary.added}`;
+        summaryBadges.appendChild(badge);
+    }
+    if (summary.modified > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded';
+        badge.innerText = `~${summary.modified}`;
+        summaryBadges.appendChild(badge);
+    }
+    if (summary.deleted > 0) {
+        const badge = document.createElement('span');
+        badge.className = 'text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded';
+        badge.innerText = `-${summary.deleted}`;
+        summaryBadges.appendChild(badge);
+    }
+
+    dirHeader.appendChild(summaryBadges);
+    dirNode.appendChild(dirHeader);
+
+    // 目录自身变更的 diff
+    if (node.dirChange) {
+        const dirDiff = renderDirChangeDetails(node.dirChange, depth);
+        if (dirDiff) dirNode.appendChild(dirDiff);
+    }
+
+    // 子内容容器
+    const dirChildren = document.createElement('div');
+
+    // 折叠展开
+    dirHeader.addEventListener('click', function() {
+        const isCollapsed = dirChildren.classList.toggle('hidden');
+        toggleBtn.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+    });
+
+    // 渲染文案条目
+    (node.items || []).forEach(item => {
+        dirChildren.appendChild(renderChangeItem(item, depth + 1));
+    });
+
+    // 渲染子目录
+    (node.children || []).forEach(child => {
+        renderChangeScopeTree(child, dirChildren, depth + 1);
+    });
+
+    dirNode.appendChild(dirChildren);
+    container.appendChild(dirNode);
+}
+
+// 渲染变更内容到指定容器
+function renderChangeScope(containerId, changeData) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = '';
+    if (changeData) {
+        renderChangeScopeTree(changeData, container, 0);
+    }
+}
+
+// 切换自定义时间范围面板
+function toggleCustomTimeRange() {
+    const timeRange = document.getElementById('filterTimeRange').value;
+    const customPanel = document.getElementById('customTimeRangePanel');
+    
+    if (timeRange === 'custom') {
+        customPanel.classList.remove('hidden');
+    } else {
+        customPanel.classList.add('hidden');
+    }
+}
+
+// 解析日期字符串（格式：YYYY-MM-DD HH:mm）
+function parseDateTime(dateTimeStr) {
+    const [datePart] = dateTimeStr.split(' ');
+    return new Date(datePart);
+}
+
+// 应用筛选
+function applyFilter() {
+    const submitter = document.getElementById('filterSubmitter').value.trim();
+    const reviewer = document.getElementById('filterReviewer').value.trim();
+    const timeRange = document.getElementById('filterTimeRange').value;
+    const status = document.getElementById('filterStatus').value;
+    
+    // 自定义时间范围
+    const startDate = document.getElementById('filterStartDate').value;
+    const endDate = document.getElementById('filterEndDate').value;
+    
+    // 计算时间范围
+    let startDateTime = null;
+    let endDateTime = null;
+    
+    if (timeRange === 'custom') {
+        if (startDate) {
+            startDateTime = new Date(startDate);
+            startDateTime.setHours(0, 0, 0, 0);
+        }
+        if (endDate) {
+            endDateTime = new Date(endDate);
+            endDateTime.setHours(23, 59, 59, 999);
+        }
+    } else if (timeRange === 'today') {
+        const today = new Date();
+        startDateTime = new Date(today.setHours(0, 0, 0, 0));
+        endDateTime = new Date(today.setHours(23, 59, 59, 999));
+    } else if (timeRange === 'week') {
+        const today = new Date();
+        endDateTime = new Date(today.setHours(23, 59, 59, 999));
+        startDateTime = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        startDateTime.setHours(0, 0, 0, 0);
+    } else if (timeRange === 'month') {
+        const today = new Date();
+        endDateTime = new Date(today.setHours(23, 59, 59, 999));
+        startDateTime = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        startDateTime.setHours(0, 0, 0, 0);
+    }
+    
+    const rows = document.querySelectorAll('#reviewTableBody tr');
+    let visibleCount = 0;
+    let pendingCount = 0;
+    let approvedCount = 0;
+    let rejectedCount = 0;
+    let revokedCount = 0;
+    
+    rows.forEach(row => {
+        const rowSubmitter = row.getAttribute('data-submitter');
+        const rowReviewer = row.getAttribute('data-reviewer');
+        const rowStatus = row.getAttribute('data-status');
+        
+        // 获取提交时间
+        const timeCell = row.querySelector('td:nth-child(6)');
+        const submitTime = timeCell ? timeCell.innerText.trim() : '';
+        
+        let show = true;
+        
+        // 筛选发起人
+        if (submitter && !rowSubmitter.includes(submitter)) {
+            show = false;
+        }
+        
+        // 筛选审核人
+        if (reviewer && !rowReviewer.includes(reviewer)) {
+            show = false;
+        }
+        
+        // 筛选时间范围
+        if (timeRange && submitTime) {
+            const submitDateTime = parseDateTime(submitTime);
+            
+            if (startDateTime && submitDateTime < startDateTime) {
+                show = false;
+            }
+            if (endDateTime && submitDateTime > endDateTime) {
+                show = false;
+            }
+        }
+        
+        // 筛选状态
+        if (status && rowStatus !== status) {
+            show = false;
+        }
+        
+        // 显示/隐藏行
+        if (show) {
+            row.style.display = '';
+            visibleCount++;
+            
+            // 统计各状态数量
+            if (rowStatus === 'pending') pendingCount++;
+            else if (rowStatus === 'approved') approvedCount++;
+            else if (rowStatus === 'rejected') rejectedCount++;
+            else if (rowStatus === 'revoked') revokedCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    // 更新统计数据
+    document.getElementById('totalCount').innerText = visibleCount;
+    document.getElementById('pendingCount').innerText = pendingCount;
+    document.getElementById('approvedCount').innerText = approvedCount;
+    document.getElementById('rejectedCount').innerText = rejectedCount;
+    document.getElementById('revokedCount').innerText = revokedCount;
+}
+
+// 重置筛选
+function resetFilter() {
+    document.getElementById('filterSubmitter').value = '';
+    document.getElementById('filterReviewer').value = '';
+    document.getElementById('filterTimeRange').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('filterStartDate').value = '';
+    document.getElementById('filterEndDate').value = '';
+    
+    // 隐藏自定义时间范围面板
+    document.getElementById('customTimeRangePanel').classList.add('hidden');
+    
+    // 显示所有行
+    const rows = document.querySelectorAll('#reviewTableBody tr');
+    rows.forEach(row => {
+        row.style.display = '';
+    });
+    
+    // 重新统计
+    applyFilter();
+}
+
+// 打开审核弹窗
+function openReviewModal(btn) {
+    const row = btn.closest('tr');
+    currentRejectRow = row;
+    
+    // 获取数据（从data属性读取）
+    const path = row.getAttribute('data-path');
+    const submitter = row.getAttribute('data-submitter');
+    const remark = row.getAttribute('data-remark') || '无';
+    
+    // 填充数据
+    document.getElementById('reviewDirectory').innerText = path;
+    document.getElementById('reviewSubmitter').innerText = submitter;
+    document.getElementById('reviewRemark').innerText = remark;
+    
+    // 渲染变更内容
+    renderChangeScope('reviewChangeScopeTree', getApplicationChangeData(row));
+    
+    // 重置表单
+    document.getElementById('reviewResult').value = '';
+    document.getElementById('reviewRejectReason').value = '';
+    document.getElementById('rejectReasonField').classList.add('hidden');
+    
+    // 显示弹窗
+    document.getElementById('reviewModal').classList.remove('hidden');
+}
+
+// 关闭审核弹窗
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.add('hidden');
+    document.getElementById('reviewResult').value = '';
+    document.getElementById('reviewRejectReason').value = '';
+    document.getElementById('rejectReasonField').classList.add('hidden');
+    currentRejectRow = null;
+}
+
+// 切换驳回原因字段显示
+function toggleRejectReasonField() {
+    const result = document.getElementById('reviewResult').value;
+    const rejectReasonField = document.getElementById('rejectReasonField');
+    
+    if (result === 'rejected') {
+        rejectReasonField.classList.remove('hidden');
+    } else {
+        rejectReasonField.classList.add('hidden');
+    }
+}
+
+// 提交审核
+function submitReview() {
+    const result = document.getElementById('reviewResult').value;
+    
+    if (!result) {
+        alert('请选择审核结果');
+        return;
+    }
+    
+    // 如果是驳回,检查驳回原因
+    if (result === 'rejected') {
+        const reason = document.getElementById('reviewRejectReason').value.trim();
+        if (!reason) {
+            alert('请输入驳回原因');
+            return;
+        }
+    }
+    
+    if (currentRejectRow) {
+        const keyCell = currentRejectRow.querySelector('td:nth-child(1)');
+        const key = keyCell ? keyCell.innerText : '未知';
+        
+        if (result === 'approved') {
+            console.log('通过申请:', key);
+            alert('审核已通过');
+        } else {
+            const reason = document.getElementById('reviewRejectReason').value.trim();
+            console.log('驳回申请:', key, '原因:', reason);
+            alert('已驳回申请');
+        }
+        
+        currentRejectRow.remove();
+        applyFilter();
+        closeReviewModal();
+    }
+}
+
+// 撤销申请
+function revokeItem(btn) {
+    const row = btn.closest('tr');
+    const keyCell = row.querySelector('td:nth-child(1)');
+    const key = keyCell ? keyCell.innerText : '未知';
+    
+    if (confirm(`确定要撤销申请"${key}"吗?`)) {
+        console.log('撤销申请:', key);
+        row.remove();
+        applyFilter();
+        alert('申请已撤销');
+    }
+}
+
+// 查看详情
+function viewDetail(btn) {
+    const row = btn.closest('tr');
+    const status = row.getAttribute('data-status');
+    
+    // 获取数据（从data属性读取）
+    const path = row.getAttribute('data-path');
+    const submitter = row.getAttribute('data-submitter');
+    const reviewer = row.getAttribute('data-reviewer');
+    const submitTime = row.querySelector('td:nth-child(4)').innerText;
+    const statusHtml = row.querySelector('td:nth-child(5)').innerHTML;
+    const remark = row.getAttribute('data-remark') || '无';
+    const rejectReason = row.getAttribute('data-rejectreason') || '';
+    
+    // 填充基本信息
+    document.getElementById('detailDirectory').innerText = path;
+    document.getElementById('detailSubmitter').innerText = submitter;
+    document.getElementById('detailSubmitTime').innerText = submitTime;
+    document.getElementById('detailStatus').innerHTML = statusHtml;
+    document.getElementById('detailRemark').innerText = remark;
+    
+    // 根据状态显示驳回原因
+    const rejectReasonWrapper = document.getElementById('detailRejectReasonWrapper');
+    
+    if (status === 'rejected') {
+        rejectReasonWrapper.classList.remove('hidden');
+        document.getElementById('detailRejectReason').innerText = rejectReason;
+    } else {
+        rejectReasonWrapper.classList.add('hidden');
+    }
+    
+    // 渲染审核流
+    renderDetailReviewFlow(path, reviewer, status);
+    
+    // 渲染变更内容
+    renderChangeScope('detailChangeScopeTree', getApplicationChangeData(row));
+    
+    // 显示弹窗
+    document.getElementById('detailModal').classList.remove('hidden');
+}
+
+// 获取审核员邮箱（模拟数据）
+function getReviewerEmail(name) {
+    const emailMap = {
+        'Elin': 'elin@example.com',
+        '张三': 'zhangsan@example.com',
+        '李四': 'lisi@example.com',
+        '管理员': 'admin@example.com',
+        '审核员A': 'reviewer.a@example.com',
+        '审核员B': 'reviewer.b@example.com',
+        '审核员C': 'reviewer.c@example.com'
+    };
+    return emailMap[name] || `${name.toLowerCase()}@example.com`;
+}
+
+// 渲染详情弹窗中的审核流
+function renderDetailReviewFlow(path, reviewer, status) {
+    const container = document.getElementById('detailReviewFlow');
+    container.innerHTML = '';
+    
+    // 根据路径层级生成审核流（模拟数据）
+    const pathParts = path.split(' / ');
+    const flowData = [];
+    
+    // 各状态下各层级的时间（模拟数据，时间从下到上递增）
+    const approvedTimes = ['2026-04-16 12:30', '2026-04-16 14:20', '2026-04-16 16:45'];
+    
+    // 为每个层级创建审核节点
+    for (let i = pathParts.length - 1; i >= 0; i--) {
+        const isCurrentLevel = i === pathParts.length - 1;
+        const levelIndex = pathParts.length - 1 - i; // 从当前层往上的索引：0=当前层, 1=父级, 2=顶层
+        const levelPath = pathParts.slice(0, i + 1).join(' / ');
+        
+        let reviewerName = '';
+        let reviewerEmail = '';
+        let reviewerStatus = '';
+        let reviewerTime = '';
+        
+        // 审核员姓名
+        if (isCurrentLevel) {
+            reviewerName = reviewer;
+        } else {
+            reviewerName = i === 0 ? '管理员' : `审核员${String.fromCharCode(65 + i)}`;
+        }
+        reviewerEmail = getReviewerEmail(reviewerName);
+        
+        // 审核状态（根据申请单整体状态）
+        if (status === 'approved') {
+            // 已通过：所有节点都已通过，时间按层级递增
+            reviewerStatus = 'approved';
+            reviewerTime = approvedTimes[levelIndex] || approvedTimes[approvedTimes.length - 1];
+        } else if (status === 'pending') {
+            // 待审核：当前层正在审核，上层等待
+            if (isCurrentLevel) {
+                reviewerStatus = 'pending';
+            } else {
+                reviewerStatus = 'waiting';
+            }
+        } else if (status === 'rejected') {
+            // 已驳回：当前层驳回，上层审核员未参与审核
+            if (isCurrentLevel) {
+                reviewerStatus = 'rejected';
+                reviewerTime = '2026-04-15 18:45';
+            } else {
+                reviewerStatus = 'none';
+            }
+        } else if (status === 'revoked') {
+            // 已撤销：发起人撤销，所有审核员都未操作，不显示审核状态
+            reviewerStatus = 'none';
+        }
+        
+        flowData.push({
+            level: pathParts.length - i,
+            directory: pathParts[i],
+            fullPath: levelPath,
+            reviewer: reviewerName,
+            reviewerEmail: reviewerEmail,
+            status: reviewerStatus,
+            time: reviewerTime,
+            isCurrent: isCurrentLevel
+        });
+    }
+    
+    // 渲染审核流节点
+    flowData.forEach((flow, index) => {
+        // 审核层级项
+        const flowItem = document.createElement('div');
+        flowItem.className = 'flex items-start gap-3';
+        
+        // 层级编号（带状态颜色）
+        const levelBadge = document.createElement('div');
+        let badgeColor = 'bg-slate-400';
+        if (flow.status === 'approved') {
+            badgeColor = 'bg-green-500';
+        } else if (flow.status === 'rejected') {
+            badgeColor = 'bg-red-500';
+        } else if (flow.status === 'pending') {
+            badgeColor = 'bg-blue-500';
+        } else if (flow.status === 'revoked') {
+            badgeColor = 'bg-slate-500';
+        }
+        levelBadge.className = `flex items-center justify-center w-8 h-8 ${badgeColor} text-white rounded-full text-sm font-bold shrink-0`;
+        levelBadge.innerText = flow.level;
+        flowItem.appendChild(levelBadge);
+        
+        // 内容区域
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'flex-1';
+        
+        // 目录信息
+        const dirInfo = document.createElement('div');
+        dirInfo.className = 'flex items-center gap-2 mb-1';
+        
+        const dirIcon = document.createElement('iconify-icon');
+        dirIcon.setAttribute('icon', flow.isCurrent ? 'mdi:folder' : 'mdi:folder-outline');
+        dirIcon.className = flow.isCurrent ? 'text-blue-500' : 'text-slate-400';
+        dirInfo.appendChild(dirIcon);
+        
+        const dirName = document.createElement('span');
+        dirName.className = flow.isCurrent ? 'font-medium text-slate-800' : 'font-medium text-slate-700';
+        dirName.innerText = flow.directory;
+        dirInfo.appendChild(dirName);
+        
+        const dirLabel = document.createElement('span');
+        dirLabel.className = 'text-xs text-slate-500';
+        dirLabel.innerText = flow.isCurrent ? '（当前目录）' : (flow.level === flowData.length ? '（顶层目录）' : '（父级目录）');
+        dirInfo.appendChild(dirLabel);
+        
+        contentDiv.appendChild(dirInfo);
+        
+        // 审核员信息
+        const reviewerDiv = document.createElement('div');
+        reviewerDiv.className = 'flex items-center gap-2 mt-2 flex-wrap';
+        
+        const reviewerItem = document.createElement('div');
+        reviewerItem.className = 'flex items-center gap-2 bg-white border border-slate-200 rounded-full px-3 py-1 text-xs';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'text-slate-700 font-medium';
+        nameSpan.innerText = flow.reviewer;
+        reviewerItem.appendChild(nameSpan);
+        
+        const emailSpan = document.createElement('span');
+        emailSpan.className = 'text-slate-400';
+        emailSpan.innerText = flow.reviewerEmail;
+        reviewerItem.appendChild(emailSpan);
+        
+        reviewerDiv.appendChild(reviewerItem);
+        
+        // 审核状态标签（状态为 none 时不显示）
+        if (flow.status && flow.status !== 'none') {
+            const statusBadge = document.createElement('span');
+            statusBadge.className = 'text-xs px-2 py-0.5 rounded-full font-medium';
+            if (flow.status === 'approved') {
+                statusBadge.className += ' bg-green-100 text-green-700';
+                statusBadge.innerText = '已通过';
+            } else if (flow.status === 'rejected') {
+                statusBadge.className += ' bg-red-100 text-red-700';
+                statusBadge.innerText = '已驳回';
+            } else if (flow.status === 'pending') {
+                statusBadge.className += ' bg-amber-100 text-amber-700';
+                statusBadge.innerText = '待审核';
+            } else if (flow.status === 'waiting') {
+                statusBadge.className += ' bg-slate-100 text-slate-500';
+                statusBadge.innerText = '等待中';
+            }
+            reviewerDiv.appendChild(statusBadge);
+        }
+        
+        // 审核时间（如果有）
+        if (flow.time) {
+            const timeSpan = document.createElement('span');
+            timeSpan.className = 'text-xs text-slate-400 ml-2';
+            timeSpan.innerText = flow.time;
+            reviewerDiv.appendChild(timeSpan);
+        }
+        
+        contentDiv.appendChild(reviewerDiv);
+        flowItem.appendChild(contentDiv);
+        container.appendChild(flowItem);
+        
+        // 连接线（除了最后一项）
+        if (index < flowData.length - 1) {
+            const connector = document.createElement('div');
+            connector.className = 'flex items-center gap-3 ml-4';
+            const line = document.createElement('div');
+            line.className = 'w-0.5 h-6 bg-slate-300';
+            connector.appendChild(line);
+            container.appendChild(connector);
+        }
+    });
+}
+
+// 关闭详情弹窗
+function closeDetailModal() {
+    document.getElementById('detailModal').classList.add('hidden');
+}
+
+// 查看驳回原因
+function viewRejectReason(btn) {
+    const row = btn.closest('tr');
+    const rejectReason = row.getAttribute('data-rejectreason') || '无驳回原因';
+    
+    document.getElementById('viewReasonContent').innerText = rejectReason;
+    document.getElementById('viewReasonModal').classList.remove('hidden');
+}
+
+// 关闭查看驳回原因弹窗
+function closeViewReasonModal() {
+    document.getElementById('viewReasonModal').classList.add('hidden');
+}
+
+// 点击弹窗外部关闭
+document.getElementById('reviewModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeReviewModal();
+    }
+});
+
+document.getElementById('detailModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDetailModal();
+    }
+});
+
+document.getElementById('viewReasonModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeViewReasonModal();
+    }
+});
+
+// 页面加载时初始化统计
+document.addEventListener('DOMContentLoaded', function() {
+    applyFilter();
+});
+</script>
+</body>
+</html>

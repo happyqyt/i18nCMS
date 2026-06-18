@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "schemaVersion": "1.0",
+    "project": "h5mall",
+    "projectName": "C端H5商城",
+    "directoryId": "product",
+    "directoryKey": "layout_product",
+    "directoryPath": ["h5mall", "home", "product"],
+    "language": "zh-CN",
+    "version": "v1.2.3",
+    "exportedAt": "2026-04-16T10:24:00+08:00",
+    "exportedBy": "elin.qiu@vesync.com",
+    "cdnUrl": "https://cdn.vesync.com/i18n/layout_product/zh-CN.json",
+    "totalMessages": 14,
+    "totalDirectories": 4,
+    "checksum": "sha256:3f8d2a7e4b9c15d0e6a71f9c8d2b4e5f7a0c3d6e9b1f4a27c8d0e5b3a6f1d9c2"
+  },
+
+  "PD_TITLE": "商品详情",
+  "PD_SUBTITLE": "Hi {user_name}，欢迎来到{brand}旗舰店",
+  "BUY_NOW_BTN": "立即购买",
+  "ADD_TO_CART": "加入购物车",
+  "OUT_OF_STOCK": "暂无库存",
+  "PRICE_FORMAT": "<b>¥{price}</b> 起",
+
+  "layout_product_spec": {
+    "SPEC_COLOR": "颜色",
+    "SPEC_SIZE": "尺寸（可选）",
+    "SPEC_MATERIAL": "材质",
+    "SPEC_TIP": "请选择规格后购买"
+  },
+
+  "layout_product_review": {
+    "REVIEW_TITLE": "用户评价",
+    "REVIEW_EMPTY": "暂无评价，<a>抢先评价</a>",
+    "REVIEW_COUNT": "共 {count} 条评价",
+    "layout_review_image": {
+      "IMG_REVIEW_BTN": "添加照片/视频",
+      "IMG_REVIEW_TIP": "最多可上传 9 张图片"
+    }
+  },
+
+  "layout_product_recommend": {
+    "RECOMMEND_TITLE": "你可能还喜欢",
+    "RECOMMEND_MORE": "查看更多",
+    "RECOMMEND_EMPTY": "暂无推荐商品"
+  },
+
+  "layout_product_qa": {
+    "QA_TITLE": "常见问题",
+    "QA_ASK_BTN": "我要提问",
+    "QA_ANSWER_BY": "{user} 回答于 {date}"
+  }
+}

@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>我的变更 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+    @keyframes fade-in {
+        from { opacity: 0; transform: translateY(-10px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fade-in 0.3s ease-out; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="version.html">版本管理</a>
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm" href="change.html">我的变更</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="review.html">审核中心</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400"></div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+</div>
+</div>
+</header>
+
+<!-- 主内容 -->
+<div class="flex-1 overflow-y-auto">
+<div class="max-w-[1400px] mx-auto p-8">
+
+<!-- 标题 -->
+<div class="mb-6 flex items-start justify-between">
+<div>
+<h1 class="text-2xl font-bold text-slate-800 mb-1">我的变更</h1>
+<p class="text-sm text-slate-500">以下是您当前处于「草稿」状态、尚未提交审核的所有变更。可勾选后<span class="text-red-600 font-medium">撤销变更</span>，撤销后的内容将恢复为最新已审核版本。</p>
+</div>
+<div>
+<a href="dashboard.html" class="inline-flex items-center gap-1 px-4 py-2 border border-slate-200 rounded-md text-sm text-slate-600 hover:bg-white transition-colors">
+<iconify-icon icon="mdi:arrow-left"></iconify-icon>
+返回文案管理
+</a>
+</div>
+</div>
+
+<!-- 统计概览 -->
+<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+<p class="text-xs text-slate-500 mb-1">草稿变更总数</p>
+<p class="text-2xl font-bold text-slate-800"><span id="statTotal">0</span> <span class="text-sm text-slate-400 font-normal">项</span></p>
+</div>
+<div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-xs text-slate-500 mb-1">新增</p>
+<p class="text-2xl font-bold text-green-600">+<span id="statAdded">0</span></p>
+</div>
+<div class="w-9 h-9 rounded-full bg-green-50 flex items-center justify-center">
+<iconify-icon icon="mdi:plus-circle" class="text-green-500 text-xl"></iconify-icon>
+</div>
+</div>
+</div>
+<div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-xs text-slate-500 mb-1">修改</p>
+<p class="text-2xl font-bold text-amber-600">~<span id="statModified">0</span></p>
+</div>
+<div class="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+<iconify-icon icon="mdi:pencil-circle" class="text-amber-500 text-xl"></iconify-icon>
+</div>
+</div>
+</div>
+<div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between">
+<div>
+<p class="text-xs text-slate-500 mb-1">删除</p>
+<p class="text-2xl font-bold text-red-600">-<span id="statDeleted">0</span></p>
+</div>
+<div class="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center">
+<iconify-icon icon="mdi:minus-circle" class="text-red-500 text-xl"></iconify-icon>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 工具栏 -->
+<div class="bg-white border border-slate-200 rounded-t-lg px-4 py-3 flex items-center gap-3 flex-wrap">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="checkbox" id="selectAllChanges" onchange="toggleAllChanges(this)" class="w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500"/>
+<span class="text-sm text-slate-700">全选</span>
+</label>
+<div class="w-[1px] h-4 bg-slate-200"></div>
+
+<div class="flex items-center gap-2">
+<span class="text-xs text-slate-500">类型</span>
+<select id="filterType" onchange="applyFilter()" class="py-1 pl-2 pr-7 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+<option value="">全部</option>
+<option value="added">新增</option>
+<option value="modified">修改</option>
+<option value="deleted">删除</option>
+</select>
+</div>
+
+<div class="flex items-center gap-2">
+<span class="text-xs text-slate-500">目录</span>
+<select id="filterRoot" onchange="applyFilter()" class="py-1 pl-2 pr-7 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+<option value="">全部目录</option>
+</select>
+</div>
+
+<div class="flex items-center gap-1">
+<button onclick="expandAll()" class="px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">
+<iconify-icon icon="mdi:unfold-more-horizontal"></iconify-icon>
+全部展开
+</button>
+<button onclick="collapseAll()" class="px-2 py-1 text-xs text-slate-600 hover:bg-slate-100 rounded">
+<iconify-icon icon="mdi:unfold-less-horizontal"></iconify-icon>
+全部折叠
+</button>
+</div>
+
+<span class="text-sm text-slate-500 ml-2">已选 <b id="selectedChangesCount" class="text-amber-600">0</b> 项</span>
+
+<div class="ml-auto flex items-center gap-2">
+<button onclick="refreshChanges()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+<iconify-icon icon="mdi:refresh"></iconify-icon>
+刷新
+</button>
+<button onclick="openRevertConfirm()" class="flex items-center gap-1 px-4 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700 shadow-sm transition-colors">
+<iconify-icon icon="mdi:undo-variant"></iconify-icon>
+撤销所选变更
+</button>
+<button onclick="submitForReview()" class="flex items-center gap-1 px-4 py-1.5 bg-amber-600 text-white rounded text-sm hover:bg-amber-700 shadow-sm transition-all">
+    <iconify-icon icon="mdi:file-send"></iconify-icon>
+                            提交审核
+                        </button>
+</div>
+</div>
+
+<!-- 图例 -->
+<div class="bg-slate-50 border-x border-slate-200 px-4 py-2 flex items-center gap-4 text-xs text-slate-500">
+<span>颜色图例：</span>
+<span class="flex items-center gap-1"><span class="w-3 h-3 bg-green-500 rounded-sm inline-block"></span> 新增</span>
+<span class="flex items-center gap-1"><span class="w-3 h-3 bg-amber-500 rounded-sm inline-block"></span> 修改</span>
+<span class="flex items-center gap-1"><span class="w-3 h-3 bg-red-500 rounded-sm inline-block"></span> 删除</span>
+<span class="mx-2 text-slate-300">|</span>
+<span>勾选目录 = 勾选其下所有变更（含子目录）</span>
+</div>
+
+<!-- 变更树容器 -->
+<div class="bg-white border-x border-b border-slate-200 rounded-b-lg p-4 min-h-[400px]">
+<div id="changeScopeTree" class="space-y-4"></div>
+<div id="emptyState" class="hidden py-16 text-center">
+<iconify-icon icon="mdi:inbox-arrow-down" class="text-6xl text-slate-300"></iconify-icon>
+<p class="text-slate-500 mt-4 text-base font-medium">暂无草稿变更</p>
+<p class="text-xs text-slate-400 mt-1">所有变更都已提交审核或撤销</p>
+<a href="dashboard.html" class="inline-flex items-center gap-1 mt-4 px-4 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+<iconify-icon icon="mdi:pencil-plus"></iconify-icon>
+去编辑文案
+</a>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- 撤销确认弹窗 -->
+<div id="revertConfirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[520px] overflow-hidden">
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+<iconify-icon icon="mdi:alert-circle" class="text-red-500"></iconify-icon>
+确认撤销变更
+</h3>
+<button onclick="closeRevertConfirm()" class="text-slate-400 hover:text-slate-600">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<div class="p-6 space-y-4">
+<p class="text-sm text-slate-700">
+撤销后，这些草稿变更将被<b class="text-red-600">永久丢弃</b>，无法恢复。被撤销的文案/目录将回到最近一次审核通过的状态。
+</p>
+<div id="revertSummary" class="bg-slate-50 border border-slate-200 rounded-md p-3 text-sm space-y-1"></div>
+<label class="flex items-start gap-2 cursor-pointer">
+<input type="checkbox" id="revertConfirmCheck" class="mt-0.5 w-4 h-4 text-red-600 rounded focus:ring-2 focus:ring-red-500"/>
+<span class="text-sm text-slate-700">我已了解并确认要撤销这些变更</span>
+</label>
+</div>
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeRevertConfirm()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button id="confirmRevertBtn" onclick="confirmRevert()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">确认撤销</button>
+</div>
+</div>
+</div>
+
+<!-- Toast 容器 -->
+<div id="toastContainer" class="fixed top-20 right-6 z-50 space-y-2"></div>
+
+<script>
+/* ========== Mock 数据：当前用户（Elin）所有草稿变更 ========== */
+const myChangesRoots = [
+    {
+        id: 'h5mall_product',
+        name: '商品详情',
+        path: ['C端H5商城', '首页模块', '商品详情'],
+        type: 'directory',
+        items: [
+            {
+                id: 'PD_TITLE_DESC',
+                name: 'PD_TITLE_DESC',
+                type: 'modified',
+                diff: {
+                    en: { old: 'Selected quality.', new: 'Selected quality, presenting the best choice for you.' },
+                    ja: { old: '厳選された品質。', new: '厳選された品質、あなたに最適な選択を。' }
+                }
+            },
+            {
+                id: 'BUY_NOW_BTN',
+                name: 'BUY_NOW_BTN',
+                type: 'added',
+                diff: {
+                    en: { new: 'Buy Now' },
+                    ja: { new: '今すぐ購入' }
+                }
+            },
+            {
+                id: 'ADD_TO_CART',
+                name: 'ADD_TO_CART',
+                type: 'modified',
+                diff: {
+                    key: { old: 'ADD_CART', new: 'ADD_TO_CART' },
+                    en: { old: 'Add Cart', new: 'Add to Cart' }
+                }
+            },
+            {
+                id: 'OLD_PROMO',
+                name: 'OLD_PROMO',
+                type: 'deleted',
+                diff: {
+                    en: { old: 'Limited time offer' },
+                    ja: { old: '期間限定オファー' }
+                }
+            }
+        ],
+        children: [
+            {
+                id: 'product_spec',
+                name: '规格参数',
+                type: 'directory',
+                dirChange: {
+                    type: 'modified',
+                    diff: { key: { old: 'spec_params', new: 'product_spec' } }
+                },
+                items: [
+                    { id: 'SPEC_COLOR', name: 'SPEC_COLOR', type: 'added', diff: { en: { new: 'Color' }, ja: { new: 'カラー' } } },
+                    { id: 'SPEC_SIZE',  name: 'SPEC_SIZE',  type: 'modified', diff: { en: { old: 'Size', new: 'Size (Optional)' } } }
+                ],
+                children: []
+            },
+            {
+                id: 'review_image',
+                name: '图片评价',
+                type: 'directory',
+                dirChange: {
+                    type: 'added',
+                    diff: {
+                        name: { new: '图片评价' },
+                        key: { new: 'review_image' },
+                        parent: { new: '商品评价' },
+                        reviewers: { new: ['wang.wu@vesync.com'] }
+                    }
+                },
+                items: [
+                    { id: 'IMG_REVIEW_BTN', name: 'IMG_REVIEW_BTN', type: 'added', diff: { en: { new: 'Add Photo/Video' } } }
+                ],
+                children: []
+            },
+            {
+                id: 'product_qa',
+                name: '问答互动',
+                type: 'directory',
+                dirChange: {
+                    type: 'deleted',
+                    diff: {
+                        name: { old: '问答互动' },
+                        key: { old: 'product_qa' },
+                        reviewers: { old: ['zhao.liu@vesync.com'] }
+                    }
+                },
+                items: [],
+                children: []
+            }
+        ]
+    },
+    {
+        id: 'h5mall_profile',
+        name: '个人中心',
+        path: ['C端H5商城', '个人中心'],
+        type: 'directory',
+        items: [
+            {
+                id: 'PROFILE_EDIT',
+                name: 'PROFILE_EDIT',
+                type: 'added',
+                diff: {
+                    en: { new: 'Edit Profile' },
+                    ja: { new: 'プロフィール編集' }
+                }
+            },
+            {
+                id: 'PROFILE_AVATAR',
+                name: 'PROFILE_AVATAR',
+                type: 'modified',
+                diff: {
+                    en: { old: 'Upload Avatar', new: 'Change Avatar' }
+                }
+            }
+        ],
+        children: []
+    },
+    {
+        id: 'levoit_summary',
+        name: 'Summary Page',
+        path: ['Levoit', 'Data Digest', 'Summary Page'],
+        type: 'directory',
+        items: [
+            {
+                id: 'SUMMARY_WEEKLY',
+                name: 'SUMMARY_WEEKLY',
+                type: 'deleted',
+                diff: { en: { old: 'Weekly Summary' } }
+            }
+        ],
+        children: [
+            {
+                id: 'summary_detail',
+                name: '详细数据',
+                type: 'directory',
+                dirChange: {
+                    type: 'modified',
+                    diff: {
+                        name: { old: '详细统计', new: '详细数据' },
+                        reviewers: {
+                            old: ['li.si@vesync.com'],
+                            new: ['li.si@vesync.com', 'wang.wu@vesync.com']
+                        }
+                    }
+                },
+                items: [
+                    { id: 'DETAIL_TITLE', name: 'DETAIL_TITLE', type: 'modified', diff: { en: { old: 'Details', new: 'Detail Overview' } } }
+                ],
+                children: []
+            }
+        ]
+    }
+];
+
+/* ========== 样式 & 字段名映射（与 dashboard 保持一致） ========== */
+const changeTypeStyles = {
+    added:    { bg: 'bg-green-50', border: 'border-l-4 border-green-500', badge: 'bg-green-100 text-green-700', badgeText: '新增', icon: 'mdi:plus-circle',   iconColor: 'text-green-500', prefix: '+' },
+    modified: { bg: 'bg-amber-50', border: 'border-l-4 border-amber-500', badge: 'bg-amber-100 text-amber-700', badgeText: '修改', icon: 'mdi:pencil-circle',  iconColor: 'text-amber-500', prefix: '~' },
+    deleted:  { bg: 'bg-red-50',   border: 'border-l-4 border-red-500',   badge: 'bg-red-100 text-red-700',     badgeText: '删除', icon: 'mdi:minus-circle',   iconColor: 'text-red-500',   prefix: '-' }
+};
+const dirDiffFieldNames = { name: '目录名称', key: '目录 Key', reviewers: '审核员', parent: '父级目录' };
+
+/* ========== 工具 ========== */
+function escapeHtml(str) {
+    if (str === null || str === undefined) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function calcDirectorySummary(node) {
+    const summary = { added: 0, modified: 0, deleted: 0 };
+    (node.items || []).forEach(item => {
+        if (summary[item.type] !== undefined) summary[item.type]++;
+    });
+    (node.children || []).forEach(child => {
+        if (child.dirChange && summary[child.dirChange.type] !== undefined) summary[child.dirChange.type]++;
+        const childSummary = calcDirectorySummary(child);
+        summary.added += childSummary.added;
+        summary.modified += childSummary.modified;
+        summary.deleted += childSummary.deleted;
+    });
+    return summary;
+}
+
+/* ========== 渲染目录 diff 明细 ========== */
+function renderDirChangeDetails(dirChange, depth) {
+    if (!dirChange || !dirChange.diff) return null;
+    const container = document.createElement('div');
+    container.className = 'pb-2 space-y-1';
+    container.style.paddingLeft = `${depth * 20 + 32}px`;
+    container.style.paddingRight = '8px';
+    Object.keys(dirChange.diff).forEach(fieldKey => {
+        const fieldDiff = dirChange.diff[fieldKey];
+        const fieldLabel = dirDiffFieldNames[fieldKey] || fieldKey;
+        const fieldRow = document.createElement('div');
+        fieldRow.className = 'flex items-start gap-2';
+        const fieldTag = document.createElement('span');
+        fieldTag.className = 'text-[10px] text-slate-600 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+        fieldTag.innerText = fieldLabel;
+        fieldRow.appendChild(fieldTag);
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'flex-1 space-y-0.5';
+        const oldVal = Array.isArray(fieldDiff.old) ? fieldDiff.old.join(', ') : fieldDiff.old;
+        const newVal = Array.isArray(fieldDiff.new) ? fieldDiff.new.join(', ') : fieldDiff.new;
+        if (oldVal !== undefined) {
+            const oldLine = document.createElement('div');
+            oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+            oldLine.innerHTML = `<span class="font-bold shrink-0">-</span><span class="break-all">${escapeHtml(oldVal)}</span>`;
+            contentDiv.appendChild(oldLine);
+        }
+        if (newVal !== undefined) {
+            const newLine = document.createElement('div');
+            newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+            newLine.innerHTML = `<span class="font-bold shrink-0">+</span><span class="break-all">${escapeHtml(newVal)}</span>`;
+            contentDiv.appendChild(newLine);
+        }
+        fieldRow.appendChild(contentDiv);
+        container.appendChild(fieldRow);
+    });
+    return container;
+}
+
+/* ========== 渲染变更树 ========== */
+function renderChangeScopeTree(node, container, depth = 0, rootId = null) {
+    const dirChangeType = node.dirChange ? node.dirChange.type : null;
+    const dirStyle = dirChangeType ? changeTypeStyles[dirChangeType] : null;
+
+    const dirNode = document.createElement('div');
+    dirNode.className = 'change-tree-dir mb-1';
+    if (dirStyle) dirNode.classList.add(dirStyle.bg, ...dirStyle.border.split(' '), 'rounded');
+    dirNode.dataset.nodeId = node.id;
+    if (rootId) dirNode.dataset.rootId = rootId;
+
+    const dirHeader = document.createElement('div');
+    dirHeader.className = 'flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 rounded cursor-pointer';
+    dirHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+
+    const toggleBtn = document.createElement('iconify-icon');
+    toggleBtn.setAttribute('icon', 'mdi:chevron-down');
+    toggleBtn.className = 'text-slate-400 text-base shrink-0 transition-transform';
+    toggleBtn.style.cursor = 'pointer';
+
+    const dirCheckbox = document.createElement('input');
+    dirCheckbox.type = 'checkbox';
+    dirCheckbox.className = 'w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500 shrink-0 change-dir-checkbox';
+    dirCheckbox.dataset.nodeId = node.id;
+    if (dirChangeType) dirCheckbox.dataset.dirChangeType = dirChangeType;
+    dirCheckbox.addEventListener('click', e => e.stopPropagation());
+    dirCheckbox.addEventListener('change', function() {
+        toggleDirectoryCheck(dirNode, this.checked);
+        updateAllParentCheckStates();
+        updateSelectedChangesCount();
+    });
+
+    const dirIcon = document.createElement('iconify-icon');
+    dirIcon.setAttribute('icon', 'mdi:folder');
+    dirIcon.className = (dirStyle ? dirStyle.iconColor : 'text-blue-500') + ' text-base shrink-0';
+
+    const dirName = document.createElement('span');
+    dirName.className = 'font-bold text-slate-800 text-sm';
+    dirName.innerText = node.name;
+
+    dirHeader.appendChild(toggleBtn);
+    dirHeader.appendChild(dirCheckbox);
+    dirHeader.appendChild(dirIcon);
+    dirHeader.appendChild(dirName);
+
+    if (dirStyle) {
+        const dirTypeBadge = document.createElement('span');
+        dirTypeBadge.className = `text-[10px] ${dirStyle.badge} px-1.5 py-0.5 rounded ml-1`;
+        dirTypeBadge.innerText = '目录' + dirStyle.badgeText;
+        dirHeader.appendChild(dirTypeBadge);
+    }
+
+    const summary = calcDirectorySummary(node);
+    const summaryBadges = document.createElement('div');
+    summaryBadges.className = 'flex items-center gap-1 ml-auto';
+    if (summary.added > 0)    summaryBadges.innerHTML += `<span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">+${summary.added}</span>`;
+    if (summary.modified > 0) summaryBadges.innerHTML += `<span class="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">~${summary.modified}</span>`;
+    if (summary.deleted > 0)  summaryBadges.innerHTML += `<span class="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded">-${summary.deleted}</span>`;
+    dirHeader.appendChild(summaryBadges);
+    dirNode.appendChild(dirHeader);
+
+    if (node.dirChange) {
+        const dirDiff = renderDirChangeDetails(node.dirChange, depth);
+        if (dirDiff) dirNode.appendChild(dirDiff);
+    }
+
+    const dirChildren = document.createElement('div');
+    dirChildren.className = 'change-tree-children';
+
+    dirHeader.addEventListener('click', function(e) {
+        if (e.target === dirCheckbox) return;
+        const isCollapsed = dirChildren.classList.toggle('hidden');
+        toggleBtn.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+    });
+
+    (node.items || []).forEach(item => {
+        const itemNode = renderChangeItem(item, depth + 1, rootId || node.id);
+        dirChildren.appendChild(itemNode);
+    });
+    (node.children || []).forEach(child => {
+        renderChangeScopeTree(child, dirChildren, depth + 1, rootId || node.id);
+    });
+
+    dirNode.appendChild(dirChildren);
+    container.appendChild(dirNode);
+}
+
+/* ========== 渲染文案条目（diff view） ========== */
+function renderChangeItem(item, depth, rootId) {
+    const style = changeTypeStyles[item.type];
+    const itemWrapper = document.createElement('div');
+    itemWrapper.className = `change-tree-item mb-1 ${style.bg} ${style.border} rounded`;
+    itemWrapper.dataset.itemType = item.type;
+    if (rootId) itemWrapper.dataset.rootId = rootId;
+
+    const itemHeader = document.createElement('div');
+    itemHeader.className = 'flex items-center gap-2 py-1.5 px-2';
+    itemHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+
+    const itemCheckbox = document.createElement('input');
+    itemCheckbox.type = 'checkbox';
+    itemCheckbox.className = 'w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500 shrink-0 change-item-checkbox';
+    itemCheckbox.dataset.itemId = item.id;
+    itemCheckbox.dataset.itemType = item.type;
+    itemCheckbox.addEventListener('change', function() {
+        updateAllParentCheckStates();
+        updateSelectedChangesCount();
+    });
+
+    const typeIcon = document.createElement('iconify-icon');
+    typeIcon.setAttribute('icon', 'mdi:translate');
+    typeIcon.className = `${style.iconColor} text-base shrink-0`;
+
+    const itemKey = document.createElement('span');
+    itemKey.className = 'font-mono text-xs text-slate-700 font-medium';
+    itemKey.innerText = item.name;
+
+    const typeBadge = document.createElement('span');
+    typeBadge.className = `text-[10px] ${style.badge} px-1.5 py-0.5 rounded ml-1`;
+    typeBadge.innerText = style.badgeText;
+
+    itemHeader.appendChild(itemCheckbox);
+    itemHeader.appendChild(typeIcon);
+    itemHeader.appendChild(itemKey);
+    itemHeader.appendChild(typeBadge);
+    itemWrapper.appendChild(itemHeader);
+
+    if (item.diff) {
+        const diffContainer = document.createElement('div');
+        diffContainer.className = 'pb-2 space-y-1';
+        diffContainer.style.paddingLeft = `${depth * 20 + 32}px`;
+        diffContainer.style.paddingRight = '8px';
+
+        Object.keys(item.diff).forEach(fieldKey => {
+            const fieldDiff = item.diff[fieldKey];
+            const isKeyField = fieldKey === 'key';
+            const fieldLabel = isKeyField ? '文案 Key' : fieldKey.toUpperCase();
+
+            const fieldRow = document.createElement('div');
+            fieldRow.className = 'flex items-start gap-2';
+            const fieldTag = document.createElement('span');
+            fieldTag.className = isKeyField
+                ? 'text-[10px] text-blue-700 font-bold bg-blue-100 px-1.5 py-0.5 rounded shrink-0 mt-0.5'
+                : 'text-[10px] text-slate-500 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+            fieldTag.innerText = fieldLabel;
+            fieldRow.appendChild(fieldTag);
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'flex-1 space-y-0.5';
+            if (fieldDiff.old !== undefined) {
+                const oldLine = document.createElement('div');
+                oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+                const oldContent = isKeyField
+                    ? `<span class="font-mono">${escapeHtml(fieldDiff.old)}</span>`
+                    : `<span class="break-all">${escapeHtml(fieldDiff.old)}</span>`;
+                oldLine.innerHTML = `<span class="font-bold shrink-0">-</span>${oldContent}`;
+                contentDiv.appendChild(oldLine);
+            }
+            if (fieldDiff.new !== undefined) {
+                const newLine = document.createElement('div');
+                newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+                const newContent = isKeyField
+                    ? `<span class="font-mono">${escapeHtml(fieldDiff.new)}</span>`
+                    : `<span class="break-all">${escapeHtml(fieldDiff.new)}</span>`;
+                newLine.innerHTML = `<span class="font-bold shrink-0">+</span>${newContent}`;
+                contentDiv.appendChild(newLine);
+            }
+            fieldRow.appendChild(contentDiv);
+            diffContainer.appendChild(fieldRow);
+        });
+        itemWrapper.appendChild(diffContainer);
+    }
+    return itemWrapper;
+}
+
+/* ========== 渲染入口：多根目录 ========== */
+function renderAllChanges() {
+    const treeContainer = document.getElementById('changeScopeTree');
+    treeContainer.innerHTML = '';
+
+    const filterSelect = document.getElementById('filterRoot');
+    const currentFilterRoot = filterSelect.value;
+    filterSelect.innerHTML = '<option value="">全部目录</option>';
+
+    myChangesRoots.forEach(root => {
+        const opt = document.createElement('option');
+        opt.value = root.id;
+        opt.innerText = root.path.join(' / ');
+        filterSelect.appendChild(opt);
+
+        const rootWrapper = document.createElement('div');
+        rootWrapper.className = 'change-root-block border border-slate-200 rounded-lg overflow-hidden';
+        rootWrapper.dataset.rootId = root.id;
+
+        const breadcrumb = document.createElement('div');
+        breadcrumb.className = 'bg-slate-50 px-4 py-2 flex items-center gap-2 text-xs text-slate-500 border-b border-slate-200';
+        breadcrumb.innerHTML = `
+            <iconify-icon icon="mdi:map-marker-outline"></iconify-icon>
+            <span>${root.path.map(p => `<span class="text-slate-600">${escapeHtml(p)}</span>`).join(' <iconify-icon icon="mdi:chevron-right" class="text-slate-400"></iconify-icon> ')}</span>
+        `;
+        rootWrapper.appendChild(breadcrumb);
+
+        const innerContainer = document.createElement('div');
+        innerContainer.className = 'p-2';
+        rootWrapper.appendChild(innerContainer);
+
+        renderChangeScopeTree(root, innerContainer, 0, root.id);
+        treeContainer.appendChild(rootWrapper);
+    });
+
+    filterSelect.value = currentFilterRoot || '';
+    applyFilter();
+    updateAllStats();
+    checkEmptyState();
+}
+
+/* ========== 勾选逻辑 ========== */
+function toggleDirectoryCheck(dirNode, checked) {
+    dirNode.querySelectorAll('.change-item-checkbox').forEach(cb => { cb.checked = checked; cb.indeterminate = false; });
+    dirNode.querySelectorAll('.change-dir-checkbox').forEach(cb => { cb.checked = checked; cb.indeterminate = false; });
+}
+
+function updateAllParentCheckStates() {
+    const allDirs = Array.from(document.querySelectorAll('#changeScopeTree .change-tree-dir')).reverse();
+    allDirs.forEach(dirNode => {
+        const dirCheckbox = dirNode.querySelector(':scope > div > .change-dir-checkbox');
+        if (!dirCheckbox) return;
+        const childrenContainer = dirNode.querySelector(':scope > .change-tree-children');
+        if (!childrenContainer) return;
+
+        const allChildCheckboxes = [];
+        childrenContainer.querySelectorAll(':scope > .change-tree-item > div > .change-item-checkbox').forEach(cb => allChildCheckboxes.push(cb));
+        childrenContainer.querySelectorAll(':scope > .change-tree-dir > div > .change-dir-checkbox').forEach(cb => allChildCheckboxes.push(cb));
+        if (allChildCheckboxes.length === 0) return;
+
+        const checkedCount = allChildCheckboxes.filter(cb => cb.checked && !cb.indeterminate).length;
+        const uncheckedCount = allChildCheckboxes.filter(cb => !cb.checked && !cb.indeterminate).length;
+        if (checkedCount === allChildCheckboxes.length) { dirCheckbox.checked = true;  dirCheckbox.indeterminate = false; }
+        else if (uncheckedCount === allChildCheckboxes.length) { dirCheckbox.checked = false; dirCheckbox.indeterminate = false; }
+        else { dirCheckbox.checked = false; dirCheckbox.indeterminate = true; }
+    });
+}
+
+function toggleAllChanges(checkbox) {
+    document.querySelectorAll('#changeScopeTree .change-item-checkbox').forEach(cb => { cb.checked = checkbox.checked; cb.indeterminate = false; });
+    document.querySelectorAll('#changeScopeTree .change-dir-checkbox').forEach(cb => { cb.checked = checkbox.checked; cb.indeterminate = false; });
+    updateSelectedChangesCount();
+}
+
+function getAllChangeCheckboxes() {
+    const items = Array.from(document.querySelectorAll('#changeScopeTree .change-item-checkbox'));
+    const dirs  = Array.from(document.querySelectorAll('#changeScopeTree .change-dir-checkbox[data-dir-change-type]'));
+    return { items, dirs, all: [...items, ...dirs] };
+}
+
+function updateSelectedChangesCount() {
+    const { items, dirs, all } = getAllChangeCheckboxes();
+    const checkedItems = items.filter(cb => cb.checked).length;
+    const checkedDirs  = dirs.filter(cb => cb.checked && !cb.indeterminate).length;
+    const total = checkedItems + checkedDirs;
+    document.getElementById('selectedChangesCount').innerText = total;
+
+    const selectAll = document.getElementById('selectAllChanges');
+    if (all.length === 0) { selectAll.checked = false; selectAll.indeterminate = false; }
+    else if (total === all.length) { selectAll.checked = true; selectAll.indeterminate = false; }
+    else if (total === 0) { selectAll.checked = false; selectAll.indeterminate = false; }
+    else { selectAll.checked = false; selectAll.indeterminate = true; }
+}
+
+/* ========== 统计 ========== */
+function updateAllStats() {
+    const items = document.querySelectorAll('#changeScopeTree .change-tree-item');
+    const dirs  = document.querySelectorAll('#changeScopeTree .change-dir-checkbox[data-dir-change-type]');
+    const stat = { added: 0, modified: 0, deleted: 0 };
+    items.forEach(it => {
+        const t = it.dataset.itemType;
+        if (stat[t] !== undefined) stat[t]++;
+    });
+    dirs.forEach(cb => {
+        const t = cb.dataset.dirChangeType;
+        if (stat[t] !== undefined) stat[t]++;
+    });
+    document.getElementById('statAdded').innerText    = stat.added;
+    document.getElementById('statModified').innerText = stat.modified;
+    document.getElementById('statDeleted').innerText  = stat.deleted;
+    document.getElementById('statTotal').innerText    = stat.added + stat.modified + stat.deleted;
+}
+
+/* ========== 过滤（类型 + 所属目录） ========== */
+function applyFilter() {
+    const typeFilter = document.getElementById('filterType').value;
+    const rootFilter = document.getElementById('filterRoot').value;
+
+    // 控制根块显示
+    document.querySelectorAll('.change-root-block').forEach(block => {
+        const show = !rootFilter || block.dataset.rootId === rootFilter;
+        block.style.display = show ? '' : 'none';
+    });
+
+    // 控制单项显示（类型过滤）
+    document.querySelectorAll('#changeScopeTree .change-tree-item').forEach(item => {
+        const match = !typeFilter || item.dataset.itemType === typeFilter;
+        item.style.display = match ? '' : 'none';
+    });
+}
+
+/* ========== 展开/折叠 ========== */
+function expandAll() {
+    document.querySelectorAll('#changeScopeTree .change-tree-children').forEach(c => c.classList.remove('hidden'));
+    document.querySelectorAll('#changeScopeTree .change-tree-dir > div > iconify-icon[icon="mdi:chevron-down"]').forEach(i => i.style.transform = 'rotate(0deg)');
+}
+function collapseAll() {
+    document.querySelectorAll('#changeScopeTree .change-tree-children').forEach(c => c.classList.add('hidden'));
+    document.querySelectorAll('#changeScopeTree .change-tree-dir > div > iconify-icon[icon="mdi:chevron-down"]').forEach(i => i.style.transform = 'rotate(-90deg)');
+}
+
+function refreshChanges() {
+    renderAllChanges();
+    showToast('已刷新变更列表', 'info');
+}
+
+/* ========== 撤销变更 ========== */
+function openRevertConfirm() {
+    const { items, dirs } = getAllChangeCheckboxes();
+    const checkedItems = items.filter(cb => cb.checked);
+    const checkedDirs  = dirs.filter(cb => cb.checked && !cb.indeterminate);
+
+    if (checkedItems.length === 0 && checkedDirs.length === 0) {
+        showToast('请先勾选要撤销的变更', 'warning');
+        return;
+    }
+
+    const itemStat = { added: 0, modified: 0, deleted: 0 };
+    checkedItems.forEach(cb => { if (itemStat[cb.dataset.itemType] !== undefined) itemStat[cb.dataset.itemType]++; });
+    const dirStat = { added: 0, modified: 0, deleted: 0 };
+    checkedDirs.forEach(cb => { if (dirStat[cb.dataset.dirChangeType] !== undefined) dirStat[cb.dataset.dirChangeType]++; });
+
+    const summaryEl = document.getElementById('revertSummary');
+    const lines = [];
+    if (checkedItems.length > 0) {
+        const parts = [];
+        if (itemStat.added)    parts.push(`新增 ${itemStat.added}`);
+        if (itemStat.modified) parts.push(`修改 ${itemStat.modified}`);
+        if (itemStat.deleted)  parts.push(`删除 ${itemStat.deleted}`);
+        lines.push(`<div><iconify-icon icon="mdi:file-document-outline" class="text-slate-500"></iconify-icon> <b>文案变更 ${checkedItems.length} 条</b><span class="text-slate-500 ml-2">（${parts.join('、')}）</span></div>`);
+    }
+    if (checkedDirs.length > 0) {
+        const parts = [];
+        if (dirStat.added)    parts.push(`新增 ${dirStat.added}`);
+        if (dirStat.modified) parts.push(`修改 ${dirStat.modified}`);
+        if (dirStat.deleted)  parts.push(`删除 ${dirStat.deleted}`);
+        lines.push(`<div><iconify-icon icon="mdi:folder-outline" class="text-slate-500"></iconify-icon> <b>目录变更 ${checkedDirs.length} 项</b><span class="text-slate-500 ml-2">（${parts.join('、')}）</span></div>`);
+    }
+    summaryEl.innerHTML = lines.join('');
+
+    document.getElementById('revertConfirmCheck').checked = false;
+    document.getElementById('revertConfirmModal').classList.remove('hidden');
+}
+
+function closeRevertConfirm() {
+    document.getElementById('revertConfirmModal').classList.add('hidden');
+}
+
+function confirmRevert() {
+    if (!document.getElementById('revertConfirmCheck').checked) {
+        showToast('请勾选确认框后再继续', 'warning');
+        return;
+    }
+
+    const checkedItems = Array.from(document.querySelectorAll('#changeScopeTree .change-item-checkbox:checked'));
+    const checkedDirs  = Array.from(document.querySelectorAll('#changeScopeTree .change-dir-checkbox[data-dir-change-type]'))
+        .filter(cb => cb.checked && !cb.indeterminate);
+
+    // 先移除被勾选的有自身变更的目录（连带子节点一起撤销）
+    checkedDirs.forEach(cb => {
+        const dirNode = cb.closest('.change-tree-dir');
+        if (dirNode && dirNode.isConnected) dirNode.remove();
+    });
+
+    // 移除被勾选的文案项（跳过已随目录被删除的）
+    checkedItems.forEach(cb => {
+        const itemNode = cb.closest('.change-tree-item');
+        if (itemNode && itemNode.isConnected) itemNode.remove();
+    });
+
+    // 清理空目录（无自身变更 + 无 item + 无子目录 的非根目录）
+    cleanupEmptyDirs();
+
+    // 清理空的根目录块
+    cleanupEmptyRootBlocks();
+
+    closeRevertConfirm();
+    updateAllStats();
+    updateSelectedChangesCount();
+    checkEmptyState();
+    showToast(`已撤销 ${checkedItems.length + checkedDirs.length} 项变更`, 'success');
+}
+
+function cleanupEmptyDirs() {
+    let changed = true;
+    while (changed) {
+        changed = false;
+        document.querySelectorAll('#changeScopeTree .change-tree-dir').forEach(dir => {
+            const dirCheckbox = dir.querySelector(':scope > div > .change-dir-checkbox');
+            const hasOwnChange = dirCheckbox && dirCheckbox.dataset.dirChangeType;
+            const childrenContainer = dir.querySelector(':scope > .change-tree-children');
+            const hasItems = childrenContainer && childrenContainer.querySelector(':scope > .change-tree-item');
+            const hasSubDirs = childrenContainer && childrenContainer.querySelector(':scope > .change-tree-dir');
+            if (!hasOwnChange && !hasItems && !hasSubDirs) {
+                dir.remove();
+                changed = true;
+            }
+        });
+    }
+}
+
+function cleanupEmptyRootBlocks() {
+    document.querySelectorAll('.change-root-block').forEach(block => {
+        if (!block.querySelector('.change-tree-dir')) block.remove();
+    });
+}
+
+function checkEmptyState() {
+    const tree = document.getElementById('changeScopeTree');
+    const emptyEl = document.getElementById('emptyState');
+    if (tree.children.length === 0) {
+        tree.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+    } else {
+        tree.classList.remove('hidden');
+        emptyEl.classList.add('hidden');
+    }
+}
+
+/* ========== Toast ========== */
+function showToast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const styleMap = {
+        success: { bg: 'bg-green-500',  icon: 'mdi:check-circle' },
+        warning: { bg: 'bg-amber-500',  icon: 'mdi:alert' },
+        error:   { bg: 'bg-red-500',    icon: 'mdi:close-circle' },
+        info:    { bg: 'bg-slate-700',  icon: 'mdi:information' }
+    };
+    const style = styleMap[type] || styleMap.info;
+    const toast = document.createElement('div');
+    toast.className = `${style.bg} text-white px-4 py-2 rounded-md shadow-lg flex items-center gap-2 animate-fade-in text-sm`;
+    toast.innerHTML = `<iconify-icon icon="${style.icon}"></iconify-icon><span>${escapeHtml(message)}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.transition = 'opacity .3s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2500);
+}
+
+/* ========== 弹窗背景点击关闭 ========== */
+document.getElementById('revertConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRevertConfirm();
+});
+
+/* ========== 初始化 ========== */
+renderAllChanges();
+</script>
+</body>
+</html>

@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>文案管理工作台 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<style>
+        .sidebar-active { background-color: #334155; color: white; border-left: 4px solid #3b82f6; }
+        .table-cell-edit:hover { background-color: #f1f5f9; cursor: text; }
+        .table-cell-edit:focus { outline: 2px solid #3b82f6; background-color: white; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        
+        /* Toast提示动画 */
+        @keyframes fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            animation: fade-in 0.3s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col overflow-hidden is-mb-ai-setting">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm" href="dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="version.html">版本管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="review.html">审核中心</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400">
+</div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg"/>
+</div>
+</div>
+</header>
+<div class="flex-1 flex overflow-hidden">
+<!-- 左侧树形目录 -->
+<aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 text-slate-300">
+<div class="p-4 border-b border-slate-800 flex items-center justify-between">
+<span class="text-xs font-bold uppercase tracking-wider text-slate-500">目录结构</span>
+<div class="flex gap-1">
+<button class="p-1 hover:bg-slate-800 rounded text-slate-400" title="新建项目"><iconify-icon icon="mdi:folder-plus-outline"></iconify-icon></button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-2 space-y-1 text-sm">
+<!-- 目录项示例 -->
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span class="" style="opacity: 1;">C端H5商城</span>
+</div>
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>首页模块</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer sidebar-active" style="margin-left: calc(2rem - 4px);">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span class="">商品详情</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span>结算流程</span>
+</div>
+
+<!-- 目录项示例 -->
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+    <iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+    <iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+    <span class="" style="opacity: 1;">Levoit</span>
+</div>
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+    <iconify-icon class="text-slate-500" icon="mdi:chevron-down"></iconify-icon>
+    <iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+    <span>Data Digest</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+    <iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+    <iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+    <span class="">Summary Page</span>
+</div>
+<div class="ml-8 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+    <iconify-icon class="text-slate-500 invisible" icon="mdi:chevron-down"></iconify-icon>
+    <iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+    <span>Sleep Tracking</span>
+</div>
+
+<div class="ml-4 flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-blue-500" icon="mdi:folder"></iconify-icon>
+<span class="">个人中心</span>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-800 px-3">
+<span class="text-[10px] text-slate-500 uppercase font-bold">公共资源</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+<iconify-icon class="text-purple-400" icon="mdi:database"></iconify-icon>
+<span>常用错误提示码</span>
+</div>
+<div class="flex items-center gap-2 px-3 py-2 rounded cursor-pointer hover:bg-slate-800">
+    <iconify-icon class="text-green-400" icon="mdi:web"></iconify-icon>
+    <span>语言码</span>
+    </div>
+</div>
+</aside>
+<!-- 主内容区 -->
+<main class="flex-1 flex flex-col overflow-hidden">
+<!-- 工具栏 -->
+<div class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="font-bold text-slate-800">商品详情</h2>
+<span class="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">已审核</span>
+</div>
+<div class="flex items-center gap-2">
+<button onclick="openEditModal()" class="p-2 text-slate-600 hover:text-blue-600 transition-colors" title="编辑">
+<iconify-icon icon="mdi:pencil"></iconify-icon>
+</button>
+<button class="p-2 text-slate-600 hover:text-red-600 transition-colors" title="删除">
+<iconify-icon icon="mdi:delete"></iconify-icon>
+</button>
+<button onclick="openAddModal()" class="p-2 text-slate-600 hover:text-green-600 transition-colors" title="新增下层目录">
+<iconify-icon icon="mdi:folder-plus"></iconify-icon>
+</button>
+<div class="w-[1px] h-4 bg-slate-200 mx-2"></div>
+<button onclick="submitForReview()" class="flex items-center gap-1 px-4 py-1.5 bg-amber-600 text-white rounded text-sm hover:bg-amber-700 shadow-sm transition-all">
+<iconify-icon icon="mdi:file-send"></iconify-icon>
+                        提交审核
+                    </button>
+<button class="flex items-center gap-1 px-4 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 shadow-sm transition-all" onclick="alert('即将发布当前目录所有更新文案至 S3...')">
+<iconify-icon icon="mdi:cloud-upload"></iconify-icon>
+                        发布至 S3
+                    </button>
+<button onclick="copyLink()" class="flex items-center gap-1 px-4 py-1.5 border border-slate-300 rounded text-sm text-slate-700 hover:bg-slate-50 transition-colors" title="复制CDN链接">
+<iconify-icon icon="mdi:link-variant"></iconify-icon>
+                        复制链接
+                    </button>
+</div>
+</div>
+<!-- 筛选 + 文案操作区 -->
+<div class="bg-white border-b border-slate-200 px-6 py-3 shrink-0 space-y-3">
+<!-- 筛选表单 -->
+<div class="flex items-center gap-3 flex-wrap">
+<div class="flex items-center gap-2">
+<label class="text-xs font-medium text-slate-600 whitespace-nowrap">文案 Key</label>
+<div class="relative">
+<iconify-icon icon="mdi:magnify" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400"></iconify-icon>
+<input type="text" id="filterKey" oninput="filterI18nTable()" placeholder="模糊匹配 Key" class="pl-7 pr-3 py-1.5 w-52 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<label class="text-xs font-medium text-slate-600 whitespace-nowrap">文案内容</label>
+<div class="relative">
+<iconify-icon icon="mdi:text-search" class="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400"></iconify-icon>
+<input type="text" id="filterContent" oninput="filterI18nTable()" placeholder="匹配任意语种内容" class="pl-7 pr-3 py-1.5 w-64 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<label class="text-xs font-medium text-slate-600 whitespace-nowrap">状态</label>
+<select id="filterStatus" onchange="filterI18nTable()" class="py-1.5 pl-2 pr-8 border border-slate-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">全部</option>
+<option value="草稿">草稿</option>
+<option value="已审核">已审核</option>
+<option value="已发布">已发布</option>
+</select>
+</div>
+<button onclick="filterI18nTable()" class="flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors shadow-sm">
+<iconify-icon icon="mdi:magnify"></iconify-icon>
+搜索
+</button>
+<button onclick="resetI18nFilter()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm text-slate-600 hover:bg-slate-50 transition-colors">
+<iconify-icon icon="mdi:restore"></iconify-icon>
+重置
+</button>
+<span id="filterHint" class="hidden text-xs text-slate-500 ml-1"></span>
+</div>
+<!-- 文案操作按钮 -->
+<div class="flex items-center justify-end gap-2 flex-wrap pt-2 border-t border-slate-100">
+<button class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-slate-50">
+<iconify-icon class="text-blue-500" icon="mdi:import"></iconify-icon>
+导入
+</button>
+<button class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-slate-50">
+<iconify-icon class="text-slate-500" icon="mdi:export"></iconify-icon>
+导出
+</button>
+<button onclick="deleteSelectedItems()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-red-50 hover:border-red-300 hover:text-red-600 transition-colors">
+<iconify-icon icon="mdi:delete-outline"></iconify-icon>
+删除文案
+</button>
+<button onclick="openDeleteLanguageModal()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-orange-50 hover:border-orange-300 hover:text-orange-600 transition-colors">
+<iconify-icon icon="mdi:translate-off"></iconify-icon>
+删除语种
+</button>
+<button onclick="openAddLanguageModal()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-green-50 hover:border-green-300 hover:text-green-600 transition-colors">
+<iconify-icon icon="mdi:translate"></iconify-icon>
+增加语种
+</button>
+<button onclick="openMigrateModal()" class="flex items-center gap-1 px-3 py-1.5 border border-slate-200 rounded text-sm hover:bg-purple-50 hover:border-purple-300 hover:text-purple-600 transition-colors">
+<iconify-icon icon="mdi:folder-move"></iconify-icon>
+文案迁移
+</button>
+</div>
+</div>
+<!-- 数据表格 -->
+<div class="flex-1 overflow-auto bg-white p-4">
+<div class="min-w-full inline-block align-middle">
+<table class="min-w-full border-collapse border border-slate-200 table-fixed">
+<thead class="bg-slate-50 sticky top-0 z-20">
+<tr>
+<th class="w-12 border border-slate-200 p-2"><input class="rounded" type="checkbox"/></th>
+<th class="w-48 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">文案 Key</th>
+<th class="w-64 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">英文 (EN)</th>
+<th class="w-64 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">日文 (JA)</th>
+<th class="w-32 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">状态</th>
+<th class="w-24 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider text-center">操作</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-slate-200" id="i18nTableBody">
+<!-- 动态生成的行 -->
+<tr class="hover:bg-blue-50/30">
+<td class="border border-slate-200 p-2 text-center"><input class="rounded" type="checkbox"/></td>
+<td class="border border-slate-200 p-2 font-mono text-xs text-blue-600 bg-slate-50/50 table-cell-edit" contenteditable="true">PD_TITLE_DESC</td>
+<td class="border border-slate-200 p-2 table-cell-edit" contenteditable="true">Selected quality, presenting the best choice for you.</td>
+<td class="border border-slate-200 p-2 table-cell-edit" contenteditable="true">厳選された品質、あなたに最適な選択を。</td>
+<td class="border border-slate-200 p-2">
+<span class="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded border border-green-200">已发布</span>
+</td>
+<td class="border border-slate-200 p-2 text-center">
+<button class="text-slate-400 hover:text-red-500 transition-colors"><iconify-icon icon="mdi:trash-can-outline"></iconify-icon></button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30">
+<td class="border border-slate-200 p-2 text-center"><input class="rounded" type="checkbox"/></td>
+<td class="border border-slate-200 p-2 font-mono text-xs text-blue-600 bg-slate-50/50 table-cell-edit" contenteditable="true">BUY_NOW_BTN</td>
+<td class="border border-slate-200 p-2 table-cell-edit" contenteditable="true">Buy Now</td>
+<td class="border border-slate-200 p-2 table-cell-edit text-slate-400 italic" contenteditable="true">待翻译...</td>
+<td class="border border-slate-200 p-2">
+<span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] rounded border border-amber-200 font-bold">草稿</span>
+</td>
+<td class="border border-slate-200 p-2 text-center text-slate-400">
+<button class="hover:text-red-500"><iconify-icon icon="mdi:trash-can-outline"></iconify-icon></button>
+</td>
+</tr>
+<tr class="hover:bg-blue-50/30">
+<td class="border border-slate-200 p-2 text-center"><input class="rounded" type="checkbox"/></td>
+<td class="border border-slate-200 p-2 font-mono text-xs text-blue-600 bg-slate-50/50 table-cell-edit" contenteditable="true">ADD_TO_CART</td>
+<td class="border border-slate-200 p-2 table-cell-edit" contenteditable="true">Add to Cart</td>
+<td class="border border-slate-200 p-2 table-cell-edit" contenteditable="true">カートに追加</td>
+<td class="border border-slate-200 p-2">
+<span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] rounded border border-blue-200">已审核</span>
+</td>
+<td class="border border-slate-200 p-2 text-center">
+<button class="text-slate-400 hover:text-red-500 transition-colors"><iconify-icon icon="mdi:trash-can-outline"></iconify-icon></button>
+</td>
+</tr>
+<!-- 新增行模拟 -->
+<tr class="bg-blue-50/20">
+<td class="border border-slate-200 p-2 text-center">NEW</td>
+<td class="border border-slate-200 p-2 font-mono text-xs italic text-slate-400 bg-white table-cell-edit" contenteditable="true" id="autoKeyPreview">键值自动生成...</td>
+<td class="border border-slate-200 p-2 bg-white table-cell-edit" contenteditable="true" onkeyup="updateAutoKey(this)"></td>
+<td class="border border-slate-200 p-2 bg-white" contenteditable="true"></td>
+<td class="border border-slate-200 p-2">
+<span class="text-slate-400 text-[10px]">正在编辑</span>
+</td>
+<td class="border border-slate-200 p-2 text-center">
+<button class="text-blue-600 font-bold text-xs">保存</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- 填充行保证表格丰满 -->
+<div class="mt-4 border-t border-slate-100 py-4 flex items-center justify-between text-slate-400 text-xs">
+<div class="">共计 128 条文案，当前展示 1-50 条</div>
+<div class="flex gap-2">
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50">上一页</button>
+<button class="px-2 py-1 bg-slate-800 text-white rounded">1</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50">2</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50">3</button>
+<button class="px-2 py-1 border border-slate-200 rounded hover:bg-slate-50">下一页</button>
+</div>
+</div>
+</div>
+<!-- 底部状态栏 -->
+<footer class="h-8 bg-slate-100 border-t border-slate-200 flex items-center px-4 shrink-0 text-[10px] text-slate-500 gap-6">
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="" style="opacity: 1;">最后发布: v1.2 - 2026-04-14 10:24</span>
+</div>
+<div class="">创建人: Gemini</div>
+<div class="" style="opacity: 1;">审核流: 需经 2 位审核员通过</div>
+<div class="ml-auto flex gap-4">
+</div>
+</footer>
+</main>
+</div>
+
+<!-- 编辑/新增目录弹窗 -->
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] max-h-[90vh] overflow-hidden">
+<!-- 弹窗头部 -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 id="modalTitle" class="text-lg font-bold text-slate-800">编辑目录</h3>
+<button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<!-- 弹窗内容 -->
+<div class="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
+<!-- 目录名称（必填） -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">
+目录名称 <span class="text-red-500">*</span>
+</label>
+<input type="text" id="dirName" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入目录名称" required>
+</div>
+<!-- 目录Key（选填） -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">目录Key</label>
+<input type="text" id="dirKey" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入目录Key（留空自动生成）">
+</div>
+<!-- 审核员（选填） -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">审核员</label>
+<input type="text" id="reviewers" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="请输入审核员邮箱，多个邮箱用逗号或分号分隔">
+<p class="text-xs text-slate-500 mt-1">例如: zhang.san@vesync.com, li.si@vesync.com</p>
+</div>
+<!-- 父级目录（选填） -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">父级目录</label>
+<select id="parentDir" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">无（根目录）</option>
+<option value="h5mall">C端H5商城</option>
+<option value="home">首页模块</option>
+<option value="profile">个人中心</option>
+<option value="common">公共资源</option>
+</select>
+</div>
+<!-- 截图上传（选填） -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">截图</label>
+<div class="space-y-2">
+<!-- 上传按钮区域 -->
+<div class="flex items-center gap-2">
+<label for="screenshotUpload" class="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-md cursor-pointer hover:bg-slate-50 transition-colors">
+<iconify-icon icon="mdi:image-plus" class="text-blue-500"></iconify-icon>
+<span class="text-sm text-slate-700">选择图片</span>
+</label>
+<input type="file" id="screenshotUpload" class="hidden" accept="image/*" onchange="handleScreenshotUpload(event)" multiple>
+<span class="text-xs text-slate-500">支持 JPG、PNG、GIF 格式</span>
+</div>
+<!-- 图片预览区域 -->
+<div id="screenshotPreview" class="grid grid-cols-2 gap-2 mt-2"></div>
+</div>
+<p class="text-xs text-slate-500 mt-1">可上传多张截图作为目录参考（如设计稿、原型图等）</p>
+</div>
+</div>
+<!-- 弹窗底部 -->
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="saveDirectory()" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">保存</button>
+</div>
+</div>
+</div>
+
+<!-- 删除语种弹窗 -->
+<div id="deleteLanguageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[450px] overflow-hidden">
+<!-- 弹窗头部 -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">删除语种</h3>
+<button onclick="closeDeleteLanguageModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<!-- 弹窗内容 -->
+<div class="p-6">
+<p class="text-sm text-slate-600 mb-4">选择要删除的语种，所有文案的该语种翻译将被删除</p>
+<div class="space-y-3">
+<!-- 英文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="en" class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-blue-500"></iconify-icon>
+<span class="font-medium text-slate-800">英文 (EN)</span>
+</div>
+</label>
+<!-- 日文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="ja" class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-green-500"></iconify-icon>
+<span class="font-medium text-slate-800">日文 (JA)</span>
+</div>
+</label>
+</div>
+<div class="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:alert" class="text-orange-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-orange-800">
+<p class="font-medium">警告：删除语种后，所有文案的该语种翻译内容将在审核通过后被永久删除</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 弹窗底部 -->
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeDeleteLanguageModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmDeleteLanguages()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">确认删除</button>
+</div>
+</div>
+</div>
+
+<!-- 增加语种弹窗 -->
+<div id="addLanguageModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[450px] overflow-hidden">
+<!-- 弹窗头部 -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">增加语种</h3>
+<button onclick="closeAddLanguageModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<!-- 弹窗内容 -->
+<div class="p-6">
+<p class="text-sm text-slate-600 mb-4">选择要新增的语种，系统将为所有文案增加该语种列</p>
+<div class="space-y-3">
+<!-- 法文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="fr" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-purple-500"></iconify-icon>
+<span class="font-medium text-slate-800">法文 (FR)</span>
+</div>
+</label>
+<!-- 德文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="de" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-orange-500"></iconify-icon>
+<span class="font-medium text-slate-800">德文 (DE)</span>
+</div>
+</label>
+<!-- 西班牙文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="es" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-red-500"></iconify-icon>
+<span class="font-medium text-slate-800">西班牙文 (ES)</span>
+</div>
+</label>
+<!-- 韩文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="ko" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-pink-500"></iconify-icon>
+<span class="font-medium text-slate-800">韩文 (KO)</span>
+</div>
+</label>
+<!-- 意大利文 -->
+<label class="flex items-center gap-3 p-3 border border-slate-200 rounded-md hover:bg-slate-50 cursor-pointer transition-colors">
+<input type="checkbox" value="it" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-500">
+<div class="flex items-center gap-2">
+<iconify-icon icon="mdi:translate" class="text-teal-500"></iconify-icon>
+<span class="font-medium text-slate-800">意大利文 (IT)</span>
+</div>
+</label>
+</div>
+<div class="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:information" class="text-green-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-green-800">
+<p class="font-medium">新增语种后，所有文案将增加对应的语种列，初始内容为空，需后续翻译填充</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 弹窗底部 -->
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeAddLanguageModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmAddLanguages()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">确认增加</button>
+</div>
+</div>
+</div>
+
+<!-- 迁移文案弹窗 -->
+<div id="migrateModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden">
+<!-- 弹窗头部 -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">迁移文案</h3>
+<button onclick="closeMigrateModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<!-- 弹窗内容 -->
+<div class="p-6">
+<div class="mb-4">
+<p class="text-sm text-slate-600 mb-2">已选择 <span id="migrateCount" class="font-bold text-blue-600">0</span> 条文案</p>
+<div class="p-3 bg-blue-50 border border-blue-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:information" class="text-blue-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-blue-800">
+<p>迁移后，选中的文案将从当前目录移动到目标目录</p>
+</div>
+</div>
+</div>
+</div>
+<!-- 目标目录选择 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">
+目标目录 <span class="text-red-500">*</span>
+</label>
+<select id="targetDirectory" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+<option value="">请选择目标目录</option>
+<optgroup label="项目目录">
+<option value="h5mall">C端H5商城</option>
+<option value="home">首页模块</option>
+<option value="product" selected>商品详情</option>
+<option value="checkout">结算流程</option>
+<option value="profile">个人中心</option>
+</optgroup>
+<optgroup label="公共资源">
+<option value="common_errors">常用错误提示码</option>
+</optgroup>
+</select>
+<p class="text-xs text-slate-500 mt-2">
+<iconify-icon icon="mdi:alert-circle-outline" class="text-amber-500"></iconify-icon>
+当前目录：<span class="font-medium">商品详情</span>
+</p>
+</div>
+<!-- 迁移选项 -->
+<div class="mt-4">
+<label class="flex items-center gap-2 cursor-pointer">
+<input type="checkbox" id="keepOriginal" class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500">
+<span class="text-sm text-slate-700">保留原目录副本（复制而非移动）</span>
+</label>
+</div>
+</div>
+<!-- 弹窗底部 -->
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeMigrateModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmMigrate()" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors">确认迁移</button>
+</div>
+</div>
+</div>
+
+<!-- 提交审核弹窗 -->
+<div id="submitReviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg shadow-xl w-[550px] max-h-[90vh] overflow-hidden">
+<!-- 弹窗头部 -->
+<div class="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+<h3 class="text-lg font-bold text-slate-800">提交审核</h3>
+<button onclick="closeSubmitReviewModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+<iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+</button>
+</div>
+<!-- 弹窗内容 -->
+<div class="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+<!-- 目录层级显示 -->
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">目录层级</label>
+<div id="directoryPathDisplay" class="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-3 rounded-md border border-slate-200">
+<!-- 动态生成目录路径 -->
+</div>
+</div>
+
+<!-- 审核流显示 -->
+<div class="mb-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">审核流程</label>
+<div class="bg-slate-50 p-4 rounded-md border border-slate-200">
+<div id="reviewFlowDisplay" class="space-y-3">
+<!-- 动态生成审核流 -->
+</div>
+
+<div class="mt-3 p-2 bg-blue-50 border border-blue-200 rounded text-xs text-blue-700 flex items-center gap-2">
+<iconify-icon icon="mdi:information" class="text-sm"></iconify-icon>
+<span>审核将按照从当前目录到顶层目录的顺序逐级进行，每层任一审核员通过后才能进入下一层</span>
+</div>
+</div>
+</div>
+
+<!-- 提交提示 -->
+<div class="mb-4">
+<div class="p-3 bg-amber-50 border border-amber-200 rounded-md">
+<div class="flex items-start gap-2">
+<iconify-icon icon="mdi:alert" class="text-amber-600 text-lg mt-0.5"></iconify-icon>
+<div class="text-sm text-amber-800">
+<p>请选择需要提交审核的变更范围，未选中的内容将不会提交</p>
+</div>
+</div>
+</div>
+</div>
+
+<!-- 变更范围选择 -->
+<div>
+<label class="block text-sm font-medium text-slate-700 mb-2">变更范围</label>
+<div class="border border-slate-200 rounded-md overflow-hidden">
+<!-- 顶部工具栏 -->
+<div class="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
+<label class="flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-700">
+<input type="checkbox" id="selectAllChanges" class="w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500" onchange="toggleAllChanges(this)">
+<span>全选</span>
+</label>
+<div class="flex items-center gap-3 text-xs">
+<!-- 图例 -->
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-slate-600">新增</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-slate-600">修改</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-slate-600">删除</span>
+</div>
+<span class="text-slate-300">|</span>
+<span class="text-slate-500">已选 <span id="selectedChangesCount" class="font-bold text-amber-600">0</span> 项</span>
+</div>
+</div>
+<!-- 树形结构容器 -->
+<div id="changeScopeTree" class="max-h-[400px] overflow-y-auto p-2 font-mono text-xs">
+<!-- 动态生成 -->
+</div>
+</div>
+</div>
+
+<!-- 备注说明 -->
+<div class="mt-4">
+<label class="block text-sm font-medium text-slate-700 mb-2">备注说明（选填）</label>
+<textarea id="reviewRemark" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none" rows="3" placeholder="请简要说明本次变更的原因或注意事项..."></textarea>
+</div>
+</div>
+
+<!-- 弹窗底部 -->
+<div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+<button onclick="closeSubmitReviewModal()" class="px-4 py-2 border border-slate-300 rounded-md text-slate-700 hover:bg-slate-100 transition-colors">取消</button>
+<button onclick="confirmSubmitReview()" class="px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors">提交审核</button>
+</div>
+</div>
+</div>
+
+<script>
+        // 实现 Key 自动生成逻辑：截取原文案前16字符，空格转下划线 _，保留大小写
+        function updateAutoKey(el) {
+            const text = el.innerText.trim();
+            const preview = document.getElementById('autoKeyPreview');
+            
+            // 如果Key单元格已被手动编辑过，不再自动更新
+            if (preview.dataset.manualEdit === 'true') {
+                return;
+            }
+            
+            if (text.length === 0) {
+                preview.innerText = "键值自动生成...";
+                preview.classList.add('italic', 'text-slate-400');
+                preview.classList.remove('text-blue-600', 'font-bold');
+                return;
+            }
+            
+            // 逻辑处理：取前16字符，空格转下划线
+            let key = text.substring(0, 16).replace(/\s+/g, '_');
+            
+            preview.innerText = key;
+            preview.classList.remove('italic', 'text-slate-400');
+            preview.classList.add('text-blue-600', 'font-bold');
+        }
+
+        // 监听Key单元格的手动编辑
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyPreview = document.getElementById('autoKeyPreview');
+            if (keyPreview) {
+                // 当用户开始编辑Key时，标记为手动编辑
+                keyPreview.addEventListener('focus', function() {
+                    if (this.innerText === '键值自动生成...') {
+                        this.innerText = '';
+                        this.classList.remove('italic', 'text-slate-400');
+                        this.classList.add('text-blue-600');
+                    }
+                });
+                
+                // 用户输入时标记为手动编辑模式
+                keyPreview.addEventListener('input', function() {
+                    this.dataset.manualEdit = 'true';
+                });
+                
+                // 如果失去焦点且为空，恢复提示文字并取消手动编辑标记
+                keyPreview.addEventListener('blur', function() {
+                    if (this.innerText.trim() === '') {
+                        this.innerText = '键值自动生成...';
+                        this.classList.add('italic', 'text-slate-400');
+                        this.classList.remove('text-blue-600', 'font-bold');
+                        this.dataset.manualEdit = 'false';
+                    }
+                });
+            }
+        });
+
+        function handleZHEdit(el) {
+            // 这里可以添加草稿状态变更逻辑
+        }
+
+        // 打开编辑弹窗
+        function openEditModal() {
+            document.getElementById('modalTitle').innerText = '编辑目录';
+            document.getElementById('dirName').value = '商品详情';
+            document.getElementById('dirKey').value = 'layout_pd';
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // 打开新增弹窗
+        function openAddModal() {
+            document.getElementById('modalTitle').innerText = '新增下层目录';
+            document.getElementById('dirName').value = '';
+            document.getElementById('dirKey').value = '';
+            document.getElementById('reviewers').value = '';
+            document.getElementById('parentDir').value = 'home'; // 默认父级为当前目录
+            clearScreenshots(); // 清空截图
+            document.getElementById('editModal').classList.remove('hidden');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+            // 清空截图预览
+            clearScreenshots();
+        }
+
+        // 存储上传的截图
+        let uploadedScreenshots = [];
+
+        // 处理截图上传
+        function handleScreenshotUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            // 验证文件类型和大小
+            for (let file of files) {
+                // 检查文件类型
+                if (!file.type.startsWith('image/')) {
+                    alert(`文件 "${file.name}" 不是图片格式`);
+                    continue;
+                }
+                
+                // 检查文件大小（限制5MB）
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`文件 "${file.name}" 超过5MB限制`);
+                    continue;
+                }
+                
+                // 读取并预览图片
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageData = {
+                        file: file,
+                        dataUrl: e.target.result,
+                        name: file.name,
+                        size: file.size
+                    };
+                    
+                    uploadedScreenshots.push(imageData);
+                    addScreenshotPreview(imageData, uploadedScreenshots.length - 1);
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            // 清空input以允许重复选择同一文件
+            event.target.value = '';
+        }
+
+        // 添加截图预览
+        function addScreenshotPreview(imageData, index) {
+            const previewContainer = document.getElementById('screenshotPreview');
+            
+            const previewItem = document.createElement('div');
+            previewItem.className = 'relative group border border-slate-200 rounded-md overflow-hidden bg-slate-50';
+            previewItem.dataset.index = index;
+            
+            // 图片预览
+            const img = document.createElement('img');
+            img.src = imageData.dataUrl;
+            img.className = 'w-full h-32 object-cover';
+            img.alt = imageData.name;
+            
+            // 文件信息
+            const info = document.createElement('div');
+            info.className = 'p-2 bg-white text-xs text-slate-600 truncate';
+            info.title = imageData.name;
+            info.innerText = imageData.name;
+            
+            // 删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-red-700';
+            deleteBtn.innerHTML = '<iconify-icon icon="mdi:close" class="text-sm"></iconify-icon>';
+            deleteBtn.onclick = function(e) {
+                e.preventDefault();
+                removeScreenshot(index);
+            };
+            
+            // 文件大小显示
+            const sizeInfo = document.createElement('div');
+            sizeInfo.className = 'absolute bottom-12 left-2 bg-black bg-opacity-60 text-white text-[10px] px-2 py-0.5 rounded';
+            sizeInfo.innerText = formatFileSize(imageData.size);
+            
+            previewItem.appendChild(img);
+            previewItem.appendChild(sizeInfo);
+            previewItem.appendChild(info);
+            previewItem.appendChild(deleteBtn);
+            
+            previewContainer.appendChild(previewItem);
+        }
+
+        // 删除截图
+        function removeScreenshot(index) {
+            uploadedScreenshots.splice(index, 1);
+            refreshScreenshotPreview();
+        }
+
+        // 刷新截图预览
+        function refreshScreenshotPreview() {
+            const previewContainer = document.getElementById('screenshotPreview');
+            previewContainer.innerHTML = '';
+            
+            uploadedScreenshots.forEach((imageData, index) => {
+                addScreenshotPreview(imageData, index);
+            });
+        }
+
+        // 清空截图
+        function clearScreenshots() {
+            uploadedScreenshots = [];
+            const previewContainer = document.getElementById('screenshotPreview');
+            if (previewContainer) {
+                previewContainer.innerHTML = '';
+            }
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 保存目录
+        function saveDirectory() {
+            const dirName = document.getElementById('dirName').value.trim();
+            if (!dirName) {
+                alert('请输入目录名称');
+                return;
+            }
+            
+            const dirKey = document.getElementById('dirKey').value.trim();
+            const reviewersInput = document.getElementById('reviewers').value.trim();
+            // 解析邮箱，支持逗号或分号分隔
+            const reviewerEmails = reviewersInput ? reviewersInput.split(/[,;，；]/).map(email => email.trim()).filter(email => email) : [];
+            
+            // 简单的邮箱格式验证
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            for (let email of reviewerEmails) {
+                if (!emailPattern.test(email)) {
+                    alert(`邮箱格式不正确: ${email}`);
+                    return;
+                }
+            }
+            
+            const parentDir = document.getElementById('parentDir').selectedOptions[0].text;
+            
+            // 收集截图信息
+            const screenshots = uploadedScreenshots.map(item => ({
+                name: item.name,
+                size: item.size,
+                dataUrl: item.dataUrl.substring(0, 50) + '...' // 只记录前50个字符用于日志
+            }));
+            
+            console.log('保存目录:', {
+                name: dirName,
+                key: dirKey || '自动生成',
+                reviewers: reviewerEmails,
+                parent: parentDir,
+                screenshots: screenshots,
+                screenshotCount: uploadedScreenshots.length
+            });
+            
+            // 这里可以通过 FormData 将截图上传到服务器
+            if (uploadedScreenshots.length > 0) {
+                console.log('准备上传 ' + uploadedScreenshots.length + ' 张截图到服务器');
+                // 示例：创建 FormData 对象
+                // const formData = new FormData();
+                // uploadedScreenshots.forEach((item, index) => {
+                //     formData.append('screenshots[]', item.file);
+                // });
+            }
+            
+            alert('目录保存成功！' + (uploadedScreenshots.length > 0 ? '\n已上传 ' + uploadedScreenshots.length + ' 张截图' : ''));
+            closeModal();
+        }
+
+        // ===== 文案搜索与筛选 =====
+        function filterI18nTable() {
+            const keyQuery = (document.getElementById('filterKey')?.value || '').trim().toLowerCase();
+            const contentQuery = (document.getElementById('filterContent')?.value || '').trim().toLowerCase();
+            const statusQuery = document.getElementById('filterStatus')?.value || '';
+
+            const tbody = document.getElementById('i18nTableBody');
+            if (!tbody) return;
+            const rows = tbody.querySelectorAll('tr');
+
+            let visibleCount = 0;
+            let totalCount = 0;
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 4) {
+                    return;
+                }
+                // 新增行（首列无复选框）始终可见，不参与筛选
+                const hasCheckbox = !!row.querySelector('td:first-child input[type="checkbox"]');
+                if (!hasCheckbox) {
+                    row.style.display = '';
+                    return;
+                }
+
+                totalCount++;
+
+                // 列布局：[checkbox, Key, ...多个语种内容, 状态, 操作]
+                const keyText = (cells[1]?.innerText || '').toLowerCase();
+                const statusText = (cells[cells.length - 2]?.innerText || '').trim();
+
+                let contentCombined = '';
+                for (let i = 2; i < cells.length - 2; i++) {
+                    contentCombined += ' ' + (cells[i].innerText || '').toLowerCase();
+                }
+
+                let match = true;
+                if (keyQuery && !keyText.includes(keyQuery)) match = false;
+                if (match && contentQuery && !contentCombined.includes(contentQuery)) match = false;
+                if (match && statusQuery && !statusText.includes(statusQuery)) match = false;
+
+                row.style.display = match ? '' : 'none';
+                if (match) visibleCount++;
+            });
+
+            const hintEl = document.getElementById('filterHint');
+            if (hintEl) {
+                const hasAnyFilter = keyQuery || contentQuery || statusQuery;
+                if (hasAnyFilter) {
+                    hintEl.textContent = `已筛选出 ${visibleCount} / ${totalCount} 条结果`;
+                    hintEl.classList.remove('hidden');
+                } else {
+                    hintEl.classList.add('hidden');
+                }
+            }
+        }
+
+        function resetI18nFilter() {
+            const keyEl = document.getElementById('filterKey');
+            const contentEl = document.getElementById('filterContent');
+            const statusEl = document.getElementById('filterStatus');
+            if (keyEl) keyEl.value = '';
+            if (contentEl) contentEl.value = '';
+            if (statusEl) statusEl.value = '';
+            filterI18nTable();
+        }
+
+        // 批量删除文案
+        function deleteSelectedItems() {
+            // 获取所有选中的复选框
+            const checkboxes = document.querySelectorAll('#i18nTableBody input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('请先选择要删除的文案');
+                return;
+            }
+            
+            // 确认删除
+            const confirmMsg = `确定要删除选中的 ${checkboxes.length} 条文案吗？\n\n此操作不可撤销！`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // 删除选中的行
+            let deletedCount = 0;
+            checkboxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                if (row) {
+                    // 获取文案Key用于日志
+                    const keyCell = row.querySelector('td:nth-child(2)');
+                    const key = keyCell ? keyCell.innerText : '未知';
+                    console.log('删除文案:', key);
+                    
+                    // 删除行
+                    row.remove();
+                    deletedCount++;
+                }
+            });
+            
+            alert(`成功删除 ${deletedCount} 条文案`);
+            
+            // 取消全选状态（如果有）
+            const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+        }
+        
+        // 全选/取消全选功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('#i18nTableBody input[type="checkbox"]');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            }
+        });
+
+        // 打开删除语种弹窗
+        function openDeleteLanguageModal() {
+            document.getElementById('deleteLanguageModal').classList.remove('hidden');
+        }
+
+        // 关闭删除语种弹窗
+        function closeDeleteLanguageModal() {
+            document.getElementById('deleteLanguageModal').classList.add('hidden');
+            // 清除所有选中状态
+            const checkboxes = document.querySelectorAll('#deleteLanguageModal input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        // 确认删除语种
+        function confirmDeleteLanguages() {
+            const checkboxes = document.querySelectorAll('#deleteLanguageModal input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('请至少选择一个语种');
+                return;
+            }
+            
+            const languages = Array.from(checkboxes).map(cb => cb.value);
+            const languageNames = {
+                'en': '英文',
+                'ja': '日文'
+            };
+            
+            // 获取所有可用语种
+            const allLanguages = ['en', 'ja'];
+            const remainingLanguages = allLanguages.filter(lang => !languages.includes(lang));
+            
+            // 检查是否至少保留一个语种
+            if (remainingLanguages.length === 0) {
+                alert('至少需要保留一个语种！\n\n系统必须保留至少一个语种的翻译内容。');
+                return;
+            }
+            
+            // 检查是否包含英文，如果有英文则不允许删除
+            if (languages.includes('en')) {
+                // 检查是否还有其他语种
+                if (remainingLanguages.length === 0 || !remainingLanguages.includes('ja')) {
+                    alert('不能删除英文语种！\n\n英文是基础语种，必须保留。如需删除所有语种，请先删除其他语种，保留英文。');
+                    return;
+                } else {
+                    // 有其他语种但还是选择了英文
+                    const confirmEN = confirm('英文是基础语种，建议保留。\n\n确定要删除英文吗？\n（删除后将只保留' + remainingLanguages.map(l => languageNames[l]).join('、') + '）');
+                    if (!confirmEN) {
+                        return;
+                    }
+                }
+            }
+            
+            const selectedNames = languages.map(lang => languageNames[lang]).join('、');
+            const remainingNames = remainingLanguages.map(lang => languageNames[lang]).join('、');
+            const confirmMsg = `确定要删除 ${selectedNames} 吗？\n\n此操作将删除所有文案的该语种翻译内容，且不可撤销！\n\n删除后将保留：${remainingNames}`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // 执行删除操作
+            let deletedCount = 0;
+            const rows = document.querySelectorAll('#i18nTableBody tr');
+            
+            // 根据语种确定要删除的列索引
+            const columnMap = {
+                'en': 3, // 英文列（第3列，索引从1开始）
+                'ja': 4  // 日文列（第4列）
+            };
+            
+            rows.forEach(row => {
+                languages.forEach(lang => {
+                    const colIndex = columnMap[lang];
+                    const cell = row.querySelector(`td:nth-child(${colIndex})`);
+                    if (cell && cell.hasAttribute('contenteditable')) {
+                        // 清空内容并添加"已删除"标记
+                        cell.innerText = '';
+                        cell.classList.add('text-slate-400', 'italic');
+                        cell.innerText = '已删除该语种';
+                        deletedCount++;
+                    }
+                });
+            });
+            
+            alert(`成功删除 ${selectedNames} 的所有翻译内容`);
+            closeDeleteLanguageModal();
+            
+            console.log('删除语种:', languages, '影响行数:', deletedCount);
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        document.getElementById('deleteLanguageModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDeleteLanguageModal();
+            }
+        });
+
+        // 打开迁移弹窗
+        function openMigrateModal() {
+            // 获取选中的文案数量
+            const checkboxes = document.querySelectorAll('#i18nTableBody input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('请先选择要迁移的文案');
+                return;
+            }
+            
+            // 更新选中数量显示
+            document.getElementById('migrateCount').innerText = checkboxes.length;
+            
+            // 显示弹窗
+            document.getElementById('migrateModal').classList.remove('hidden');
+        }
+
+        // 关闭迁移弹窗
+        function closeMigrateModal() {
+            document.getElementById('migrateModal').classList.add('hidden');
+            // 重置表单
+            document.getElementById('targetDirectory').value = '';
+            document.getElementById('keepOriginal').checked = false;
+        }
+
+        // 确认迁移
+        function confirmMigrate() {
+            const targetDir = document.getElementById('targetDirectory').value;
+            const keepOriginal = document.getElementById('keepOriginal').checked;
+            const checkboxes = document.querySelectorAll('#i18nTableBody input[type="checkbox"]:checked');
+            
+            if (!targetDir) {
+                alert('请选择目标目录');
+                return;
+            }
+            
+            // 获取目标目录名称
+            const targetOption = document.querySelector(`#targetDirectory option[value="${targetDir}"]`);
+            const targetName = targetOption ? targetOption.innerText : targetDir;
+            
+            // 确认操作
+            const action = keepOriginal ? '复制' : '移动';
+            const confirmMsg = `确定要将选中的 ${checkboxes.length} 条文案${action}到"${targetName}"吗？`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // 收集要迁移的文案信息
+            const migratedItems = [];
+            checkboxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                if (row) {
+                    const keyCell = row.querySelector('td:nth-child(2)');
+                    const enCell = row.querySelector('td:nth-child(3)');
+                    const jaCell = row.querySelector('td:nth-child(4)');
+                    
+                    const item = {
+                        key: keyCell ? keyCell.innerText : '',
+                        en: enCell ? enCell.innerText : '',
+                        ja: jaCell ? jaCell.innerText : ''
+                    };
+                    
+                    migratedItems.push(item);
+                    
+                    // 如果是移动（非复制），则删除原行
+                    if (!keepOriginal) {
+                        row.remove();
+                    }
+                }
+            });
+            
+            console.log('迁移文案:', {
+                action: action,
+                target: targetName,
+                targetValue: targetDir,
+                count: migratedItems.length,
+                items: migratedItems
+            });
+            
+            alert(`成功${action} ${migratedItems.length} 条文案到"${targetName}"`);
+            closeMigrateModal();
+            
+            // 取消全选状态
+            const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+        }
+        
+        document.getElementById('migrateModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMigrateModal();
+            }
+        });
+
+        // 打开增加语种弹窗
+        function openAddLanguageModal() {
+            document.getElementById('addLanguageModal').classList.remove('hidden');
+        }
+
+        // 关闭增加语种弹窗
+        function closeAddLanguageModal() {
+            document.getElementById('addLanguageModal').classList.add('hidden');
+            // 清除所有选中状态
+            const checkboxes = document.querySelectorAll('#addLanguageModal input[type="checkbox"]');
+            checkboxes.forEach(cb => cb.checked = false);
+        }
+
+        // 确认增加语种
+        function confirmAddLanguages() {
+            const checkboxes = document.querySelectorAll('#addLanguageModal input[type="checkbox"]:checked');
+            
+            if (checkboxes.length === 0) {
+                alert('请至少选择一个语种');
+                return;
+            }
+            
+            const languages = Array.from(checkboxes).map(cb => cb.value);
+            const languageNames = {
+                'fr': '法文',
+                'de': '德文',
+                'es': '西班牙文',
+                'ko': '韩文',
+                'it': '意大利文'
+            };
+            
+            const selectedNames = languages.map(lang => languageNames[lang]).join('、');
+            const confirmMsg = `确定要增加 ${selectedNames} 吗？\n\n新增语种将应用到所有文案，初始内容为空。`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            // 执行增加操作
+            const table = document.querySelector('table');
+            const thead = table.querySelector('thead tr');
+            const tbody = document.getElementById('i18nTableBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            // 获取当前最后一个语种列的位置（在"状态"列之前）
+            const statusColumnIndex = 5; // "状态"列的索引（从1开始）
+            
+            // 为每个新增语种添加表头
+            languages.forEach(lang => {
+                const th = document.createElement('th');
+                th.className = 'w-64 border border-slate-200 p-2 text-left text-xs font-bold text-slate-500 uppercase tracking-wider';
+                th.innerText = `${languageNames[lang]} (${lang.toUpperCase()})`;
+                // 在"状态"列之前插入
+                thead.insertBefore(th, thead.children[statusColumnIndex - 1]);
+            });
+            
+            // 为每一行添加新语种的单元格
+            rows.forEach(row => {
+                const statusCell = row.querySelector('td:nth-child(' + statusColumnIndex + ')');
+                
+                languages.forEach(lang => {
+                    const td = document.createElement('td');
+                    td.className = 'border border-slate-200 p-2 table-cell-edit text-slate-400 italic';
+                    td.contentEditable = 'true';
+                    td.innerText = '待翻译...';
+                    // 在"状态"单元格之前插入
+                    row.insertBefore(td, statusCell);
+                });
+            });
+            
+            console.log('增加语种:', languages);
+            alert(`成功增加 ${selectedNames} 语种列`);
+            closeAddLanguageModal();
+        }
+        
+        document.getElementById('addLanguageModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddLanguageModal();
+            }
+        });
+
+        // 复制CDN链接
+        function copyLink() {
+            // 生成CDN链接（示例格式）
+            const currentDir = '商品详情'; // 可以从页面中动态获取
+            const dirKey = 'layout_pd'; // 可以从页面中动态获取
+            const cdnLink = `https://cdn.vesync.com/i18n/${dirKey}/zh-CN.json`;
+            
+            // 复制到剪贴板
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cdnLink).then(function() {
+                    // 显示成功提示
+                    showCopySuccess();
+                    console.log('已复制链接:', cdnLink);
+                }).catch(function(err) {
+                    console.error('复制失败:', err);
+                    fallbackCopy(cdnLink);
+                });
+            } else {
+                // 降级方案
+                fallbackCopy(cdnLink);
+            }
+        }
+
+        // 降级复制方案（兼容旧浏览器）
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+                console.log('已复制链接:', text);
+            } catch (err) {
+                alert('复制失败，请手动复制：\n' + text);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+
+        // 显示复制成功提示
+        function showCopySuccess() {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 right-6 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 z-50 animate-fade-in';
+            toast.innerHTML = '<iconify-icon icon="mdi:check-circle" class="text-xl"></iconify-icon><span>链接已复制到剪贴板</span>';
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        // 模拟目录结构数据（实际应从后端获取）
+        const mockDirectoryData = {
+            path: [
+                { id: 'h5mall', name: 'C端H5商城' },
+                { id: 'home', name: '首页模块' },
+                { id: 'product', name: '商品详情' }
+            ],
+            reviewFlow: [
+                {
+                    level: 1,
+                    directory: { id: 'product', name: '商品详情' },
+                    isCurrent: true,
+                    reviewers: [
+                        { name: '张三', email: 'zhang.san@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' },
+                        { name: '李四', email: 'li.si@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' }
+                    ]
+                },
+                {
+                    level: 2,
+                    directory: { id: 'home', name: '首页模块' },
+                    isCurrent: false,
+                    reviewers: [
+                        { name: '王五', email: 'wang.wu@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' }
+                    ]
+                },
+                {
+                    level: 3,
+                    directory: { id: 'h5mall', name: 'C端H5商城' },
+                    isCurrent: false,
+                    reviewers: [
+                        { name: '赵六', email: 'zhao.liu@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' },
+                        { name: '孙七', email: 'sun.qi@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' },
+                        { name: '周八', email: 'zhou.ba@vesync.com', avatar: 'https://modao.cc/agent-py/media/generated_images/2026-04-14/e1b83c5c6f7a4b3b9ca915df96047dc2.jpg' }
+                    ]
+                }
+            ]
+        };
+
+        // 生成目录路径显示
+        function renderDirectoryPath(pathData) {
+            const container = document.getElementById('directoryPathDisplay');
+            container.innerHTML = '';
+            
+            pathData.forEach((dir, index) => {
+                const isLast = index === pathData.length - 1;
+                
+                // 文件夹图标
+                const folderIcon = document.createElement('iconify-icon');
+                folderIcon.setAttribute('icon', isLast ? 'mdi:folder' : 'mdi:folder-outline');
+                folderIcon.className = isLast ? 'text-blue-500' : 'text-slate-400';
+                container.appendChild(folderIcon);
+                
+                // 目录名称
+                const nameSpan = document.createElement('span');
+                nameSpan.className = isLast ? 'font-bold text-slate-800' : 'text-slate-500';
+                nameSpan.innerText = dir.name;
+                container.appendChild(nameSpan);
+                
+                // 当前目录标签
+                if (isLast) {
+                    const badge = document.createElement('span');
+                    badge.className = 'ml-1 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full';
+                    badge.innerText = '当前目录';
+                    container.appendChild(badge);
+                }
+                
+                // 箭头分隔符
+                if (!isLast) {
+                    const chevron = document.createElement('iconify-icon');
+                    chevron.setAttribute('icon', 'mdi:chevron-right');
+                    chevron.className = 'text-slate-300 text-xs';
+                    container.appendChild(chevron);
+                }
+            });
+        }
+
+        // 生成审核流显示
+        function renderReviewFlow(flowData) {
+            const container = document.getElementById('reviewFlowDisplay');
+            container.innerHTML = '';
+            
+            flowData.forEach((flow, index) => {
+                // 审核层级项
+                const flowItem = document.createElement('div');
+                flowItem.className = 'flex items-start gap-3';
+                
+                // 层级编号
+                const levelBadge = document.createElement('div');
+                levelBadge.className = `flex items-center justify-center w-8 h-8 ${flow.isCurrent ? 'bg-blue-500' : 'bg-slate-400'} text-white rounded-full text-sm font-bold shrink-0`;
+                levelBadge.innerText = flow.level;
+                flowItem.appendChild(levelBadge);
+                
+                // 内容区域
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'flex-1';
+                
+                // 目录信息
+                const dirInfo = document.createElement('div');
+                dirInfo.className = 'flex items-center gap-2 mb-1';
+                
+                const dirIcon = document.createElement('iconify-icon');
+                dirIcon.setAttribute('icon', flow.isCurrent ? 'mdi:folder' : 'mdi:folder-outline');
+                dirIcon.className = flow.isCurrent ? 'text-blue-500' : 'text-slate-400';
+                dirInfo.appendChild(dirIcon);
+                
+                const dirName = document.createElement('span');
+                dirName.className = flow.isCurrent ? 'font-medium text-slate-800' : 'font-medium text-slate-700';
+                dirName.innerText = flow.directory.name;
+                dirInfo.appendChild(dirName);
+                
+                const dirLabel = document.createElement('span');
+                dirLabel.className = 'text-xs text-slate-500';
+                dirLabel.innerText = flow.isCurrent ? '（当前目录）' : (flow.level === flowData.length ? '（顶层目录）' : '（父级目录）');
+                dirInfo.appendChild(dirLabel);
+                
+                contentDiv.appendChild(dirInfo);
+                
+                // 审核员列表
+                const reviewersDiv = document.createElement('div');
+                reviewersDiv.className = 'flex flex-wrap gap-2 mt-2';
+                
+                flow.reviewers.forEach(reviewer => {
+                    const reviewerItem = document.createElement('div');
+                    reviewerItem.className = 'flex items-center gap-1.5 bg-white border border-slate-200 rounded-full px-3 py-1 text-xs';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.className = 'text-slate-700 font-medium';
+                    nameSpan.innerText = reviewer.name;
+                    reviewerItem.appendChild(nameSpan);
+                    
+                    const emailSpan = document.createElement('span');
+                    emailSpan.className = 'text-slate-400';
+                    emailSpan.innerText = reviewer.email;
+                    reviewerItem.appendChild(emailSpan);
+                    
+                    reviewersDiv.appendChild(reviewerItem);
+                });
+                
+                contentDiv.appendChild(reviewersDiv);
+                flowItem.appendChild(contentDiv);
+                container.appendChild(flowItem);
+                
+                // 连接线（除了最后一项）
+                if (index < flowData.length - 1) {
+                    const connector = document.createElement('div');
+                    connector.className = 'flex items-center gap-3 ml-4';
+                    const line = document.createElement('div');
+                    line.className = 'w-0.5 h-6 bg-slate-300';
+                    connector.appendChild(line);
+                    container.appendChild(connector);
+                }
+            });
+        }
+
+        // 模拟变更范围数据（树形结构）
+        // 文案变更类型 type: 'added' | 'modified' | 'deleted'
+        // 文案变更 diff:
+        //   - key: { old, new } - 文案 Key 变更
+        //   - {lang}: { old, new } - 翻译内容变更
+        // 目录变更 dirChange:
+        //   - type: 'added' | 'modified' | 'deleted'（无此属性表示目录自身无变更）
+        //   - diff: { name, key, reviewers, parent } 等字段的 { old, new } 变更
+        const mockChangeScopeData = {
+            id: 'product',
+            name: '商品详情',
+            type: 'directory',
+            dirChange: {
+                type: 'modified',
+                diff: {
+                    name: { old: '商品详情页', new: '商品详情' },
+                    reviewers: {
+                        old: ['zhang.san@vesync.com'],
+                        new: ['zhang.san@vesync.com', 'li.si@vesync.com']
+                    }
+                }
+            },
+            items: [
+                {
+                    id: 'PD_TITLE_DESC',
+                    name: 'PD_TITLE_DESC',
+                    type: 'modified',
+                    diff: {
+                        en: { old: 'Selected quality.', new: 'Selected quality, presenting the best choice for you.' },
+                        ja: { old: '厳選された品質。', new: '厳選された品質、あなたに最適な選択を。' }
+                    }
+                },
+                {
+                    id: 'BUY_NOW_BTN',
+                    name: 'BUY_NOW_BTN',
+                    type: 'added',
+                    diff: {
+                        en: { new: 'Buy Now' },
+                        ja: { new: '今すぐ購入' }
+                    }
+                },
+                {
+                    id: 'ADD_TO_CART',
+                    name: 'ADD_TO_CART',
+                    type: 'modified',
+                    diff: {
+                        key: { old: 'ADD_CART', new: 'ADD_TO_CART' },
+                        en: { old: 'Add Cart', new: 'Add to Cart' }
+                    }
+                },
+                {
+                    id: 'PROMO_LABEL',
+                    name: 'PROMO_LABEL',
+                    type: 'modified',
+                    diff: {
+                        key: { old: 'PRMO_LABEL', new: 'PROMO_LABEL' }
+                    }
+                },
+                {
+                    id: 'OLD_PROMO',
+                    name: 'OLD_PROMO',
+                    type: 'deleted',
+                    diff: {
+                        en: { old: 'Limited time offer' },
+                        ja: { old: '期間限定オファー' }
+                    }
+                }
+            ],
+            children: [
+                {
+                    id: 'product_spec',
+                    name: '规格参数',
+                    type: 'directory',
+                    dirChange: {
+                        type: 'modified',
+                        diff: {
+                            key: { old: 'spec_params', new: 'product_spec' }
+                        }
+                    },
+                    items: [
+                        {
+                            id: 'SPEC_COLOR',
+                            name: 'SPEC_COLOR',
+                            type: 'added',
+                            diff: {
+                                en: { new: 'Color' },
+                                ja: { new: 'カラー' }
+                            }
+                        },
+                        {
+                            id: 'SPEC_SIZE',
+                            name: 'SPEC_SIZE',
+                            type: 'modified',
+                            diff: {
+                                key: { old: 'SIZE', new: 'SPEC_SIZE' },
+                                en: { old: 'Size', new: 'Size (Optional)' }
+                            }
+                        }
+                    ],
+                    children: []
+                },
+                {
+                    id: 'product_review',
+                    name: '商品评价',
+                    type: 'directory',
+                    items: [
+                        {
+                            id: 'REVIEW_TITLE',
+                            name: 'REVIEW_TITLE',
+                            type: 'added',
+                            diff: {
+                                en: { new: 'Customer Reviews' },
+                                ja: { new: 'カスタマーレビュー' }
+                            }
+                        },
+                        {
+                            id: 'REVIEW_EMPTY',
+                            name: 'REVIEW_EMPTY',
+                            type: 'deleted',
+                            diff: {
+                                en: { old: 'No reviews yet' }
+                            }
+                        }
+                    ],
+                    children: [
+                        {
+                            id: 'review_image',
+                            name: '图片评价',
+                            type: 'directory',
+                            dirChange: {
+                                type: 'added',
+                                diff: {
+                                    name: { new: '图片评价' },
+                                    key: { new: 'review_image' },
+                                    parent: { new: '商品评价' },
+                                    reviewers: {
+                                        new: ['wang.wu@vesync.com']
+                                    }
+                                }
+                            },
+                            items: [
+                                {
+                                    id: 'IMG_REVIEW_BTN',
+                                    name: 'IMG_REVIEW_BTN',
+                                    type: 'added',
+                                    diff: {
+                                        en: { new: 'Add Photo/Video' }
+                                    }
+                                }
+                            ],
+                            children: []
+                        }
+                    ]
+                },
+                {
+                    id: 'product_qa',
+                    name: '问答互动',
+                    type: 'directory',
+                    dirChange: {
+                        type: 'deleted',
+                        diff: {
+                            name: { old: '问答互动' },
+                            key: { old: 'product_qa' },
+                            reviewers: {
+                                old: ['zhao.liu@vesync.com', 'sun.qi@vesync.com']
+                            }
+                        }
+                    },
+                    items: [
+                        {
+                            id: 'QA_TITLE',
+                            name: 'QA_TITLE',
+                            type: 'deleted',
+                            diff: {
+                                en: { old: 'Questions & Answers' },
+                                ja: { old: '質問と回答' }
+                            }
+                        },
+                        {
+                            id: 'QA_ASK_BTN',
+                            name: 'QA_ASK_BTN',
+                            type: 'deleted',
+                            diff: {
+                                en: { old: 'Ask a Question' }
+                            }
+                        }
+                    ],
+                    children: []
+                },
+                {
+                    id: 'product_recommend',
+                    name: '相关推荐',
+                    type: 'directory',
+                    dirChange: {
+                        type: 'modified',
+                        diff: {
+                            name: { old: '推荐商品', new: '相关推荐' },
+                            parent: { old: '首页模块', new: '商品详情' },
+                            reviewers: {
+                                old: ['zhou.ba@vesync.com'],
+                                new: ['zhou.ba@vesync.com', 'zheng.jiu@vesync.com']
+                            }
+                        }
+                    },
+                    items: [
+                        {
+                            id: 'RECOMMEND_TITLE',
+                            name: 'RECOMMEND_TITLE',
+                            type: 'modified',
+                            diff: {
+                                en: { old: 'Recommended', new: 'You May Also Like' }
+                            }
+                        }
+                    ],
+                    children: []
+                }
+            ]
+        };
+
+        // 类型样式映射
+        const changeTypeStyles = {
+            added: {
+                bg: 'bg-green-50',
+                border: 'border-l-4 border-green-500',
+                badge: 'bg-green-100 text-green-700',
+                badgeText: '新增',
+                icon: 'mdi:plus-circle',
+                iconColor: 'text-green-500',
+                prefix: '+'
+            },
+            modified: {
+                bg: 'bg-amber-50',
+                border: 'border-l-4 border-amber-500',
+                badge: 'bg-amber-100 text-amber-700',
+                badgeText: '修改',
+                icon: 'mdi:pencil-circle',
+                iconColor: 'text-amber-500',
+                prefix: '~'
+            },
+            deleted: {
+                bg: 'bg-red-50',
+                border: 'border-l-4 border-red-500',
+                badge: 'bg-red-100 text-red-700',
+                badgeText: '删除',
+                icon: 'mdi:minus-circle',
+                iconColor: 'text-red-500',
+                prefix: '-'
+            }
+        };
+
+        // 计算目录变更摘要（包含文案变更 + 子目录自身变更）
+        function calcDirectorySummary(node) {
+            const summary = { added: 0, modified: 0, deleted: 0 };
+            // 统计当前目录下的文案变更
+            (node.items || []).forEach(item => {
+                if (summary[item.type] !== undefined) summary[item.type]++;
+            });
+            // 统计子目录
+            (node.children || []).forEach(child => {
+                // 子目录自身的变更也计入
+                if (child.dirChange && summary[child.dirChange.type] !== undefined) {
+                    summary[child.dirChange.type]++;
+                }
+                const childSummary = calcDirectorySummary(child);
+                summary.added += childSummary.added;
+                summary.modified += childSummary.modified;
+                summary.deleted += childSummary.deleted;
+            });
+            return summary;
+        }
+
+        // 字段名映射（用于目录变更的字段显示）
+        const dirDiffFieldNames = {
+            name: '目录名称',
+            key: '目录 Key',
+            reviewers: '审核员',
+            parent: '父级目录'
+        };
+
+        // 渲染目录变更内容（name、key、reviewers、parent 等字段变化）
+        function renderDirChangeDetails(dirChange, depth) {
+            if (!dirChange || !dirChange.diff) return null;
+            
+            const container = document.createElement('div');
+            container.className = 'pb-2 space-y-1';
+            container.style.paddingLeft = `${depth * 20 + 32}px`;
+            container.style.paddingRight = '8px';
+            
+            Object.keys(dirChange.diff).forEach(fieldKey => {
+                const fieldDiff = dirChange.diff[fieldKey];
+                const fieldLabel = dirDiffFieldNames[fieldKey] || fieldKey;
+                
+                const fieldRow = document.createElement('div');
+                fieldRow.className = 'flex items-start gap-2';
+                
+                const fieldTag = document.createElement('span');
+                fieldTag.className = 'text-[10px] text-slate-600 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+                fieldTag.innerText = fieldLabel;
+                fieldRow.appendChild(fieldTag);
+                
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'flex-1 space-y-0.5';
+                
+                // 审核员字段是数组，转为逗号分隔的字符串
+                const oldVal = Array.isArray(fieldDiff.old) ? fieldDiff.old.join(', ') : fieldDiff.old;
+                const newVal = Array.isArray(fieldDiff.new) ? fieldDiff.new.join(', ') : fieldDiff.new;
+                
+                if (oldVal !== undefined) {
+                    const oldLine = document.createElement('div');
+                    oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+                    oldLine.innerHTML = `<span class="font-bold shrink-0">-</span><span class="break-all">${escapeHtml(oldVal)}</span>`;
+                    contentDiv.appendChild(oldLine);
+                }
+                if (newVal !== undefined) {
+                    const newLine = document.createElement('div');
+                    newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+                    newLine.innerHTML = `<span class="font-bold shrink-0">+</span><span class="break-all">${escapeHtml(newVal)}</span>`;
+                    contentDiv.appendChild(newLine);
+                }
+                
+                fieldRow.appendChild(contentDiv);
+                container.appendChild(fieldRow);
+            });
+            
+            return container;
+        }
+
+        // 渲染变更树
+        function renderChangeScopeTree(node, container, depth = 0) {
+            // 目录自身的变更类型（如果有）
+            const dirChangeType = node.dirChange ? node.dirChange.type : null;
+            const dirStyle = dirChangeType ? changeTypeStyles[dirChangeType] : null;
+            
+            // 目录节点
+            const dirNode = document.createElement('div');
+            dirNode.className = 'change-tree-dir mb-1';
+            if (dirStyle) {
+                dirNode.classList.add(dirStyle.bg, ...dirStyle.border.split(' '), 'rounded');
+            }
+            dirNode.dataset.nodeId = node.id;
+            
+            // 目录头部
+            const dirHeader = document.createElement('div');
+            dirHeader.className = 'flex items-center gap-2 py-1.5 px-2 hover:bg-slate-50 rounded cursor-pointer';
+            dirHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+            
+            // 折叠箭头
+            const toggleBtn = document.createElement('iconify-icon');
+            toggleBtn.setAttribute('icon', 'mdi:chevron-down');
+            toggleBtn.className = 'text-slate-400 text-base shrink-0 transition-transform';
+            toggleBtn.style.cursor = 'pointer';
+            
+            // 目录复选框
+            const dirCheckbox = document.createElement('input');
+            dirCheckbox.type = 'checkbox';
+            dirCheckbox.className = 'w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500 shrink-0 change-dir-checkbox';
+            dirCheckbox.dataset.nodeId = node.id;
+            // 如果目录自身有变更，也作为一个可选项
+            if (dirChangeType) {
+                dirCheckbox.dataset.dirChangeType = dirChangeType;
+            }
+            dirCheckbox.addEventListener('click', e => e.stopPropagation());
+            dirCheckbox.addEventListener('change', function() {
+                toggleDirectoryCheck(dirNode, this.checked);
+                updateAllParentCheckStates();
+                updateSelectedChangesCount();
+            });
+            
+            // 目录图标
+            const dirIcon = document.createElement('iconify-icon');
+            dirIcon.setAttribute('icon', 'mdi:folder');
+            dirIcon.className = (dirStyle ? dirStyle.iconColor : 'text-blue-500') + ' text-base shrink-0';
+            
+            // 目录名称
+            const dirName = document.createElement('span');
+            dirName.className = 'font-bold text-slate-800 text-sm';
+            dirName.innerText = node.name;
+            
+            // 目录变更类型徽章
+            if (dirStyle) {
+                const dirTypeBadge = document.createElement('span');
+                dirTypeBadge.className = `text-[10px] ${dirStyle.badge} px-1.5 py-0.5 rounded ml-1`;
+                dirTypeBadge.innerText = '目录' + dirStyle.badgeText;
+                dirHeader.appendChild(toggleBtn);
+                dirHeader.appendChild(dirCheckbox);
+                dirHeader.appendChild(dirIcon);
+                dirHeader.appendChild(dirName);
+                dirHeader.appendChild(dirTypeBadge);
+            } else {
+                dirHeader.appendChild(toggleBtn);
+                dirHeader.appendChild(dirCheckbox);
+                dirHeader.appendChild(dirIcon);
+                dirHeader.appendChild(dirName);
+            }
+            
+            // 摘要徽章
+            const summary = calcDirectorySummary(node);
+            const summaryBadges = document.createElement('div');
+            summaryBadges.className = 'flex items-center gap-1 ml-auto';
+            
+            if (summary.added > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded';
+                badge.innerText = `+${summary.added}`;
+                summaryBadges.appendChild(badge);
+            }
+            if (summary.modified > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded';
+                badge.innerText = `~${summary.modified}`;
+                summaryBadges.appendChild(badge);
+            }
+            if (summary.deleted > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded';
+                badge.innerText = `-${summary.deleted}`;
+                summaryBadges.appendChild(badge);
+            }
+            
+            dirHeader.appendChild(summaryBadges);
+            dirNode.appendChild(dirHeader);
+            
+            // 目录自身变更的 diff 内容
+            if (node.dirChange) {
+                const dirDiff = renderDirChangeDetails(node.dirChange, depth);
+                if (dirDiff) dirNode.appendChild(dirDiff);
+            }
+            
+            // 子内容容器
+            const dirChildren = document.createElement('div');
+            dirChildren.className = 'change-tree-children';
+            
+            // 折叠展开
+            dirHeader.addEventListener('click', function(e) {
+                if (e.target === dirCheckbox) return;
+                const isCollapsed = dirChildren.classList.toggle('hidden');
+                toggleBtn.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+            });
+            
+            // 渲染文案条目
+            (node.items || []).forEach(item => {
+                const itemNode = renderChangeItem(item, depth + 1);
+                dirChildren.appendChild(itemNode);
+            });
+            
+            // 渲染子目录
+            (node.children || []).forEach(child => {
+                renderChangeScopeTree(child, dirChildren, depth + 1);
+            });
+            
+            dirNode.appendChild(dirChildren);
+            container.appendChild(dirNode);
+        }
+
+        // 渲染文案条目（diff view）
+        function renderChangeItem(item, depth) {
+            const style = changeTypeStyles[item.type];
+            
+            const itemWrapper = document.createElement('div');
+            itemWrapper.className = `change-tree-item mb-1 ${style.bg} ${style.border} rounded`;
+            itemWrapper.dataset.itemType = item.type;
+            
+            // 条目头部
+            const itemHeader = document.createElement('div');
+            itemHeader.className = 'flex items-center gap-2 py-1.5 px-2';
+            itemHeader.style.paddingLeft = `${depth * 20 + 8}px`;
+            
+            // 条目复选框
+            const itemCheckbox = document.createElement('input');
+            itemCheckbox.type = 'checkbox';
+            itemCheckbox.className = 'w-4 h-4 text-amber-600 rounded focus:ring-2 focus:ring-amber-500 shrink-0 change-item-checkbox';
+            itemCheckbox.dataset.itemId = item.id;
+            itemCheckbox.dataset.itemType = item.type;
+            itemCheckbox.addEventListener('change', function() {
+                updateAllParentCheckStates();
+                updateSelectedChangesCount();
+            });
+            
+            // 类型图标
+            const typeIcon = document.createElement('iconify-icon');
+            typeIcon.setAttribute('icon', style.icon);
+            typeIcon.className = `${style.iconColor} text-base shrink-0`;
+            
+            // 文案 Key
+            const itemKey = document.createElement('span');
+            itemKey.className = 'font-mono text-xs text-slate-700 font-medium';
+            itemKey.innerText = item.name;
+            
+            // 类型徽章
+            const typeBadge = document.createElement('span');
+            typeBadge.className = `text-[10px] ${style.badge} px-1.5 py-0.5 rounded ml-1`;
+            typeBadge.innerText = style.badgeText;
+            
+            itemHeader.appendChild(itemCheckbox);
+            itemHeader.appendChild(typeIcon);
+            itemHeader.appendChild(itemKey);
+            itemHeader.appendChild(typeBadge);
+            itemWrapper.appendChild(itemHeader);
+            
+            // diff 内容
+            if (item.diff) {
+                const diffContainer = document.createElement('div');
+                diffContainer.className = 'pb-2 space-y-1';
+                diffContainer.style.paddingLeft = `${depth * 20 + 32}px`;
+                diffContainer.style.paddingRight = '8px';
+                
+                Object.keys(item.diff).forEach(fieldKey => {
+                    const fieldDiff = item.diff[fieldKey];
+                    // 特殊标签显示：key 字段显示为"文案 Key"，语种显示为大写语种名
+                    const isKeyField = fieldKey === 'key';
+                    const fieldLabel = isKeyField ? '文案 Key' : fieldKey.toUpperCase();
+                    
+                    const fieldRow = document.createElement('div');
+                    fieldRow.className = 'flex items-start gap-2';
+                    
+                    const fieldTag = document.createElement('span');
+                    fieldTag.className = isKeyField
+                        ? 'text-[10px] text-blue-700 font-bold bg-blue-100 px-1.5 py-0.5 rounded shrink-0 mt-0.5'
+                        : 'text-[10px] text-slate-500 font-bold bg-slate-200 px-1.5 py-0.5 rounded shrink-0 mt-0.5';
+                    fieldTag.innerText = fieldLabel;
+                    fieldRow.appendChild(fieldTag);
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'flex-1 space-y-0.5';
+                    
+                    if (fieldDiff.old !== undefined) {
+                        const oldLine = document.createElement('div');
+                        oldLine.className = 'flex items-start gap-2 bg-red-100 text-red-800 px-2 py-0.5 rounded';
+                        const oldContent = isKeyField
+                            ? `<span class="font-mono">${escapeHtml(fieldDiff.old)}</span>`
+                            : `<span class="break-all">${escapeHtml(fieldDiff.old)}</span>`;
+                        oldLine.innerHTML = `<span class="font-bold shrink-0">-</span>${oldContent}`;
+                        contentDiv.appendChild(oldLine);
+                    }
+                    if (fieldDiff.new !== undefined) {
+                        const newLine = document.createElement('div');
+                        newLine.className = 'flex items-start gap-2 bg-green-100 text-green-800 px-2 py-0.5 rounded';
+                        const newContent = isKeyField
+                            ? `<span class="font-mono">${escapeHtml(fieldDiff.new)}</span>`
+                            : `<span class="break-all">${escapeHtml(fieldDiff.new)}</span>`;
+                        newLine.innerHTML = `<span class="font-bold shrink-0">+</span>${newContent}`;
+                        contentDiv.appendChild(newLine);
+                    }
+                    
+                    fieldRow.appendChild(contentDiv);
+                    diffContainer.appendChild(fieldRow);
+                });
+                
+                itemWrapper.appendChild(diffContainer);
+            }
+            
+            return itemWrapper;
+        }
+
+        // HTML转义
+        function escapeHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        // 联动勾选目录下的所有项
+        function toggleDirectoryCheck(dirNode, checked) {
+            // 勾选所有子文案
+            const itemCheckboxes = dirNode.querySelectorAll('.change-item-checkbox');
+            itemCheckboxes.forEach(cb => {
+                cb.checked = checked;
+                cb.indeterminate = false;
+            });
+            // 勾选所有子目录复选框
+            const dirCheckboxes = dirNode.querySelectorAll('.change-dir-checkbox');
+            dirCheckboxes.forEach(cb => {
+                cb.checked = checked;
+                cb.indeterminate = false;
+            });
+        }
+
+        // 更新所有父级目录的勾选状态（含半选）
+        function updateAllParentCheckStates() {
+            const allDirs = document.querySelectorAll('#changeScopeTree .change-tree-dir');
+            // 从最深层开始处理
+            const dirsArray = Array.from(allDirs).reverse();
+            dirsArray.forEach(dirNode => {
+                const dirCheckbox = dirNode.querySelector(':scope > div > .change-dir-checkbox');
+                if (!dirCheckbox) return;
+                
+                // 直接子项（文案 + 直接子目录）
+                const childrenContainer = dirNode.querySelector(':scope > .change-tree-children');
+                if (!childrenContainer) return;
+                
+                // 收集所有子项的勾选状态
+                const allChildCheckboxes = [];
+                // 直接的文案
+                childrenContainer.querySelectorAll(':scope > .change-tree-item > div > .change-item-checkbox').forEach(cb => {
+                    allChildCheckboxes.push(cb);
+                });
+                // 直接的子目录
+                childrenContainer.querySelectorAll(':scope > .change-tree-dir > div > .change-dir-checkbox').forEach(cb => {
+                    allChildCheckboxes.push(cb);
+                });
+                
+                if (allChildCheckboxes.length === 0) return;
+                
+                const checkedCount = allChildCheckboxes.filter(cb => cb.checked && !cb.indeterminate).length;
+                const indeterminateCount = allChildCheckboxes.filter(cb => cb.indeterminate).length;
+                const uncheckedCount = allChildCheckboxes.filter(cb => !cb.checked && !cb.indeterminate).length;
+                
+                if (checkedCount === allChildCheckboxes.length) {
+                    dirCheckbox.checked = true;
+                    dirCheckbox.indeterminate = false;
+                } else if (uncheckedCount === allChildCheckboxes.length) {
+                    dirCheckbox.checked = false;
+                    dirCheckbox.indeterminate = false;
+                } else {
+                    dirCheckbox.checked = false;
+                    dirCheckbox.indeterminate = true;
+                }
+            });
+        }
+
+        // 提交审核 - 打开弹窗
+        function submitForReview() {
+            // 渲染目录路径和审核流
+            renderDirectoryPath(mockDirectoryData.path);
+            renderReviewFlow(mockDirectoryData.reviewFlow);
+            
+            // 渲染变更范围树
+            const treeContainer = document.getElementById('changeScopeTree');
+            treeContainer.innerHTML = '';
+            renderChangeScopeTree(mockChangeScopeData, treeContainer, 0);
+            
+            // 重置全选
+            document.getElementById('selectAllChanges').checked = false;
+            updateSelectedChangesCount();
+            
+            // 清空备注
+            document.getElementById('reviewRemark').value = '';
+            
+            // 显示弹窗
+            document.getElementById('submitReviewModal').classList.remove('hidden');
+        }
+
+        // 关闭提交审核弹窗
+        function closeSubmitReviewModal() {
+            document.getElementById('submitReviewModal').classList.add('hidden');
+        }
+
+        // 全选/取消全选
+        function toggleAllChanges(checkbox) {
+            const allItemCheckboxes = document.querySelectorAll('#changeScopeTree .change-item-checkbox');
+            const allDirCheckboxes = document.querySelectorAll('#changeScopeTree .change-dir-checkbox');
+            
+            allItemCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.indeterminate = false;
+            });
+            allDirCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+                cb.indeterminate = false;
+            });
+            
+            updateSelectedChangesCount();
+        }
+
+        // 获取所有变更项复选框（文案 + 带变更的目录）
+        function getAllChangeCheckboxes() {
+            const items = Array.from(document.querySelectorAll('#changeScopeTree .change-item-checkbox'));
+            const dirs = Array.from(document.querySelectorAll('#changeScopeTree .change-dir-checkbox[data-dir-change-type]'));
+            return { items, dirs, all: [...items, ...dirs] };
+        }
+
+        // 更新已选择数量
+        function updateSelectedChangesCount() {
+            const { items, dirs, all } = getAllChangeCheckboxes();
+            const checkedItemsCount = items.filter(cb => cb.checked).length;
+            const checkedDirsCount = dirs.filter(cb => cb.checked && !cb.indeterminate).length;
+            const totalChecked = checkedItemsCount + checkedDirsCount;
+            document.getElementById('selectedChangesCount').innerText = totalChecked;
+            
+            // 同步全选状态
+            const selectAllCheckbox = document.getElementById('selectAllChanges');
+            if (all.length === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (totalChecked === all.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else if (totalChecked === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+
+        // 确认提交审核
+        function confirmSubmitReview() {
+            const checkedItems = document.querySelectorAll('#changeScopeTree .change-item-checkbox:checked');
+            const checkedDirs = Array.from(document.querySelectorAll('#changeScopeTree .change-dir-checkbox[data-dir-change-type]'))
+                .filter(cb => cb.checked && !cb.indeterminate);
+            
+            if (checkedItems.length === 0 && checkedDirs.length === 0) {
+                alert('请至少选择一项变更');
+                return;
+            }
+            
+            // 按类型统计 - 文案变更
+            const itemTypeCounts = { added: 0, modified: 0, deleted: 0 };
+            const selectedItemIds = [];
+            checkedItems.forEach(cb => {
+                const type = cb.dataset.itemType;
+                if (itemTypeCounts[type] !== undefined) itemTypeCounts[type]++;
+                selectedItemIds.push(cb.dataset.itemId);
+            });
+            
+            // 按类型统计 - 目录变更
+            const dirTypeCounts = { added: 0, modified: 0, deleted: 0 };
+            const selectedDirIds = [];
+            checkedDirs.forEach(cb => {
+                const type = cb.dataset.dirChangeType;
+                if (dirTypeCounts[type] !== undefined) dirTypeCounts[type]++;
+                selectedDirIds.push(cb.dataset.nodeId);
+            });
+            
+            const remark = document.getElementById('reviewRemark').value.trim();
+            
+            let confirmMsg = `确定要提交以下变更进行审核吗？\n\n`;
+            if (checkedItems.length > 0) {
+                confirmMsg += `文案变更（${checkedItems.length} 条）：\n`;
+                if (itemTypeCounts.added > 0) confirmMsg += `  · 新增 ${itemTypeCounts.added} 条\n`;
+                if (itemTypeCounts.modified > 0) confirmMsg += `  · 修改 ${itemTypeCounts.modified} 条\n`;
+                if (itemTypeCounts.deleted > 0) confirmMsg += `  · 删除 ${itemTypeCounts.deleted} 条\n`;
+            }
+            if (checkedDirs.length > 0) {
+                confirmMsg += `目录变更（${checkedDirs.length} 项）：\n`;
+                if (dirTypeCounts.added > 0) confirmMsg += `  · 新增 ${dirTypeCounts.added} 个目录\n`;
+                if (dirTypeCounts.modified > 0) confirmMsg += `  · 修改 ${dirTypeCounts.modified} 个目录\n`;
+                if (dirTypeCounts.deleted > 0) confirmMsg += `  · 删除 ${dirTypeCounts.deleted} 个目录\n`;
+            }
+            if (remark) {
+                confirmMsg += `\n备注说明：${remark}\n`;
+            }
+            confirmMsg += `\n提交后将进入审核流程，需经审核员审批后才能发布。`;
+            
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+            
+            console.log('提交审核:', {
+                directory: '商品详情',
+                itemIds: selectedItemIds,
+                itemTypeCounts: itemTypeCounts,
+                dirIds: selectedDirIds,
+                dirTypeCounts: dirTypeCounts,
+                remark: remark,
+                timestamp: new Date().toISOString()
+            });
+            
+            const totalChanges = checkedItems.length + checkedDirs.length;
+            closeSubmitReviewModal();
+            showToast('success', '已提交审核', `已成功提交 ${totalChanges} 项变更，请等待审核员审批`);
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('submitReviewModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSubmitReviewModal();
+            }
+        });
+
+        // 通用Toast提示函数
+        function showToast(type, title, message) {
+            const colors = {
+                success: { bg: 'bg-green-600', icon: 'mdi:check-circle' },
+                warning: { bg: 'bg-amber-600', icon: 'mdi:alert' },
+                error: { bg: 'bg-red-600', icon: 'mdi:close-circle' },
+                info: { bg: 'bg-blue-600', icon: 'mdi:information' }
+            };
+            
+            const config = colors[type] || colors.info;
+            
+            const toast = document.createElement('div');
+            toast.className = `fixed top-20 right-6 ${config.bg} text-white px-4 py-3 rounded-lg shadow-lg z-50 animate-fade-in max-w-md`;
+            toast.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <iconify-icon icon="${config.icon}" class="text-2xl mt-0.5"></iconify-icon>
+                    <div class="flex-1">
+                        <p class="font-bold text-sm mb-1">${title}</p>
+                        ${message ? `<p class="text-xs opacity-90">${message}</p>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease-out';
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body></html>

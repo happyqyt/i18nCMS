@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>资产复用与统计 - i18n CMS</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.3.4.3.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.1.0.7.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/echarts.min.5.4.3.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen overflow-hidden">
+<!-- 顶部导航栏 -->
+<header class="h-14 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-30 shadow-sm">
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2" href="index.html">
+<div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center shadow-lg shadow-blue-100">
+<iconify-icon class="text-xl text-white" icon="mdi:translate"></iconify-icon>
+</div>
+<span class="text-lg font-bold tracking-tight">i18n CMS</span>
+</a>
+<nav class="flex items-center gap-1">
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="dashboard.html">文案管理</a>
+<a class="px-4 py-1 rounded-md bg-blue-50 text-blue-600 font-medium text-sm" href="statistics.html">文案统计</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm transition-colors" href="version.html">版本管理</a>
+<a class="px-4 py-1 rounded-md text-slate-500 hover:bg-slate-100 font-medium text-sm" href="review.html">审核中心</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-slate-400">
+</div>
+<div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold">Elin</p>
+</div>
+<img alt="Avatar" class="w-8 h-8 rounded-full border border-slate-200 bg-slate-200" src="https://modao.cc/agent-py/media/generated_images/2026-04-14/95ddd96e25874c5e87ca83459e9fbb7c.jpg"/>
+</div>
+</div>
+</header>
+<div class="flex-1 flex flex-col overflow-y-auto p-8 max-w-[1400px] mx-auto w-full">
+<!-- 统计指标概览 -->
+<div class="grid grid-cols-4 gap-6 mb-8">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 text-sm">文案总键值 (Keys)</span>
+<iconify-icon class="text-blue-500 text-xl" icon="mdi:key-variant"></iconify-icon>
+</div>
+<div class="text-3xl font-bold">12,485</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 text-sm">语种数</span>
+<iconify-icon class="text-amber-500 text-xl" icon="mdi:translate"></iconify-icon>
+</div>
+<div class="text-3xl font-bold">24</div>
+</div>
+
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+    <div class="flex items-center justify-between mb-2">
+    <span class="text-slate-500 text-sm">目录数</span>
+    <iconify-icon class="text-green-500 text-xl" icon="mdi:folder"></iconify-icon>
+    </div>
+    <div class="text-3xl font-bold">8,400</div>
+</div>
+
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm border-l-4 border-l-purple-500">
+<div class="flex items-center justify-between mb-2">
+<span class="text-slate-500 text-sm">文案重复率</span>
+<iconify-icon class="text-purple-500 text-xl" icon="mdi:content-copy"></iconify-icon>
+</div>
+<div class="text-3xl font-bold">15.4%</div>
+<div class="text-xs text-slate-400 mt-2">
+                    共 1,923 个内容重复的 Key
+                </div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-6 mb-8">
+<!-- 图表：翻译进度 -->
+<!-- 图表：文案状态分布 -->
+</div>
+<!-- 重复文案检测列表 -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm mb-8">
+<div class="p-6 border-b border-slate-100 flex items-center justify-between">
+<div>
+<h3 class="font-bold text-slate-800">重复文案监测与快速同步</h3>
+<p class="text-slate-400 text-sm">基于源语言(EN)的内容对比，发现可能需要统一翻译的文案项</p>
+</div>
+</div>
+<div class="p-0 overflow-x-auto">
+<table class="w-full text-sm">
+<thead class="bg-slate-50 text-slate-500">
+<tr>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">源语言内容 (EN)</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">关联 Key 数量</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">所属目录</th>
+<th class="px-6 py-3 text-left font-bold uppercase tracking-wider">状态差异</th>
+<th class="px-6 py-3 text-center font-bold uppercase tracking-wider">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-700">Submit</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">8个</span>
+</td>
+<td class="px-6 py-4 text-slate-500">商城首页, 商品详情, 个人中心</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1 text-amber-500">
+<iconify-icon icon="mdi:alert-circle-outline"></iconify-icon>
+                                    3个Key未翻译
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<button class="text-blue-600 hover:underline font-bold" onclick="openSyncModal('Submit', 8)">查看并同步</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-700">Loading</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">12个</span>
+</td>
+<td class="px-6 py-4 text-slate-500">全局组件, 搜索模块</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1 text-green-500">
+<iconify-icon icon="mdi:check-circle-outline"></iconify-icon>
+                                    全语种一致
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<button class="text-slate-300 cursor-not-allowed font-bold" disabled="">已同步</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-6 py-4 font-medium text-slate-700">OK</td>
+<td class="px-6 py-4">
+<span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-bold text-xs">5个</span>
+</td>
+<td class="px-6 py-4 text-slate-500">支付页面, 充值中心</td>
+<td class="px-6 py-4">
+<span class="flex items-center gap-1 text-amber-500">
+<iconify-icon icon="mdi:alert-circle-outline"></iconify-icon>
+                                    语种内容冲突
+                                </span>
+</td>
+<td class="px-6 py-4 text-center">
+<button class="text-blue-600 hover:underline font-bold" onclick="openSyncModal('OK', 5)">查看并同步</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-6 border-t border-slate-100 text-center">
+</div>
+</div>
+</div>
+
+<!-- 同步弹窗 -->
+<div id="syncModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
+        <!-- 弹窗头部 -->
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between shrink-0">
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-800"></h3>
+            <button onclick="closeSyncModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
+                <iconify-icon icon="mdi:close" class="text-2xl"></iconify-icon>
+            </button>
+        </div>
+        
+        <!-- 弹窗内容 -->
+        <div class="flex-1 overflow-x-auto overflow-y-auto">
+            <table class="w-full text-sm border-collapse">
+                <thead class="bg-slate-50 text-slate-500 sticky top-0">
+                    <tr id="syncModalHeader">
+                        <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 bg-slate-100 sticky left-0 z-10 min-w-[180px]">Key</th>
+                        <!-- 语种列将动态生成 -->
+                        <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 w-40">修改时间</th>
+                        <th class="px-4 py-3 text-center font-bold uppercase tracking-wider border-b-2 border-slate-300 w-32">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="syncModalBody" class="divide-y divide-slate-100">
+                    <!-- 动态内容将在这里插入 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+        // 模拟数据
+        const mockData = {
+            'Submit': [
+                { key: 'home.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-15 14:30:25' },
+                { key: 'home.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-15 14:31:10' },
+                { key: 'home.submit', lang: 'JA', content: '送信', modifiedTime: '2024-03-15 14:32:05' },
+                { key: 'home.submit', lang: 'DE', content: 'Einreichen', modifiedTime: '2024-03-15 14:33:00' },
+                
+                { key: 'product.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-16 09:20:15' },
+                { key: 'product.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-16 09:21:30' },
+                { key: 'product.submit', lang: 'JA', content: '', modifiedTime: '' },
+                { key: 'product.submit', lang: 'DE', content: '', modifiedTime: '' },
+                
+                { key: 'order.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-17 11:15:40' },
+                { key: 'order.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-17 11:16:20' },
+                { key: 'order.submit', lang: 'JA', content: '送信', modifiedTime: '2024-03-17 11:17:00' },
+                { key: 'order.submit', lang: 'DE', content: 'Einreichen', modifiedTime: '2024-03-17 11:18:00' },
+                
+                { key: 'payment.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-18 16:45:30' },
+                { key: 'payment.submit', lang: 'ZH', content: '', modifiedTime: '' },
+                { key: 'payment.submit', lang: 'JA', content: '', modifiedTime: '' },
+                { key: 'payment.submit', lang: 'DE', content: '', modifiedTime: '' },
+                
+                { key: 'user.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-19 10:20:10' },
+                { key: 'user.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-19 10:21:00' },
+                { key: 'user.submit', lang: 'JA', content: '送信', modifiedTime: '2024-03-19 10:22:15' },
+                { key: 'user.submit', lang: 'DE', content: 'Einreichen', modifiedTime: '2024-03-19 10:23:30' },
+                
+                { key: 'cart.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-20 13:10:05' },
+                { key: 'cart.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-20 13:11:20' },
+                { key: 'cart.submit', lang: 'JA', content: '送信', modifiedTime: '2024-03-20 13:12:40' },
+                { key: 'cart.submit', lang: 'DE', content: '', modifiedTime: '' },
+                
+                { key: 'search.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-21 15:30:50' },
+                { key: 'search.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-21 15:31:25' },
+                { key: 'search.submit', lang: 'JA', content: '送信', modifiedTime: '2024-03-21 15:32:10' },
+                { key: 'search.submit', lang: 'DE', content: 'Einreichen', modifiedTime: '2024-03-21 15:33:00' },
+                
+                { key: 'settings.submit', lang: 'EN', content: 'Submit', modifiedTime: '2024-03-22 08:15:20' },
+                { key: 'settings.submit', lang: 'ZH', content: '提交', modifiedTime: '2024-03-22 08:16:10' },
+                { key: 'settings.submit', lang: 'JA', content: '', modifiedTime: '' },
+                { key: 'settings.submit', lang: 'DE', content: '', modifiedTime: '' }
+            ],
+            'OK': [
+                { key: 'dialog.ok', lang: 'EN', content: 'OK', modifiedTime: '2024-03-10 10:20:30' },
+                { key: 'dialog.ok', lang: 'ZH', content: '确定', modifiedTime: '2024-03-10 10:21:15' },
+                { key: 'dialog.ok', lang: 'JA', content: 'OK', modifiedTime: '2024-03-10 10:22:00' },
+                { key: 'dialog.ok', lang: 'DE', content: 'OK', modifiedTime: '2024-03-10 10:23:10' },
+                
+                { key: 'payment.ok', lang: 'EN', content: 'OK', modifiedTime: '2024-03-12 14:30:45' },
+                { key: 'payment.ok', lang: 'ZH', content: '好的', modifiedTime: '2024-03-12 14:31:20' },
+                { key: 'payment.ok', lang: 'JA', content: 'はい', modifiedTime: '2024-03-12 14:32:00' },
+                { key: 'payment.ok', lang: 'DE', content: 'Ja', modifiedTime: '2024-03-12 14:33:15' },
+                
+                { key: 'confirm.ok', lang: 'EN', content: 'OK', modifiedTime: '2024-03-14 09:15:10' },
+                { key: 'confirm.ok', lang: 'ZH', content: '确认', modifiedTime: '2024-03-14 09:16:30' },
+                { key: 'confirm.ok', lang: 'JA', content: '確認', modifiedTime: '2024-03-14 09:17:20' },
+                { key: 'confirm.ok', lang: 'DE', content: 'Bestätigen', modifiedTime: '2024-03-14 09:18:00' },
+                
+                { key: 'alert.ok', lang: 'EN', content: 'OK', modifiedTime: '2024-03-16 16:40:25' },
+                { key: 'alert.ok', lang: 'ZH', content: '知道了', modifiedTime: '2024-03-16 16:41:10' },
+                { key: 'alert.ok', lang: 'JA', content: 'わかりました', modifiedTime: '2024-03-16 16:42:00' },
+                { key: 'alert.ok', lang: 'DE', content: 'Verstanden', modifiedTime: '2024-03-16 16:43:15' },
+                
+                { key: 'home.message.ok', lang: 'EN', content: 'OK', modifiedTime: '2024-03-18 11:25:50' },
+                { key: 'home.message.ok', lang: 'ZH', content: '好', modifiedTime: '2024-03-18 11:26:30' },
+                { key: 'home.message.ok', lang: 'JA', content: 'オーケー', modifiedTime: '2024-03-18 11:27:15' },
+                { key: 'home.message.ok', lang: 'DE', content: 'Okay', modifiedTime: '2024-03-18 11:28:00' }
+            ]
+        };
+
+        // 打开同步弹窗
+        function openSyncModal(sourceContent, keyCount) {
+            const modal = document.getElementById('syncModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalHeader = document.getElementById('syncModalHeader');
+            const modalBody = document.getElementById('syncModalBody');
+            
+            modalTitle.textContent = sourceContent;
+            
+            // 获取数据
+            const rawData = mockData[sourceContent] || [];
+            
+            // 按 Key 分组，并转换为以语种为键的对象
+            const groupedByKey = {};
+            const allLangs = new Set();
+            
+            rawData.forEach(item => {
+                if (!groupedByKey[item.key]) {
+                    // 解析 key，提取最后一部分作为显示的 key，前面部分作为目录路径
+                    const keyParts = item.key.split('.');
+                    const displayKey = keyParts[keyParts.length - 1];
+                    const directory = keyParts.length > 1 ? keyParts.slice(0, -1).join('.') : '-';
+                    
+                    groupedByKey[item.key] = {
+                        fullKey: item.key,
+                        displayKey: displayKey,
+                        directory: directory,
+                        langs: {},
+                        modifiedTime: ''
+                    };
+                }
+                groupedByKey[item.key].langs[item.lang] = item.content;
+                allLangs.add(item.lang);
+                
+                // 获取最新的修改时间
+                if (item.modifiedTime && (!groupedByKey[item.key].modifiedTime || 
+                    new Date(item.modifiedTime) > new Date(groupedByKey[item.key].modifiedTime))) {
+                    groupedByKey[item.key].modifiedTime = item.modifiedTime;
+                }
+            });
+            
+            // 获取所有唯一的语种，按固定顺序排序
+            const langOrder = ['EN', 'ZH', 'JA', 'DE', 'FR', 'ES', 'KO', 'TH', 'VI', 'PT', 'RU', 'AR'];
+            const sortedLangs = Array.from(allLangs).sort((a, b) => {
+                const aIndex = langOrder.indexOf(a);
+                const bIndex = langOrder.indexOf(b);
+                if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+                if (aIndex === -1) return 1;
+                if (bIndex === -1) return -1;
+                return aIndex - bIndex;
+            });
+            
+            // 语种名称映射
+            const langNames = {
+                'EN': '英文',
+                'ZH': '中文',
+                'JA': '日文',
+                'DE': '德文',
+                'FR': '法文',
+                'ES': '西班牙文',
+                'KO': '韩文',
+                'TH': '泰文',
+                'VI': '越南文',
+                'PT': '葡萄牙文',
+                'RU': '俄文',
+                'AR': '阿拉伯文'
+            };
+            
+            // 渲染表头
+            let headerHtml = `
+                <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 bg-slate-100 sticky left-0 z-10 min-w-[120px]">Key</th>
+                <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 min-w-[200px]">所属目录</th>
+            `;
+            sortedLangs.forEach(lang => {
+                headerHtml += `
+                    <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 min-w-[150px]">
+                        ${lang}
+                    </th>
+                `;
+            });
+            headerHtml += `
+                <th class="px-4 py-3 text-left font-bold uppercase tracking-wider border-b-2 border-slate-300 w-40">修改时间</th>
+                <th class="px-4 py-3 text-center font-bold uppercase tracking-wider border-b-2 border-slate-300 w-32">操作</th>
+            `;
+            modalHeader.innerHTML = headerHtml;
+            
+            // 获取所有 Key，并按最新修改时间排序
+            const uniqueKeys = Object.keys(groupedByKey).sort((a, b) => {
+                const aTime = groupedByKey[a].modifiedTime ? new Date(groupedByKey[a].modifiedTime).getTime() : 0;
+                const bTime = groupedByKey[b].modifiedTime ? new Date(groupedByKey[b].modifiedTime).getTime() : 0;
+                return bTime - aTime;
+            });
+            
+            // 渲染表格内容
+            let html = '';
+            
+            uniqueKeys.forEach(key => {
+                const keyData = groupedByKey[key];
+                
+                html += `
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td class="px-4 py-3 font-medium text-slate-700 bg-slate-50 sticky left-0 z-10 border-r border-slate-200">
+                            ${keyData.displayKey}
+                        </td>
+                        <td class="px-4 py-3 text-slate-500 text-sm">
+                            ${keyData.directory}
+                        </td>
+                `;
+                
+                // 渲染每个语种的文案
+                sortedLangs.forEach(lang => {
+                    const content = keyData.langs[lang] || '';
+                    const isEmpty = !content;
+                    
+                    html += `
+                        <td class="px-4 py-3 ${isEmpty ? 'bg-red-50 text-slate-400 italic' : ''}">
+                            ${isEmpty ? '未翻译' : content}
+                        </td>
+                    `;
+                });
+                
+                html += `
+                        <td class="px-4 py-3 text-slate-500 text-xs">
+                            ${keyData.modifiedTime || '-'}
+                        </td>
+                        <td class="px-4 py-3 text-center border-l border-slate-200">
+                            <div class="inline-block">
+                                <button id="btn-${keyData.fullKey.replace(/'/g, "\\'")}" onclick="toggleSyncDropdown('${keyData.fullKey.replace(/'/g, "\\'")}')" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium inline-flex items-center gap-1 whitespace-nowrap">
+                                    同步到
+                                    <iconify-icon icon="mdi:chevron-down" class="text-lg"></iconify-icon>
+                                </button>
+                                <div id="dropdown-${keyData.fullKey.replace(/'/g, "\\'")}" class="hidden fixed w-64 bg-white rounded-lg shadow-2xl border border-slate-200 flex flex-col" style="z-index: 99999; max-height: 400px;">
+                                    <div class="py-1 overflow-y-auto flex-1">
+                                        <label class="w-full px-4 py-2 hover:bg-slate-50 text-sm font-medium text-slate-700 flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" class="sync-checkbox-all" data-from-key="${keyData.fullKey.replace(/'/g, "\\'")}" onchange="toggleSelectAll(this, '${keyData.fullKey.replace(/'/g, "\\'")}')">
+                                            <iconify-icon icon="mdi:select-all" class="text-blue-600"></iconify-icon>
+                                            全选
+                                        </label>
+                                        <div class="border-t border-slate-100 my-1"></div>
+                                        ${uniqueKeys.filter(k => k !== keyData.fullKey).map(k => {
+                                            const otherKeyData = groupedByKey[k];
+                                            return `
+                                            <label class="w-full px-4 py-2 hover:bg-slate-50 text-sm text-slate-600 flex items-start gap-2 cursor-pointer" title="${k}">
+                                                <input type="checkbox" class="sync-checkbox flex-shrink-0 mt-0.5" data-from-key="${keyData.fullKey.replace(/'/g, "\\'")}" data-to-key="${k.replace(/'/g, "\\'")}" onchange="updateSelectedCount('${keyData.fullKey.replace(/'/g, "\\'")}')">
+                                                <span class="flex-1 text-left">${otherKeyData.displayKey} <span class="text-xs text-slate-400">(${otherKeyData.directory})</span></span>
+                                            </label>
+                                        `}).join('')}
+                                    </div>
+                                    <div class="border-t border-slate-200 p-3 flex items-center justify-between gap-2 bg-slate-50">
+                                        <span class="text-xs text-slate-500">已选: <span id="selected-count-${keyData.fullKey.replace(/'/g, "\\'")}" class="font-bold text-blue-600">0</span></span>
+                                        <button onclick="executeSyncMultiple('${keyData.fullKey.replace(/'/g, "\\'")}', '${sourceContent}')" class="px-4 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                                            确定同步
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            modalBody.innerHTML = html;
+            modal.classList.remove('hidden');
+            
+            // 点击背景关闭弹窗
+            modal.onclick = function(e) {
+                if (e.target === modal) {
+                    closeSyncModal();
+                }
+            };
+        }
+
+        // 关闭同步弹窗
+        function closeSyncModal() {
+            document.getElementById('syncModal').classList.add('hidden');
+            // 关闭所有下拉菜单
+            document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+
+        // 切换下拉菜单
+        function toggleSyncDropdown(key) {
+            const dropdown = document.getElementById(`dropdown-${key}`);
+            const button = document.getElementById(`btn-${key}`);
+            const isHidden = dropdown.classList.contains('hidden');
+            
+            // 关闭所有其他下拉菜单
+            document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                d.classList.add('hidden');
+            });
+            
+            if (isHidden) {
+                // 获取按钮的位置
+                const rect = button.getBoundingClientRect();
+                const dropdownWidth = 256; // w-64 = 256px
+                
+                // 设置下拉框位置（与按钮右侧对齐）
+                dropdown.style.top = `${rect.bottom + 8}px`;
+                dropdown.style.left = `${rect.right - dropdownWidth}px`;
+                dropdown.style.right = 'auto';
+                
+                // 重置选中状态
+                dropdown.querySelectorAll('.sync-checkbox').forEach(cb => cb.checked = false);
+                const selectAllCheckbox = dropdown.querySelector('.sync-checkbox-all');
+                if (selectAllCheckbox) {
+                    selectAllCheckbox.checked = false;
+                }
+                updateSelectedCount(key);
+                
+                dropdown.classList.remove('hidden');
+            }
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll(checkbox, fromKey) {
+            const dropdown = document.getElementById(`dropdown-${fromKey}`);
+            const allCheckboxes = dropdown.querySelectorAll('.sync-checkbox');
+            
+            allCheckboxes.forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+            
+            updateSelectedCount(fromKey);
+        }
+
+        // 更新选中数量
+        function updateSelectedCount(fromKey) {
+            const dropdown = document.getElementById(`dropdown-${fromKey}`);
+            const checkedBoxes = dropdown.querySelectorAll('.sync-checkbox:checked');
+            const countSpan = document.getElementById(`selected-count-${fromKey}`);
+            const selectAllCheckbox = dropdown.querySelector('.sync-checkbox-all');
+            const allCheckboxes = dropdown.querySelectorAll('.sync-checkbox');
+            
+            if (countSpan) {
+                countSpan.textContent = checkedBoxes.length;
+            }
+            
+            // 更新全选复选框状态
+            if (selectAllCheckbox && allCheckboxes.length > 0) {
+                if (checkedBoxes.length === allCheckboxes.length) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (checkedBoxes.length > 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                }
+            }
+        }
+
+        // 执行多选同步
+        function executeSyncMultiple(fromKey, sourceContent) {
+            const dropdown = document.getElementById(`dropdown-${fromKey}`);
+            const checkedBoxes = dropdown.querySelectorAll('.sync-checkbox:checked');
+            
+            if (checkedBoxes.length === 0) {
+                alert('请至少选择一个目标 Key');
+                return;
+            }
+            
+            const toKeys = Array.from(checkedBoxes).map(cb => cb.dataset.toKey);
+            const confirmMsg = `确定要将 "${fromKey}" 的翻译同步到 ${toKeys.length} 个 Key 吗？`;
+            
+            if (confirm(confirmMsg)) {
+                console.log(`同步 ${fromKey} 到:`, toKeys);
+                alert(`已将 "${fromKey}" 的翻译同步到 ${toKeys.length} 个 Key`);
+                
+                // 关闭下拉菜单
+                dropdown.classList.add('hidden');
+            }
+        }
+
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function(e) {
+            // 如果点击的是下拉菜单内部或按钮，不关闭
+            if (!e.target.closest('[id^="dropdown-"]') && !e.target.closest('[id^="btn-"]')) {
+                document.querySelectorAll('[id^="dropdown-"]').forEach(dropdown => {
+                    dropdown.classList.add('hidden');
+                });
+            }
+        });
+
+        // 初始化图表
+        document.addEventListener('DOMContentLoaded', function() {
+            // 翻译进度图表
+            const transChart = echarts.init(document.getElementById('translationChart'));
+            transChart.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                xAxis: { type: 'value', boundaryGap: [0, 0.01], max: 100 },
+                yAxis: { type: 'category', data: ['中文', '英文', '日文', '德文', '法文', '西班牙文'] },
+                series: [{
+                    name: '完成度 (%)',
+                    type: 'bar',
+                    data: [100, 98, 92, 85, 80, 75],
+                    itemStyle: {
+                        color: function(params) {
+                            var colorList = ['#3b82f6', '#10b981', '#f59e0b', '#6366f1', '#ec4899', '#8b5cf6'];
+                            return colorList[params.dataIndex];
+                        },
+                        borderRadius: [0, 4, 4, 0]
+                    }
+                }]
+            });
+
+            // 状态分布图表
+            const statChart = echarts.init(document.getElementById('statusChart'));
+            statChart.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { bottom: '5%', left: 'center' },
+                series: [{
+                    name: '文案状态',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                    label: { show: false, position: 'center' },
+                    emphasis: { label: { show: true, fontSize: 20, fontWeight: 'bold' } },
+                    labelLine: { show: false },
+                    data: [
+                        { value: 8421, name: '已发布', itemStyle: {color: '#10b981'} },
+                        { value: 1245, name: '草稿', itemStyle: {color: '#f59e0b'} },
+                        { value: 432, name: '待审核', itemStyle: {color: '#3b82f6'} },
+                        { value: 245, name: '冲突', itemStyle: {color: '#ef4444'} }
+                    ]
+                }]
+            });
+
+            window.addEventListener('resize', () => {
+                transChart.resize();
+                statChart.resize();
+            });
+        });
+    </script>
+</body></html>
