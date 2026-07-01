@@ -139,7 +139,7 @@
       </template>
 
       <!-- copy management -->
-      <template v-if="view==='copies' && currentPage">
+      <template v-if="view==='copies' && currentPage" :key="copyViewKey">
       <div class="copy-topbar">
         <!-- <h3 class="copy-topbar-title">文案管理</h3> -->
 
@@ -267,7 +267,7 @@
           <p class="muted">可追溯 · 可对比 · 可回滚。未保存版本的修改视为草稿。</p>
         </div>
         <div>
-          <button class="btn" @click="view='pages'">← 返回</button>
+          <button class="btn" @click="goToPages">← 返回</button>
           &nbsp;
           <button class="btn primary" @click="openTagVersion">💾 保存版本</button>
         </div>

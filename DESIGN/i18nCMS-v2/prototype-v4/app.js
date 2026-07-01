@@ -264,6 +264,7 @@ const app = createApp({
       pageSize: 10,
       selectedCopies: [],
       editingKeyId: null,
+      copyViewKey: '',
 
       // modals
       showProjectModal: false,
@@ -575,8 +576,25 @@ const app = createApp({
 
     // navigation
     goProjects() { this.view = 'projects'; this.currentProject = null; this.currentPage = null; },
-    openProject(p) { this.currentProject = p; this.currentPage = null; this.view = 'pages'; this.currentVersion = 'draft'; this.projectOverviewCollapsed = true; },
-    openPage(pg) { this.currentPage = pg; this.view = 'copies'; this.copyPage = 1; this.selectedCopies = []; this.copySearch = ''; },
+    goToPages() {
+      this.view = 'pages';
+      this.currentPage = null;
+      this.selectedCopies = [];
+      this.editingKeyId = null;
+      this.searchScope = 'page';
+      this.copySearch = '';
+    },
+    openProject(p) { this.currentProject = p; this.goToPages(); this.currentVersion = 'draft'; this.projectOverviewCollapsed = true; },
+    openPage(pg) {
+      this.searchScope = 'page';
+      this.editingKeyId = null;
+      this.copyPage = 1;
+      this.selectedCopies = [];
+      this.copySearch = '';
+      this.copyViewKey = pg.id + '_' + Date.now();
+      this.currentPage = pg;
+      this.view = 'copies';
+    },
     pageThumbUrl(pg) {
       if (!pg || !pg.screenshot || pg.projectLevel) return '';
       if (!pg.screenshotUrl) pg.screenshotUrl = mockScreenshotUrl(pg.name || pg.key);
@@ -845,7 +863,7 @@ const app = createApp({
         { key: 'Sign_In', old: 'Sign in', new: 'Log in', type: 'upd' },
       ];
     },
-    viewVersion(v) { this.toast(`正在查看 ${v.name}（只读，不可修改）`); this.currentVersion = v.id; this.view = 'pages'; },
+    viewVersion(v) { this.toast(`正在查看 ${v.name}（只读，不可修改）`); this.currentVersion = v.id; this.goToPages(); },
     doRollback() { this.showDiff = false; this.toast(`已回滚到 ${this.diffVersion.name}（按 id 增删改）`); },
 
     // migrate / copy
