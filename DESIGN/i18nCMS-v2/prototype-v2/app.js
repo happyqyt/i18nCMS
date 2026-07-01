@@ -23,7 +23,7 @@ function mkCopy(key, a, zh, ja) {
   const values = (a && typeof a === 'object') ? { ...a } : { en: a, 'zh-Hans': zh, ja };
   return { id: uid('c'), key, values };
 }
-function mkPage(name, screenshot, copies) { return { id: uid('pg'), name, key: '', screenshot, copies }; }
+function mkPage(name, screenshot, copies, children = []) { return { id: uid('pg'), name, key: name, screenshot, copies, children }; }
 
 const PROJECTS = [
   {
@@ -81,6 +81,16 @@ const PROJECTS = [
         mkCopy('Weather_Today', "Today's air quality is good", '今日空气质量良好', '本日の空気品質は良好です'),
         mkCopy('Quick_Actions', 'Quick Actions', '快捷操作', 'クイック操作'),
         mkCopy('View_All', 'View all', '查看全部', 'すべて表示'),
+      ], [
+        mkPage('home_banner', true, [
+          mkCopy('Banner_Title', 'Limited time offer', '限时优惠', '期間限定オファー'),
+          mkCopy('Banner_Sub', 'Up to 30% off select devices', '指定设备低至 7 折', '対象デバイス最大30%オフ'),
+          mkCopy('Banner_Cta', 'Shop now', '立即选购', '今すぐ購入'),
+        ]),
+        mkPage('home_recommend', false, [
+          mkCopy('Recommend_Title', 'Recommended for you', '为你推荐', 'おすすめ'),
+          mkCopy('Recommend_More', 'See more', '查看更多', 'もっと見る'),
+        ]),
       ]),
       mkPage('device', false, [
         mkCopy('Power_On', 'Power On', '开机', '電源オン'),
@@ -89,14 +99,28 @@ const PROJECTS = [
         mkCopy('Mode', 'Mode', '模式', 'モード'),
         mkCopy('Auto_Mode', 'Auto', '自动', '自動'),
         mkCopy('Sleep_Mode', 'Sleep', '睡眠', 'スリープ'),
-        mkCopy('Timer', 'Timer', '定时', 'タイマー'),
-        mkCopy('Schedule', 'Schedule', '日程', 'スケジュール'),
         mkCopy('Filter_Life', 'Filter life: {percent}%', '滤芯寿命：{percent}%', 'フィルター寿命：{percent}%'),
         mkCopy('Replace_Filter', 'Time to replace the filter', '该更换滤芯了', 'フィルターの交換時期です'),
         mkCopy('Child_Lock', 'Child Lock', '童锁', 'チャイルドロック'),
         mkCopy('Night_Light', 'Night Light', '夜灯', 'ナイトライト'),
         mkCopy('Firmware_Update', 'Firmware update available', '有可用的固件更新', 'ファームウェアの更新があります'),
         mkCopy('Device_Offline', 'Device is offline', '设备已离线', 'デバイスはオフラインです'),
+      ], [
+        mkPage('device_control', true, [
+          mkCopy('Speed_Low', 'Low', '低速', '弱'),
+          mkCopy('Speed_Mid', 'Medium', '中速', '中'),
+          mkCopy('Speed_High', 'High', '高速', '強'),
+        ], [
+          mkPage('device_control_advanced', false, [
+            mkCopy('Oscillation', 'Oscillation', '左右摆动', '首振り'),
+            mkCopy('Display_Brightness', 'Display brightness', '屏幕亮度', '画面の明るさ'),
+          ]),
+        ]),
+        mkPage('device_schedule', false, [
+          mkCopy('Add_Schedule', 'Add schedule', '添加日程', 'スケジュール追加'),
+          mkCopy('Repeat', 'Repeat', '重复', '繰り返し'),
+          mkCopy('Timer', 'Timer', '定时', 'タイマー'),
+        ]),
       ]),
       mkPage('settings', true, [
         mkCopy('Settings', 'Settings', '设置', '設定'),
@@ -109,9 +133,26 @@ const PROJECTS = [
         mkCopy('Log_Out_Confirm', 'Are you sure you want to log out?', '确定要退出登录吗？', 'ログアウトしてもよろしいですか？'),
         mkCopy('Dark_Mode', 'Dark Mode', '深色模式', 'ダークモード'),
         mkCopy('Version_Info', 'Version {version}', '版本 {version}', 'バージョン {version}'),
-        mkCopy('Clear_Cache', 'Clear cache', '清除缓存', 'キャッシュを削除'),
-        mkCopy('Contact_Support', 'Contact support', '联系客服', 'サポートに問い合わせる'),
+      ], [
+        mkPage('settings_account', true, [
+          mkCopy('Edit_Profile', 'Edit profile', '编辑资料', 'プロフィール編集'),
+          mkCopy('Change_Password', 'Change password', '修改密码', 'パスワード変更'),
+          mkCopy('Bind_Email', 'Bind email', '绑定邮箱', 'メール連携'),
+        ]),
+        mkPage('settings_about', false, [
+          mkCopy('Terms', 'Terms of Service', '服务条款', '利用規約'),
+          mkCopy('Privacy_Policy', 'Privacy Policy', '隐私政策', 'プライバシーポリシー'),
+          mkCopy('App_Version', 'App version {version}', '应用版本 {version}', 'アプリバージョン {version}'),
+        ]),
       ]),
+    ],
+    // 直接挂在项目下、未归属任何页面的文案
+    copies: [
+      mkCopy('App_Name', 'VeSync', 'VeSync', 'VeSync'),
+      mkCopy('Brand_Slogan', 'Smart living, simplified', '智享生活，化繁为简', 'スマートな暮らしを、もっとシンプルに'),
+      mkCopy('Global_Ok', 'OK', '好的', 'OK'),
+      mkCopy('Global_Unknown_Error', 'Something went wrong', '出错了，请稍后重试', '問題が発生しました'),
+      mkCopy('Copyright', '© 2026 VeSync. All rights reserved.', '© 2026 VeSync 版权所有', '© 2026 VeSync 無断転載禁止'),
     ],
   },
   {
@@ -167,9 +208,37 @@ const PROJECTS = [
       ]),
     ],
   },
+  {
+    id: uid('p'), name: 'Marketing Snippets', color: '#9b59f7',
+    description: '无页面分组的轻量项目：营销短文案直接挂在项目下，适合零散的 Push / Banner 文案。',
+    languages: ['en', 'zh-Hans', 'ja'],
+    members: [{ name: 'Amy', role: '项目管理员' }],
+    versions: [{ id: uid('v'), name: 'v1', createdAt: '2026-06-20 11:30', author: 'Amy', note: '初始营销文案' }],
+    // 该项目没有任何页面，文案直接挂在项目下
+    pages: [],
+    copies: [
+      mkCopy('Push_Welcome', 'Welcome to VeSync!', '欢迎使用 VeSync！', 'VeSyncへようこそ！'),
+      mkCopy('Push_Promo', 'Flash sale starts now', '限时闪购开始啦', 'タイムセール開催中'),
+      mkCopy('Push_Reorder', 'Time to reorder your filter', '该补购滤芯啦', 'フィルターの再注文時期です'),
+      mkCopy('Banner_Newsletter', 'Subscribe for 10% off', '订阅立享 9 折', '購読で10%オフ'),
+      mkCopy('Banner_AppRate', 'Enjoying the app? Rate us!', '喜欢这款 App？给我们评分吧！', 'アプリは気に入りましたか？評価してください！'),
+      mkCopy('Sms_Code', 'Your code is {code}', '您的验证码是 {code}', '認証コードは {code} です'),
+    ],
+  },
 ];
 
-createApp({
+const app = createApp({
+  provide() {
+    return {
+      tree: {
+        openPage: (pg) => this.openPage(pg),
+        openCopies: (pg) => this.openCopies(pg),
+        addChild: (pg) => this.openCreatePage(pg),
+        editPage: (pg) => this.openEditPage(pg),
+        deletePage: (pg) => this.deletePage(pg),
+      },
+    };
+  },
   data() {
     return {
       view: 'projects',
@@ -190,7 +259,9 @@ createApp({
       showProjectModal: false,
       projectForm: { id: null, name: '', description: '', languages: ['en'], membersText: '' },
       showPageModal: false,
-      pageForm: { id: null, name: '', key: '', uploaded: false },
+      pageForm: { id: null, name: '', key: '', uploaded: false, parentId: null, parentName: '' },
+      showCopies: false,
+      copiesModalPage: null,
       ocrLoading: false,
       ocrResult: [],
       showRich: false,
@@ -229,6 +300,23 @@ createApp({
       if (!this.currentProject) return [];
       return this.allLanguages.filter(l => !this.currentProject.languages.includes(l.code));
     },
+    pageOptions() {
+      if (!this.currentProject) return [];
+      return this.flattenPages(this.currentProject.pages).map(o => ({
+        id: o.page.id,
+        page: o.page,
+        depth: o.depth,
+        label: '　'.repeat(o.depth) + (o.depth ? '└ ' : '') + o.page.name,
+      }));
+    },
+    moveTargets() {
+      if (!this.currentProject) return [];
+      return [{ id: '__project__', label: '📦 ' + this.currentProject.name + '（项目文案 · 直挂项目下）' }, ...this.pageOptions];
+    },
+    allExportCopies() {
+      if (!this.currentProject) return [];
+      return [...((this.currentProject.copies) || []), ...this.pageOptions.flatMap(o => o.page.copies)];
+    },
     filteredCopies() {
       if (!this.currentPage) return [];
       const q = this.copySearch.trim().toLowerCase();
@@ -253,12 +341,12 @@ createApp({
     },
     exportAllChecked() {
       if (!this.currentProject) return false;
-      const all = this.currentProject.pages.flatMap(pg => pg.copies);
+      const all = this.allExportCopies;
       return all.length > 0 && all.every(c => this.exportChecked[c.id]);
     },
     exportSomeChecked() {
       if (!this.currentProject) return false;
-      return this.currentProject.pages.flatMap(pg => pg.copies).some(c => this.exportChecked[c.id]);
+      return this.allExportCopies.some(c => this.exportChecked[c.id]);
     },
   },
   watch: {
@@ -275,13 +363,42 @@ createApp({
   },
   methods: {
     langLabel(code) { const l = this.allLanguages.find(x => x.code === code); return l ? l.label : code; },
-    countCopies(p) { return p.pages.reduce((n, pg) => n + pg.copies.length, 0); },
+    countCopiesIn(list) { return list.reduce((n, pg) => n + pg.copies.length + (pg.children ? this.countCopiesIn(pg.children) : 0), 0); },
+    countCopies(p) { return (p.copies ? p.copies.length : 0) + this.countCopiesIn(p.pages); },
+    countPagesIn(list) { return list.reduce((n, pg) => n + 1 + (pg.children ? this.countPagesIn(pg.children) : 0), 0); },
+    countPages(p) { return this.countPagesIn(p.pages || []); },
     toast(msg) { this.toastMsg = msg; clearTimeout(this._t); this._t = setTimeout(() => this.toastMsg = '', 2000); },
+
+    // page tree helpers
+    flattenPages(list, depth = 0, acc = []) {
+      list.forEach(pg => { acc.push({ page: pg, depth }); if (pg.children && pg.children.length) this.flattenPages(pg.children, depth + 1, acc); });
+      return acc;
+    },
+    findPageById(id, list) {
+      list = list || (this.currentProject ? this.currentProject.pages : []);
+      for (const pg of list) {
+        if (pg.id === id) return pg;
+        if (pg.children && pg.children.length) { const f = this.findPageById(id, pg.children); if (f) return f; }
+      }
+      return null;
+    },
+    removePageNode(id, list) {
+      list = list || this.currentProject.pages;
+      const i = list.findIndex(p => p.id === id);
+      if (i !== -1) { list.splice(i, 1); return true; }
+      for (const p of list) { if (p.children && this.removePageNode(id, p.children)) return true; }
+      return false;
+    },
 
     // navigation
     goProjects() { this.view = 'projects'; this.currentProject = null; this.currentPage = null; },
     openProject(p) { this.currentProject = p; this.currentPage = null; this.view = 'pages'; this.currentVersion = 'draft'; },
     openPage(pg) { this.currentPage = pg; this.view = 'copies'; this.copyPage = 1; this.selectedCopies = []; this.copySearch = ''; },
+    openProjectCopies() {
+      if (!this.currentProject.copies) this.currentProject.copies = [];
+      const vp = { id: 'projcopies_' + this.currentProject.id, name: '项目文案', key: '', screenshot: false, copies: this.currentProject.copies, children: [], projectLevel: true };
+      this.openPage(vp);
+    },
 
     // project CRUD
     openCreateProject() { this.projectForm = { id: null, name: '', description: '', languages: ['en'], membersText: 'Vision' }; this.showProjectModal = true; },
@@ -300,7 +417,7 @@ createApp({
           id: uid('p'), name: f.name, description: f.description || '—',
           color: colors[Math.floor(Math.random() * colors.length)],
           languages: f.languages.length ? f.languages : ['en'], members,
-          versions: [], pages: [{ id: uid('pg'), name: 'common', key: '', screenshot: false, copies: [] }],
+          versions: [], pages: [{ id: uid('pg'), name: 'common', key: 'common', screenshot: false, copies: [], children: [] }],
         });
         this.toast('项目已创建（默认含 common 页面）');
       }
@@ -318,9 +435,14 @@ createApp({
     },
 
     // page CRUD
-    openCreatePage() { this.pageForm = { id: null, name: '', key: '', uploaded: false }; this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true; },
-    openEditPage(pg) { this.pageForm = { id: pg.id, name: pg.name, key: pg.key || '', uploaded: pg.screenshot }; this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true; },
+    openCreatePage(parent) {
+      this.pageForm = { id: null, name: '', key: '', uploaded: false, parentId: parent ? parent.id : null, parentName: parent ? parent.name : '' };
+      this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true;
+    },
+    openEditPage(pg) { this.pageForm = { id: pg.id, name: pg.name, key: pg.key || '', uploaded: pg.screenshot, parentId: null, parentName: '' }; this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true; },
     closePageModal() { this.showPageModal = false; },
+    openCopies(pg) { this.copiesModalPage = pg; this.showCopies = true; },
+    manageCopiesFromModal() { const pg = this.copiesModalPage; this.showCopies = false; this.openPage(pg); },
     runOcr() {
       this.ocrLoading = true;
       setTimeout(() => {
@@ -337,7 +459,7 @@ createApp({
       if (!this.pageForm.key.trim()) { this.toast('请填写页面 Key'); return; }
       const copies = this.ocrResult.filter(o => o.pick).map(o => mkCopy(this.genKey(o.text), o.text, '', ''));
       if (this.pageForm.id) {
-        const pg = this.currentProject.pages.find(x => x.id === this.pageForm.id);
+        const pg = this.findPageById(this.pageForm.id);
         pg.name = this.pageForm.name.trim();
         pg.key = this.pageForm.key.trim();
         pg.screenshot = this.pageForm.uploaded;
@@ -346,13 +468,32 @@ createApp({
         this.toast(copies.length ? `页面已更新，新增 ${copies.length} 条文案` : '页面已更新');
         return;
       }
-      this.currentProject.pages.push({ id: uid('pg'), name: this.pageForm.name, key: this.pageForm.key.trim(), screenshot: this.pageForm.uploaded, copies });
-      this.showPageModal = false;
-      this.toast(copies.length ? `页面已创建，录入 ${copies.length} 条文案` : '页面已创建');
+      const newPage = { id: uid('pg'), name: this.pageForm.name.trim(), key: this.pageForm.key.trim(), screenshot: this.pageForm.uploaded, copies, children: [] };
+      if (this.pageForm.parentId) {
+        const parent = this.findPageById(this.pageForm.parentId);
+        if (!parent.children) parent.children = [];
+        parent.children.push(newPage);
+        this.showPageModal = false;
+        this.toast(copies.length ? `已在「${parent.name}」下新增子页面，录入 ${copies.length} 条文案` : `已在「${parent.name}」下新增子页面`);
+      } else {
+        this.currentProject.pages.push(newPage);
+        this.showPageModal = false;
+        this.toast(copies.length ? `顶层页面已创建，录入 ${copies.length} 条文案` : '顶层页面已创建');
+      }
     },
     deletePage(pg) {
-      if (this.currentProject.pages.length <= 1) { this.toast('至少保留一个页面'); return; }
-      this.confirm = { show: true, title: '删除页面', message: `确定删除页面「${pg.name}」及其 ${pg.copies.length} 条文案？`, ok: () => { this.currentProject.pages = this.currentProject.pages.filter(x => x.id !== pg.id); this.confirm.show = false; this.toast('页面已删除'); } };
+      const childCount = pg.children ? this.countPagesIn(pg.children) : 0;
+      const copyCount = pg.copies.length + (pg.children ? this.countCopiesIn(pg.children) : 0);
+      const extra = childCount ? `及其 ${childCount} 个子页面` : '';
+      this.confirm = {
+        show: true, title: '删除页面',
+        message: `确定删除页面「${pg.name}」${extra}（共 ${copyCount} 条文案）？此操作不可恢复。`,
+        ok: () => {
+          this.removePageNode(pg.id);
+          if (this.currentPage && this.currentPage.id === pg.id) { this.currentPage = null; this.view = 'pages'; }
+          this.confirm.show = false; this.toast('页面已删除');
+        },
+      };
     },
 
     // copy CRUD
@@ -370,9 +511,17 @@ createApp({
       this.copyPage = 1;
       this.toast('新增空行，输入英文后将自动生成 Key');
     },
-    deleteCopy(row) { this.currentPage.copies = this.currentPage.copies.filter(c => c.id !== row.id); this.toast('已删除'); },
+    deleteCopy(row) {
+      const i = this.currentPage.copies.findIndex(c => c.id === row.id);
+      if (i !== -1) this.currentPage.copies.splice(i, 1);
+      this.toast('已删除');
+    },
     bulkDelete() {
-      this.confirm = { show: true, title: '批量删除', message: `确定删除选中的 ${this.selectedCopies.length} 条文案？（硬删除）`, ok: () => { this.currentPage.copies = this.currentPage.copies.filter(c => !this.selectedCopies.includes(c.id)); this.selectedCopies = []; this.confirm.show = false; this.toast('已批量删除'); } };
+      this.confirm = { show: true, title: '批量删除', message: `确定删除选中的 ${this.selectedCopies.length} 条文案？（硬删除）`, ok: () => {
+        const ids = this.selectedCopies;
+        for (let i = this.currentPage.copies.length - 1; i >= 0; i--) { if (ids.includes(this.currentPage.copies[i].id)) this.currentPage.copies.splice(i, 1); }
+        this.selectedCopies = []; this.confirm.show = false; this.toast('已批量删除');
+      } };
     },
     toggleAll(e) {
       if (e.target.checked) { this.pagedCopies.forEach(c => { if (!this.selectedCopies.includes(c.id)) this.selectedCopies.push(c.id); }); }
@@ -414,14 +563,14 @@ createApp({
     openExport() {
       this.exportFormat = 'JSON';
       const checked = {};
-      this.currentProject.pages.forEach(pg => pg.copies.forEach(c => checked[c.id] = true));
+      this.allExportCopies.forEach(c => checked[c.id] = true);
       this.exportChecked = checked;
       this.showExport = true;
     },
     isExportPageChecked(pg) { return pg.copies.length > 0 && pg.copies.every(c => this.exportChecked[c.id]); },
     isExportPageIndeterminate(pg) { return pg.copies.some(c => this.exportChecked[c.id]) && !pg.copies.every(c => this.exportChecked[c.id]); },
     toggleExportPage(pg, e) { pg.copies.forEach(c => this.exportChecked[c.id] = e.target.checked); },
-    toggleExportAll(e) { this.currentProject.pages.forEach(pg => pg.copies.forEach(c => this.exportChecked[c.id] = e.target.checked)); },
+    toggleExportAll(e) { this.allExportCopies.forEach(c => this.exportChecked[c.id] = e.target.checked); },
     doExport() {
       const n = Object.values(this.exportChecked).filter(Boolean).length;
       this.showExport = false;
@@ -458,14 +607,61 @@ createApp({
     doRollback() { this.showDiff = false; this.toast(`已回滚到 ${this.diffVersion.name}（按 id 增删改）`); },
 
     // migrate / copy
-    openMigrate() { this.moveMode = 'migrate'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.currentProject.pages[0].id; this.showMove = true; },
-    openCopyTo() { this.moveMode = 'copy'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.currentProject.pages[0].id; this.showMove = true; },
-    quickCopyTo(row) { this.moveMode = 'copy'; this.moveCount = 1; this._singleRow = row; this.moveTarget = this.currentProject.pages[0].id; this.showMove = true; },
+    defaultMoveTarget() { return this.currentProject.pages[0] ? this.currentProject.pages[0].id : '__project__'; },
+    openMigrate() { this.moveMode = 'migrate'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
+    openCopyTo() { this.moveMode = 'copy'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
+    quickCopyTo(row) { this.moveMode = 'copy'; this.moveCount = 1; this._singleRow = row; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     doMove() {
-      const target = this.currentProject.pages.find(p => p.id === this.moveTarget);
+      const targetName = this.moveTarget === '__project__'
+        ? `${this.currentProject.name} · 项目文案`
+        : (this.findPageById(this.moveTarget)?.name || '页面');
       const verb = this.moveMode === 'migrate' ? '迁移' : '复制';
       this.showMove = false; this.selectedCopies = []; this._singleRow = null;
-      this.toast(`已${verb} ${this.moveCount} 条文案到「${target.name}」`);
+      this.toast(`已${verb} ${this.moveCount} 条文案到「${targetName}」`);
     },
   },
-}).mount('#app');
+});
+
+// Recursive page tree node
+app.component('page-tree-node', {
+  name: 'page-tree-node',
+  props: {
+    node: { type: Object, required: true },
+    depth: { type: Number, default: 0 },
+    parentKey: { type: String, default: '' },
+    langLabel: { type: Function, required: true },
+  },
+  inject: ['tree'],
+  data() { return { open: true }; },
+  computed: {
+    hasChildren() { return this.node.children && this.node.children.length > 0; },
+    fullKey() { return this.parentKey && this.node.key ? (this.parentKey + '.' + this.node.key) : (this.node.key || ''); },
+  },
+  template: `
+    <div class="ptree-item">
+      <div class="ptree-row" :style="{paddingLeft:(depth*24+12)+'px'}" @click="tree.openPage(node)">
+        <button v-if="hasChildren" class="ptree-toggle" @click.stop="open=!open">{{ open ? '▾' : '▸' }}</button>
+        <span v-else class="ptree-toggle ghost"></span>
+        <span class="ptree-thumb" :class="{noimg:!node.screenshot}" :title="node.screenshot ? '已上传截图' : '无截图'">{{ node.screenshot ? '🖼️' : '–' }}</span>
+        <div class="ptree-info">
+          <span class="ptree-name">{{ node.name }}</span>
+          <code class="ptree-key">{{ fullKey ? ('$t(\\'' + fullKey + '\\')') : '未设置 Key' }}</code>
+        </div>
+        <span class="ptree-count"><b>{{ node.copies.length }}</b> 文案</span>
+        <!--<button class="ptree-count" @click.stop="tree.
+        openCopies(node)" title="查看该页面文案"><b>{{ node.
+        copies.length }}</b> 文案</button>-->
+        <div class="ptree-actions" @click.stop>
+          <button class="btn xs" title="在此页面下新增子页面" @click="tree.addChild(node)">＋ 子页面</button>
+          <button class="icon-btn sm" title="编辑页面" @click="tree.editPage(node)">✏️</button>
+          <button class="icon-btn sm danger" title="删除页面" @click="tree.deletePage(node)">🗑️</button>
+        </div>
+      </div>
+      <div v-if="hasChildren && open" class="ptree-children">
+        <page-tree-node v-for="c in node.children" :key="c.id" :node="c" :depth="depth+1" :parent-key="fullKey" :lang-label="langLabel" />
+      </div>
+    </div>
+  `,
+});
+
+app.mount('#app');

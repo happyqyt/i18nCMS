@@ -17,7 +17,7 @@
           <span class="logo-text">CMS</span>
         </div>
         <nav class="crumbs">
-          <span class="crumb" :class="{active: view==='projects'}" @click="goProjects">项目</span>
+          <span class="crumb" :class="{active: view==='projects'}" @click="goProjects">首页</span>
           <template v-if="currentProject">
             <span class="crumb-sep">/</span>
             <span class="crumb" :class="{active: view==='pages'}" @click="openProject(currentProject)">{{ currentProject.name }}</span>
@@ -39,8 +39,8 @@
     <main v-if="view==='projects'" class="page">
       <div class="page-head">
         <div>
-          <h1>项目管理</h1>
-          <p class="muted">集中管理全部多语言文案项目</p>
+          <h1>项目</h1>
+          <p class="muted">集中管理项目的多语言文案</p>
         </div>
         <div class="page-head-actions">
           <div class="search">
@@ -67,7 +67,7 @@
             <span v-if="p.languages.length>5" class="chip ghost">+{{ p.languages.length-5 }}</span>
           </div>
           <div class="proj-card-foot">
-            <span class="stat"><b>{{ p.languages.length }}</b> 语种</span>
+            <span class="stat"><b>{{ countPages(p) }}</b> 页面</span>
             <span class="stat"><b>{{ countCopies(p) }}</b> 文案</span>
             <div class="members">
               <span v-for="(m,i) in p.members.slice(0,3)" :key="i" class="mini-avatar" :title="m.name+' · '+m.role">{{ m.name.slice(0,1) }}</span>
@@ -75,15 +75,12 @@
             </div>
           </div>
         </div>
-        <div class="proj-card add" @click="openCreateProject">
-          <div class="add-inner">＋<span>新建项目</span></div>
-        </div>
       </div>
       <div v-if="filteredProjects.length===0" class="empty">没有匹配「{{ projectSearch }}」的项目</div>
     </main>
 
-    <!-- ============ PAGE MANAGEMENT VIEW ============ -->
-    <main v-if="view==='pages' && currentProject" class="page">
+    <!-- ============ PAGE / COPY MANAGEMENT VIEW (shared project card) ============ -->
+    <main v-if="(view==='pages' || view==='copies') && currentProject" class="page">
       <div class="proj-overview">
         <div class="proj-overview-main">
           <div class="proj-icon lg" :style="{background:currentProject.color}">{{ currentProject.name.slice(0,1) }}</div>
@@ -108,47 +105,45 @@
           <div class="version-pill">
             <span>版本</span>
             <select v-model="currentVersion">
-              <option value="draft">草稿（未打版本）</option>
+              <option value="draft">草稿（未保存版本）</option>
               <option v-for="v in currentProject.versions" :key="v.id" :value="v.id">{{ v.name }}</option>
             </select>
           </div>
           <button class="btn" @click="view='versions'">🏷️ 版本管理</button>
-          <button class="btn" @click="openTagVersion">＋ 打版本</button>
+          <button class="btn" @click="openTagVersion">💾 保存版本</button>
           <button class="btn" @click="openImport">⬇️ 导入文案</button>
           <button class="btn" @click="openExport">⬆️ 导出文案</button>
         </div>
       </div>
 
-      <div class="sub-head">
-        <h2>页面管理 <span class="muted sm">（分组）</span></h2>
-        <button class="btn primary" @click="openCreatePage">＋ 添加页面</button>
-      </div>
-
-      <div class="card-grid pages">
-        <div v-for="pg in currentProject.pages" :key="pg.id" class="page-card" @click="openPage(pg)">
-          <div class="page-thumb" :class="{empty:!pg.screenshot}">
-            <template v-if="pg.screenshot">🖼️ 页面截图</template>
-            <template v-else>无截图</template>
-          </div>
-          <div class="page-card-body">
-            <h3>{{ pg.name }}</h3>
-            <div class="page-card-foot">
-              <span class="stat"><b>{{ pg.copies.length }}</b> 文案</span>
-              <div class="page-card-actions" @click.stop>
-                <button class="icon-btn sm" title="编辑页面" @click="openEditPage(pg)">✏️</button>
-                <button class="icon-btn sm danger" title="删除" @click="deletePage(pg)">🗑️</button>
-              </div>
-            </div>
-          </div>
+      <!-- pages tree -->
+      <template v-if="view==='pages'">
+        <div v-if="(currentProject.copies || []).length" class="sub-head">
+          <h2>项目文案 <span class="muted sm">（直接挂在项目下，未归属任何页面 · 共 {{ (currentProject.copies || []).length }} 条）</span></h2>
+          <button class="btn primary" @click="openProjectCopies">✏️ 管理文案</button>
         </div>
-        <div class="page-card add" @click="openCreatePage">
-          <div class="add-inner">＋<span>添加页面</span></div>
-        </div>
-      </div>
-    </main>
 
-    <!-- ============ COPY MANAGEMENT VIEW ============ -->
-    <main v-if="view==='copies' && currentPage" class="page">
+        <div class="sub-head">
+          <h2>页面管理 <span class="muted sm">（树级结构 · 支持多层级）</span></h2>
+          <button class="btn primary" @click="openCreatePage(null)">＋ 新增页面</button>
+        </div>
+
+        <div v-if="currentProject.pages.length" class="page-tree">
+          <div class="page-tree-head">
+            <span class="pth-name">页面名称 / Key</span>
+            <span class="pth-count">文案数</span>
+            <span class="pth-op">操作</span>
+          </div>
+          <page-tree-node v-for="pg in currentProject.pages" :key="pg.id" :node="pg" :depth="0" :lang-label="langLabel" />
+        </div>
+        <div v-else class="empty tree-empty-box">
+          <p>该项目下暂无页面</p>
+          <button class="btn primary" @click="openCreatePage(null)">＋ 新增第一个顶层页面</button>
+        </div>
+      </template>
+
+      <!-- copy management -->
+      <template v-if="view==='copies' && currentPage">
       <div class="copy-topbar">
         <div class="search wide">
           <span class="search-ico">🔍</span>
@@ -158,10 +153,6 @@
             <option value="project">当前项目</option>
             <option value="all">所有项目</option>
           </select>
-        </div>
-        <div class="copy-topbar-actions">
-          <button class="btn" @click="openImport">⬇️ 导入文案</button>
-          <button class="btn" @click="openExport">⬆️ 导出文案</button>
         </div>
       </div>
 
@@ -192,7 +183,6 @@
               <th v-for="l in currentProject.languages" :key="l">
                 {{ langLabel(l) }} <span class="lang-code">{{ l }}</span>
               </th>
-              <th class="op-col">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -207,13 +197,9 @@
                   <button class="rich-btn" title="富文本编辑" @click="openRich(row,l)">Aa</button>
                 </div>
               </td>
-              <td class="op-col">
-                <button class="icon-btn sm" title="复制" @click="quickCopyTo(row)">⧉</button>
-                <button class="icon-btn sm danger" title="删除" @click="deleteCopy(row)">🗑️</button>
-              </td>
             </tr>
             <tr v-if="pagedCopies.length===0">
-              <td :colspan="currentProject.languages.length+3" class="empty-cell">无文案，点击「新增文案」或「导入」开始</td>
+              <td :colspan="currentProject.languages.length+2" class="empty-cell">无文案，点击「新增文案」或「导入」开始</td>
             </tr>
           </tbody>
         </table>
@@ -233,6 +219,7 @@
         正在跨{{ searchScope==='all'?'所有项目':'项目' }}搜索，命中的其他来源文案可一键
         <button class="link" @click="toast('已复制到当前页面（演示）')">复制复用</button> 到当前页面。
       </div>
+      </template>
     </main>
 
     <!-- ============ VERSION MANAGEMENT VIEW ============ -->
@@ -240,11 +227,11 @@
       <div class="sub-head wrap">
         <div>
           <h1>版本管理 <span class="muted sm">· {{ currentProject.name }}</span></h1>
-          <p class="muted">可追溯 · 可对比 · 可回滚。未打版本的修改视为草稿。</p>
+          <p class="muted">可追溯 · 可对比 · 可回滚。未保存版本的修改视为草稿。</p>
         </div>
         <div>
           <button class="btn" @click="view='pages'">← 返回</button>
-          <button class="btn primary" @click="openTagVersion">＋ 打版本</button>
+          <button class="btn primary" @click="openTagVersion">💾 保存版本</button>
         </div>
       </div>
 
@@ -303,8 +290,9 @@
     <!-- Create Page (with screenshot OCR mock) -->
     <div v-if="showPageModal" class="overlay" @click.self="closePageModal">
       <div class="modal">
-        <div class="modal-head"><h3>{{ pageForm.id ? '编辑页面' : '添加页面' }}</h3><button class="x" @click="closePageModal">×</button></div>
+        <div class="modal-head"><h3>{{ pageForm.id ? '编辑页面' : (pageForm.parentId ? '新增子页面' : '新增顶层页面') }}</h3><button class="x" @click="closePageModal">×</button></div>
         <div class="modal-body">
+          <div v-if="!pageForm.id && pageForm.parentId" class="parent-hint">📁 父页面：<b>{{ pageForm.parentName }}</b>，新页面将作为其子页面创建。</div>
           <label class="field"><span>页面名称</span><input v-model="pageForm.name" placeholder="如：login / home" /></label>
           <label class="field">
             <span>页面 Key <i class="req">*</i></span>
@@ -335,6 +323,32 @@
         <div class="modal-foot">
           <button class="btn ghost" @click="closePageModal">取消</button>
           <button class="btn primary" @click="savePage">{{ ocrResult.length ? '保存页面与文案' : (pageForm.id ? '保存' : '直接保存空页面') }}</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Page copies list -->
+    <div v-if="showCopies && copiesModalPage" class="overlay" @click.self="showCopies=false">
+      <div class="modal lg">
+        <div class="modal-head">
+          <h3>📄 {{ copiesModalPage.name }} · 文案列表 <span class="muted sm">（{{ copiesModalPage.copies.length }} 条）</span></h3>
+          <button class="x" @click="showCopies=false">×</button>
+        </div>
+        <div class="modal-body">
+          <table v-if="copiesModalPage.copies.length" class="grid simple">
+            <thead><tr><th class="key-col">Key</th><th v-for="l in currentProject.languages" :key="l">{{ langLabel(l) }} <span class="lang-code">{{ l }}</span></th></tr></thead>
+            <tbody>
+              <tr v-for="c in copiesModalPage.copies" :key="c.id">
+                <td class="key-col"><code>{{ c.key }}</code></td>
+                <td v-for="l in currentProject.languages" :key="l">{{ c.values[l] || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div v-else class="empty">该页面暂无文案</div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost" @click="showCopies=false">关闭</button>
+          <button class="btn primary" @click="manageCopiesFromModal">进入编辑文案 →</button>
         </div>
       </div>
     </div>
@@ -433,17 +447,22 @@
               <label class="tree-root">
                 <input type="checkbox" :checked="exportAllChecked" :indeterminate="exportSomeChecked && !exportAllChecked" @change="toggleExportAll($event)" /> 📦 {{ currentProject.name }}
               </label>
-              <div v-for="pg in currentProject.pages" :key="pg.id" class="tree-group">
-                <label class="tree-node">
-                  <input type="checkbox" :checked="isExportPageChecked(pg)" :indeterminate="isExportPageIndeterminate(pg)" @change="toggleExportPage(pg,$event)" />
-                  📁 {{ pg.name }} <i class="muted">({{ pg.copies.length }})</i>
+              <label v-for="c in (currentProject.copies||[])" :key="c.id" class="tree-leaf" :style="{paddingLeft:'22px'}">
+                <input type="checkbox" v-model="exportChecked[c.id]" />
+                <span class="tree-key">{{ c.key }}</span>
+                <span class="tree-val">{{ c.values[exportDefaultLang] || '—' }}</span>
+              </label>
+              <div v-for="o in pageOptions" :key="o.id" class="tree-group">
+                <label class="tree-node" :style="{paddingLeft:(o.depth*18+22)+'px'}">
+                  <input type="checkbox" :checked="isExportPageChecked(o.page)" :indeterminate="isExportPageIndeterminate(o.page)" @change="toggleExportPage(o.page,$event)" />
+                  📁 {{ o.page.name }} <i class="muted">({{ o.page.copies.length }})</i>
                 </label>
-                <label v-for="c in pg.copies" :key="c.id" class="tree-leaf">
+                <label v-for="c in o.page.copies" :key="c.id" class="tree-leaf" :style="{paddingLeft:(o.depth*18+44)+'px'}">
                   <input type="checkbox" v-model="exportChecked[c.id]" />
                   <span class="tree-key">{{ c.key }}</span>
                   <span class="tree-val">{{ c.values[exportDefaultLang] || '—' }}</span>
                 </label>
-                <div v-if="pg.copies.length===0" class="tree-empty">无文案</div>
+                <div v-if="o.page.copies.length===0" class="tree-empty" :style="{paddingLeft:(o.depth*18+44)+'px'}">无文案</div>
               </div>
             </div>
           </div>
@@ -458,15 +477,15 @@
     <!-- Tag version -->
     <div v-if="showTagVersion" class="overlay" @click.self="showTagVersion=false">
       <div class="modal">
-        <div class="modal-head"><h3>打版本</h3><button class="x" @click="showTagVersion=false">×</button></div>
+        <div class="modal-head"><h3>保存版本</h3><button class="x" @click="showTagVersion=false">×</button></div>
         <div class="modal-body">
           <p class="muted">将当前项目的完整快照（项目/页面/文案）存为新版本。</p>
-          <label class="field"><span>版本号</span><input v-model="tagForm.name" /></label>
+          <label class="field"><span>版本号</span><input v-model="tagForm.name" disabled /></label>
           <label class="field"><span>版本说明</span><textarea v-model="tagForm.note" placeholder="本次版本的更新内容"></textarea></label>
         </div>
         <div class="modal-foot">
           <button class="btn ghost" @click="showTagVersion=false">取消</button>
-          <button class="btn primary" @click="saveTagVersion">确认打版本</button>
+          <button class="btn primary" @click="saveTagVersion">确认保存版本</button>
         </div>
       </div>
     </div>
@@ -500,9 +519,9 @@
       <div class="modal">
         <div class="modal-head"><h3>{{ moveMode==='migrate'?'迁移文案':'复制文案' }}（{{ moveCount }} 条）</h3><button class="x" @click="showMove=false">×</button></div>
         <div class="modal-body">
-          <label class="field"><span>目标页面</span>
+          <label class="field"><span>目标位置</span>
             <select v-model="moveTarget">
-              <option v-for="pg in currentProject.pages" :key="pg.id" :value="pg.id">{{ pg.name }}</option>
+              <option v-for="o in moveTargets" :key="o.id" :value="o.id">{{ o.label }}</option>
             </select>
           </label>
           <p class="muted sm" v-if="moveMode==='copy'">复制时 Key 按冲突规则重新生成（key_xx）。</p>
