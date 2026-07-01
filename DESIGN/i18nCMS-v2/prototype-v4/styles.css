@@ -190,10 +190,17 @@ code{background:#f0f2f7;padding:1px 6px;border-radius:5px;font-size:12px}
 .grid .op-col{width:80px;white-space:nowrap}
 .lang-code{font-size:10px;color:#b3bcd0;font-weight:500}
 .grid .lang-col{min-width:180px;max-width:320px}
+.scope-proj-col{min-width:120px;white-space:nowrap}
+.scope-page-col{min-width:160px;max-width:240px}
+.scope-chain{display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;color:var(--muted);font-size:12px}
 .cell-flex{display:flex;align-items:center;gap:4px;min-width:0}
 .cell-input{width:100%;min-width:0;border:1px solid transparent;background:transparent;padding:7px 8px;border-radius:7px;font-size:13px;outline:none;text-overflow:ellipsis}
 .cell-input:hover{background:#f7f9fd}
 .cell-input:focus{background:#fff;border-color:var(--brand)}
+.cell-readonly{display:block;flex:1;min-width:0;padding:7px 8px;font-size:13px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.key-display.readonly{cursor:default}
+.grid tr.copy-readonly td{background:#fafbfc}
+.grid tr.copy-readonly.sel td{background:#f0f3f8}
 .cell-input.key{font-family:ui-monospace,monospace;font-size:12px;color:var(--brand-d)}
 .rich-btn{border:1px solid var(--line);background:#fff;border-radius:6px;font-size:11px;padding:2px 6px;cursor:pointer;color:var(--muted)}
 .rich-btn:hover{border-color:var(--brand);color:var(--brand)}
@@ -237,18 +244,30 @@ code{background:#f0f2f7;padding:1px 6px;border-radius:5px;font-size:12px}
 /* 文案查重 */
 .dedup-loading{text-align:center;color:var(--muted);padding:36px}
 .dedup-summary{font-size:13px;color:var(--muted);margin-bottom:12px}
-.dedup-group{margin-bottom:20px}
-.dedup-group-head{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:8px}
-.dedup-group .grid{min-width:640px}
-.dedup-group .dd-key{min-width:140px}
-.dedup-group .dd-proj{min-width:130px;white-space:nowrap}
-.dedup-group .dd-proj .tag{margin-left:6px}
-.dedup-group .dd-page{min-width:200px;max-width:280px}
-.dedup-group .dd-op{width:120px;white-space:nowrap;text-align:right}
-.dedup-group .dd-op .btn.xs{margin-left:6px}
+.dedup-table-wrap{margin-top:4px}
+.dedup-table{min-width:640px}
+.dedup-table .dd-key{min-width:140px;position:sticky;left:0;z-index:1;box-shadow:1px 0 0 var(--line)}
+.dedup-table thead .dd-key{background:#f7f9fd;z-index:4}
+.dedup-table tr.dd-grp-tone-0 .dd-key{background:#fffaf0}
+.dedup-table tr.dd-grp-tone-1 .dd-key{background:#f0f7ff}
+.dedup-table tr.dd-grp-tone-2 .dd-key{background:#f0fff5}
+.dedup-table tr.dd-grp-tone-3 .dd-key{background:#faf5ff}
+.dedup-table .dd-proj{min-width:130px;white-space:nowrap}
+.dedup-table .dd-proj .tag{margin-left:6px}
+.dedup-table .dd-page{min-width:200px;max-width:280px}
+.dedup-table .dd-op{width:120px;white-space:nowrap;text-align:right}
+.dedup-table .dd-op .btn.xs{margin-left:6px}
 .dd-val{display:inline-block;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 .dd-chain{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;color:var(--muted);font-size:12px}
-.dedup-group tr.dd-own td{background:#f6faff}
+.dedup-table tr.dd-grp-tone-0 td{background:#fffaf0}
+.dedup-table tr.dd-grp-tone-1 td{background:#f0f7ff}
+.dedup-table tr.dd-grp-tone-2 td{background:#f0fff5}
+.dedup-table tr.dd-grp-tone-3 td{background:#faf5ff}
+.dedup-overwrite-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.dedup-overwrite-item{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;cursor:pointer}
+.dedup-overwrite-item input{margin-top:3px;width:auto;flex-shrink:0}
+.dedup-overwrite-meta{display:flex;flex-direction:column;gap:4px;min-width:0}
+.dedup-overwrite-meta code{font-size:13px}
 .screenshot-preview-modal{width:min(440px,92vw)}
 .screenshot-preview-body{padding:12px;display:flex;justify-content:center;background:#f7f9fd}
 .screenshot-preview-body img{max-width:100%;max-height:72vh;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12)}

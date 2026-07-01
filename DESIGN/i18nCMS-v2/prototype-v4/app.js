@@ -259,7 +259,7 @@ const app = createApp({
       projectSearch: '',
       copySearch: '',
       searchScope: 'page',
-      projectOverviewCollapsed: false,
+      projectOverviewCollapsed: true,
       copyPage: 1,
       pageSize: 10,
       selectedCopies: [],
@@ -303,16 +303,17 @@ const app = createApp({
       dedupGroups: [],
       dedupScope: 'project', // 'project' | 'selected'
       dedupSelectedIds: [],
-      // 查重结果内的复制目标弹窗
-      showDedupCopy: false,
-      dedupCopyTarget: null,
-      dedupCopyCtx: null,
+      // 查重结果 · 覆盖本项目文案
+      showDedupOverwrite: false,
+      dedupOverwriteSource: null,
+      dedupOverwriteGroup: null,
+      dedupOverwriteSelected: [],
       showAddLang: false,
       addLangCode: '',
       showLangSettings: false,
       showScreenshotPreview: false,
       screenshotPreview: { url: '', title: '' },
-      confirm: { show: false, title: '', message: '', ok: () => {} },
+      confirm: { show: false, title: '', message: '', ok: () => {}, okLabel: '', danger: true },
       toastMsg: '',
     };
   },
@@ -388,13 +389,22 @@ const app = createApp({
       return [...((this.currentProject.copies) || []), ...this.pageOptions.flatMap(o => o.page.copies)];
     },
     filteredCopies() {
-      if (!this.currentPage) return [];
+      if (!this.currentPage || !this.currentProject) return [];
       const q = this.copySearch.trim().toLowerCase();
-      if (!q) return this.currentPage.copies;
-      return this.currentPage.copies.filter(c =>
-        c.key.toLowerCase().includes(q) ||
-        Object.values(c.values).some(v => (v || '').toLowerCase().includes(q))
-      );
+      const match = (c) => !q || c.key.toLowerCase().includes(q) ||
+        Object.values(c.values).some(v => (v || '').toLowerCase().includes(q));
+      if (this.searchScope === 'page') return this.currentPage.copies.filter(match);
+      const pool = this.searchScope === 'project'
+        ? this.flattenProjectCopies(this.currentProject)
+        : this.projects.flatMap(p => this.flattenProjectCopies(p));
+      return pool.filter(match);
+    },
+    copyTableColspan() {
+      if (!this.currentProject) return 2;
+      let n = 2 + this.currentProject.languages.length;
+      if (this.searchScope === 'project') n += 1;
+      if (this.searchScope === 'all') n += 2;
+      return n;
     },
     totalCopyPages() { return Math.max(1, Math.ceil(this.filteredCopies.length / this.pageSize)); },
     pagedCopies() {
@@ -420,6 +430,13 @@ const app = createApp({
     allSelected() {
       return this.pagedCopies.length > 0 && this.pagedCopies.every(c => this.selectedCopies.includes(c.id));
     },
+    selectedIncludesOtherProject() {
+      if (!this.selectedCopies.length || !this.currentProject || this.searchScope !== 'all') return false;
+      const ids = new Set(this.selectedCopies);
+      return this.projects
+        .flatMap(p => this.flattenProjectCopies(p))
+        .some(r => ids.has(r.id) && r._projectId !== this.currentProject.id);
+    },
     exportDefaultLang() {
       if (!this.currentProject) return 'en';
       const langs = this.currentProject.languages;
@@ -437,6 +454,7 @@ const app = createApp({
   },
   watch: {
     copySearch() { this.copyPage = 1; },
+    searchScope() { this.copyPage = 1; this.selectedCopies = []; },
   },
   mounted() {
     const d = new URLSearchParams(location.search).get('demo');
@@ -481,7 +499,45 @@ const app = createApp({
     },
     fullKeyOf(row) {
       const leaf = (row.key || '').trim();
-      return this.currentPageKeyPrefix ? (this.currentPageKeyPrefix + '.' + leaf) : leaf;
+      const prefix = row._keyPrefix != null ? row._keyPrefix : this.currentPageKeyPrefix;
+      return prefix ? (prefix + '.' + leaf) : leaf;
+    },
+    copyKeyPrefix(row) {
+      if (row._keyPrefix != null) return row._keyPrefix;
+      return this.currentPageKeyPrefix;
+    },
+    copyRowEditable(row) {
+      if (this.searchScope !== 'all') return true;
+      return row._projectId === this.currentProject.id;
+    },
+    flattenProjectCopies(project) {
+      if (!project) return [];
+      const rows = [];
+      const projPageId = 'projcopies_' + project.id;
+      (project.copies || []).forEach(c => {
+        rows.push(this.scopeCopyRow(c, project, projPageId, '（项目级文案）', ''));
+      });
+      const walk = (pg, prefixKeys) => {
+        const keys = [...prefixKeys, (pg.key || pg.name || '').trim()].filter(Boolean);
+        const keyPrefix = keys.join('.');
+        const pageChain = this.pageChainDisplay(project, pg.id);
+        pg.copies.forEach(c => rows.push(this.scopeCopyRow(c, project, pg.id, pageChain, keyPrefix)));
+        (pg.children || []).forEach(ch => walk(ch, keys));
+      };
+      (project.pages || []).forEach(pg => walk(pg, []));
+      return rows;
+    },
+    scopeCopyRow(c, project, pageId, pageChain, keyPrefix) {
+      return {
+        id: c.id,
+        key: c.key,
+        values: c.values,
+        _pageId: pageId,
+        _pageChain: pageChain,
+        _keyPrefix: keyPrefix,
+        _projectId: project.id,
+        _projectName: project.name,
+      };
     },
     goToPage(p) {
       let n = parseInt(p, 10);
@@ -491,7 +547,7 @@ const app = createApp({
     },
     jumpToPage(e) { this.goToPage(e.target.value); e.target.value = this.copyPage; },
     changePageSize(e) { this.pageSize = parseInt(e.target.value, 10) || 20; this.copyPage = 1; },
-    startEditKey(row) { this.editingKeyId = row.id; },
+    startEditKey(row) { if (!this.copyRowEditable(row)) return; this.editingKeyId = row.id; },
     stopEditKey() { this.editingKeyId = null; },
     copyFullKey(row) {
       const text = '$t("' + this.fullKeyOf(row) + '")';
@@ -519,7 +575,7 @@ const app = createApp({
 
     // navigation
     goProjects() { this.view = 'projects'; this.currentProject = null; this.currentPage = null; },
-    openProject(p) { this.currentProject = p; this.currentPage = null; this.view = 'pages'; this.currentVersion = 'draft'; this.projectOverviewCollapsed = false; },
+    openProject(p) { this.currentProject = p; this.currentPage = null; this.view = 'pages'; this.currentVersion = 'draft'; this.projectOverviewCollapsed = true; },
     openPage(pg) { this.currentPage = pg; this.view = 'copies'; this.copyPage = 1; this.selectedCopies = []; this.copySearch = ''; },
     pageThumbUrl(pg) {
       if (!pg || !pg.screenshot || pg.projectLevel) return '';
@@ -653,9 +709,22 @@ const app = createApp({
       this.toast('已删除');
     },
     bulkDelete() {
+      if (this.selectedIncludesOtherProject) return;
       this.confirm = { show: true, title: '批量删除', message: `确定删除选中的 ${this.selectedCopies.length} 条文案？（硬删除）`, ok: () => {
-        const ids = this.selectedCopies;
-        for (let i = this.currentPage.copies.length - 1; i >= 0; i--) { if (ids.includes(this.currentPage.copies[i].id)) this.currentPage.copies.splice(i, 1); }
+        const ids = new Set(this.selectedCopies);
+        if (this.searchScope === 'page') {
+          for (let i = this.currentPage.copies.length - 1; i >= 0; i--) {
+            if (ids.has(this.currentPage.copies[i].id)) this.currentPage.copies.splice(i, 1);
+          }
+        } else {
+          const pool = this.searchScope === 'project'
+            ? this.flattenProjectCopies(this.currentProject)
+            : this.projects.flatMap(p => this.flattenProjectCopies(p));
+          pool.filter(r => ids.has(r.id)).forEach(r => {
+            const proj = this.projects.find(p => p.id === r._projectId);
+            this.removeCopyFromProject(proj, r.id, r._pageId);
+          });
+        }
         this.selectedCopies = []; this.confirm.show = false; this.toast('已批量删除');
       } };
     },
@@ -781,7 +850,7 @@ const app = createApp({
 
     // migrate / copy
     defaultMoveTarget() { return this.currentProject.pages[0] ? this.currentProject.pages[0].id : '__project__'; },
-    openMigrate() { this.moveMode = 'migrate'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
+    openMigrate() { if (this.selectedIncludesOtherProject) return; this.moveMode = 'migrate'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     openCopyTo() { this.moveMode = 'copy'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     quickCopyTo(row) { this.moveMode = 'copy'; this.moveCount = 1; this._singleRow = row; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     doMove() {
@@ -929,54 +998,111 @@ const app = createApp({
       for (const pg of (project.pages || [])) { const f = walk(pg); if (f) return f; }
       return (project.copies && project.copies[0]) ? project.copies[0].key : null;
     },
-    // 需求4：语种列 = 组内所有涉及项目语种的并集
+    // 语种列 = 本项目所有语种
     dedupLangs() {
-      const set = [];
-      const push = (code) => { if (code && !set.includes(code)) set.push(code); };
-      // 以系统语言顺序排列
-      const order = this.allLanguages.map(l => l.code);
-      const involved = new Set();
-      this.dedupGroups.forEach(grp => grp.rows.forEach(r => {
-        const p = this.projects.find(x => x.id === r.projectId);
-        (p ? p.languages : []).forEach(c => involved.add(c));
-      }));
-      if (this.dedupProject) this.dedupProject.languages.forEach(c => involved.add(c));
-      order.forEach(c => { if (involved.has(c)) push(c); });
-      return set;
+      if (!this.dedupProject) return [];
+      return [...this.dedupProject.languages];
+    },
+    dedupGroupTone(index) {
+      return 'dd-grp-tone-' + (index % 4);
     },
     // 组内本项目条目数（用于控制删除按钮显示）
     ownCountInGroup(group) { return group.rows.filter(r => r.isOwn).length; },
-    openDedupCopy(row) {
-      this.dedupCopyCtx = row;
-      const opts = this.projectPageOptions(this.dedupProject);
-      // 默认选中第一个页面（非项目级），若无则项目级
-      const firstPage = opts.find(o => o.depth > 0);
-      this.dedupCopyTarget = firstPage ? firstPage.id : (opts[0] ? opts[0].id : null);
-      this.showDedupCopy = true;
+    dedupOwnRowsForOverwrite() {
+      if (!this.dedupOverwriteGroup) return [];
+      return this.dedupOverwriteGroup.rows.filter(r => r.isOwn);
     },
-    doDedupCopy() {
-      const row = this.dedupCopyCtx;
-      const target = this.dedupCopyTarget;
-      if (!row || !target) return;
-      // 本项目文案：目标页面不能与当前所属页面相同
-      if (row.isOwn && target === row.pageId) {
-        this.toast('目标页面与文案当前所属页面相同，请重新选择');
+    findCopyInProject(project, copyId, pageId) {
+      if (!project) return null;
+      if (('projcopies_' + project.id) === pageId) {
+        return (project.copies || []).find(c => c.id === copyId) || null;
+      }
+      const walk = (pg) => {
+        if (pg.id === pageId) return pg.copies.find(c => c.id === copyId) || null;
+        for (const ch of (pg.children || [])) { const f = walk(ch); if (f) return f; }
+        return null;
+      };
+      for (const pg of (project.pages || [])) { const f = walk(pg); if (f) return f; }
+      return null;
+    },
+    removeCopyFromProject(project, copyId, pageId) {
+      if (!project) return false;
+      if (('projcopies_' + project.id) === pageId) {
+        const list = project.copies || [];
+        const i = list.findIndex(c => c.id === copyId);
+        if (i !== -1) { list.splice(i, 1); return true; }
+        return false;
+      }
+      const walk = (pg) => {
+        if (pg.id === pageId) {
+          const i = pg.copies.findIndex(c => c.id === copyId);
+          if (i !== -1) { pg.copies.splice(i, 1); return true; }
+          return false;
+        }
+        for (const ch of (pg.children || [])) { if (walk(ch)) return true; }
+        return false;
+      };
+      for (const pg of (project.pages || [])) { if (walk(pg)) return true; }
+      return false;
+    },
+    applyDedupOverwrite(sourceRow, targetRows) {
+      const project = this.dedupProject;
+      if (!project || !sourceRow) return;
+      const langs = project.languages;
+      targetRows.forEach(tr => {
+        const copy = this.findCopyInProject(project, tr.copyId, tr.pageId);
+        if (copy) langs.forEach(l => { copy.values[l] = sourceRow.values[l] ?? ''; });
+        langs.forEach(l => { tr.values[l] = sourceRow.values[l] ?? ''; });
+      });
+      this.toast(`已将「${sourceRow.key}」覆盖到 ${targetRows.length} 条本项目文案`);
+    },
+    openDedupCopy(row, group) {
+      if (row.isOwn) return;
+      const ownRows = group.rows.filter(r => r.isOwn);
+      if (!ownRows.length) return;
+      if (ownRows.length === 1) {
+        const target = ownRows[0];
+        this.confirm = {
+          show: true,
+          title: '覆盖文案',
+          danger: false,
+          okLabel: '确认覆盖',
+          message: `将「${row.projectName}」项目的文案「${row.values.en || row.key}」覆盖到本项目「${target.pageChain}」下？覆盖后本项目文案各语种内容将替换为其它项目的对应内容。`,
+          ok: () => {
+            this.applyDedupOverwrite(row, [target]);
+            this.confirm.show = false;
+          },
+        };
         return;
       }
-      const opt = this.projectPageOptions(this.dedupProject).find(o => o.id === target);
-      this.showDedupCopy = false;
-      this.dedupCopyCtx = null;
-      this.toast(`已复制「${row.key}」到「${(opt && opt.name) || '页面'}」`);
+      this.dedupOverwriteSource = row;
+      this.dedupOverwriteGroup = group;
+      this.dedupOverwriteSelected = [];
+      this.showDedupOverwrite = true;
+    },
+    doDedupOverwrite() {
+      if (!this.dedupOverwriteSource || !this.dedupOverwriteGroup) return;
+      if (!this.dedupOverwriteSelected.length) {
+        this.toast('请至少勾选一条本项目文案');
+        return;
+      }
+      const targets = this.dedupOverwriteGroup.rows.filter(r => this.dedupOverwriteSelected.includes(r.id));
+      this.applyDedupOverwrite(this.dedupOverwriteSource, targets);
+      this.showDedupOverwrite = false;
+      this.dedupOverwriteSource = null;
+      this.dedupOverwriteGroup = null;
+      this.dedupOverwriteSelected = [];
     },
     confirmDedupDelete(group, row) {
       this.confirm = {
         show: true,
         title: '删除文案',
+        danger: true,
+        okLabel: '确认删除',
         message: `确定删除「${row.key}」（${row.projectName} / ${row.pageChain}）？该文案将被硬删除，不可恢复。`,
         ok: () => {
-          // 从组内移除该行
+          this.removeCopyFromProject(this.dedupProject, row.copyId, row.pageId);
           group.rows = group.rows.filter(r => r.id !== row.id);
-          // 若组内剩余不足 2 条（不再构成重复），移除该组
           this.dedupGroups = this.dedupGroups.filter(g => g.rows.length > 1);
           this.confirm.show = false;
           this.toast('文案已删除');

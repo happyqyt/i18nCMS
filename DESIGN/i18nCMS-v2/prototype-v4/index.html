@@ -146,18 +146,18 @@
         <div class="search wide">
           <span class="search-ico">🔍</span>
           <input v-model="copySearch" placeholder="按 Key / 文案内容搜索" />
-          <!-- <select v-model="searchScope" class="scope">
+          <select v-model="searchScope" class="scope">
             <option value="page">当前页面</option>
             <option value="project">当前项目</option>
             <option value="all">所有项目</option>
-          </select> -->
+          </select>
         </div>
       </div>
 
       <div class="sub-head wrap">
         <div class="sub-head-left">
           <div>
-            <div class="page-switch">
+            <div v-if="searchScope==='page'" class="page-switch">
               <select class="page-switch-select" v-model="currentPageId">
                 <option v-for="o in pageSwitchOptions" :key="o.id" :value="o.id">{{ o.label }}</option>
               </select>
@@ -165,21 +165,21 @@
             <p class="muted">参考 Excel 编辑交互 · 支持批量粘贴 · 变量占位符 {user_name}</p>
           </div>
 
-          <div v-if="!currentPage.projectLevel && currentPage.screenshot" class="copy-thumb" title="点击查看大图" @click="previewScreenshot(currentPage)">
+          <div v-if="searchScope==='page' && !currentPage.projectLevel && currentPage.screenshot" class="copy-thumb" title="点击查看大图" @click="previewScreenshot(currentPage)">
             <img :src="pageThumbUrl(currentPage)" :alt="currentPage.name + ' 截图'" />
             <span class="copy-thumb-zoom">🔍</span>
           </div>
         </div>
-        <div class="sub-head-right">
+        <div v-if="searchScope==='page'" class="sub-head-right">
           <button class="btn primary" @click="addCopyRow">＋ 新增文案</button>
         </div>
       </div>
 
       <div class="bulk-bar" :class="{empty: !selectedCopies.length}">
         <span>{{ selectedCopies.length ? '已选 ' + selectedCopies.length + ' 条' : '勾选文案后可批量操作' }}</span>
-        <button class="btn xs" :disabled="!selectedCopies.length" @click="openMigrate">迁移到页面</button>
+        <button class="btn xs" :disabled="!selectedCopies.length || selectedIncludesOtherProject" @click="openMigrate">迁移到页面</button>
         <button class="btn xs" :disabled="!selectedCopies.length" @click="openCopyTo">复制到页面</button>
-        <button class="btn xs danger" :disabled="!selectedCopies.length" @click="bulkDelete">批量删除</button>
+        <button class="btn xs danger" :disabled="!selectedCopies.length || selectedIncludesOtherProject" @click="bulkDelete">批量删除</button>
         <button class="btn xs" :disabled="!selectedCopies.length" @click="openDedupSelected">文案查重</button>
       </div>
 
@@ -189,35 +189,42 @@
             <tr>
               <th class="ck"><input type="checkbox" :checked="allSelected" @change="toggleAll" /></th>
               <th class="key-col">Key</th>
+              <th v-if="searchScope==='project'" class="scope-page-col">所属页面</th>
+              <th v-if="searchScope==='all'" class="scope-proj-col">所属项目</th>
+              <th v-if="searchScope==='all'" class="scope-page-col">所属页面</th>
               <th v-for="l in currentProject.languages" :key="l" class="lang-col">
                 {{ langLabel(l) }} <span class="lang-code">{{ l }}</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in pagedCopies" :key="row.id" :class="{sel: selectedCopies.includes(row.id)}">
+            <tr v-for="row in pagedCopies" :key="row.id" :class="{sel: selectedCopies.includes(row.id), 'copy-readonly': !copyRowEditable(row)}">
               <td class="ck"><input type="checkbox" :value="row.id" v-model="selectedCopies" /></td>
               <td class="key-col">
                 <div class="key-cell">
-                  <div v-if="editingKeyId===row.id" class="key-edit">
-                    <span v-if="currentPageKeyPrefix" class="key-prefix" :title="currentPageKeyPrefix">{{ currentPageKeyPrefix }}.</span>
+                  <div v-if="copyRowEditable(row) && editingKeyId===row.id" class="key-edit">
+                    <span v-if="copyKeyPrefix(row)" class="key-prefix" :title="copyKeyPrefix(row)">{{ copyKeyPrefix(row) }}.</span>
                     <input class="cell-input key" v-model="row.key" placeholder="文案 Key" @blur="stopEditKey" @keyup.enter="stopEditKey" v-focus />
                   </div>
-                  <div v-else class="key-display" :title="fullKeyOf(row)" @click="startEditKey(row)">
-                    <span v-if="currentPageKeyPrefix" class="key-prefix">{{ currentPageKeyPrefix }}.</span><span class="key-leaf">{{ row.key || '（未命名）' }}</span>
+                  <div v-else class="key-display" :class="{readonly: !copyRowEditable(row)}" :title="fullKeyOf(row)" @click="startEditKey(row)">
+                    <span v-if="copyKeyPrefix(row)" class="key-prefix">{{ copyKeyPrefix(row) }}.</span><span class="key-leaf">{{ row.key || '（未命名）' }}</span>
                   </div>
                   <button class="key-copy" title="复制完整 Key" @click.stop="copyFullKey(row)">📋</button>
                 </div>
               </td>
+              <td v-if="searchScope==='project'" class="scope-page-col"><span class="scope-chain" :title="row._pageChain">{{ row._pageChain }}</span></td>
+              <td v-if="searchScope==='all'" class="scope-proj-col">{{ row._projectName }}</td>
+              <td v-if="searchScope==='all'" class="scope-page-col"><span class="scope-chain" :title="row._pageChain">{{ row._pageChain }}</span></td>
               <td v-for="l in currentProject.languages" :key="l" class="lang-col">
                 <div class="cell-flex">
-                  <input class="cell-input" v-model="row.values[l]" :title="row.values[l]" :placeholder="l==='en'?'输入英文，自动生成 Key':'输入文案'" />
-                  <button class="rich-btn" title="富文本编辑" @click="openRich(row,l)">Aa</button>
+                  <input v-if="copyRowEditable(row)" class="cell-input" v-model="row.values[l]" :title="row.values[l]" :placeholder="l==='en'?'输入英文，自动生成 Key':'输入文案'" />
+                  <span v-else class="cell-readonly" :title="row.values[l]">{{ row.values[l] || '—' }}</span>
+                  <button v-if="copyRowEditable(row)" class="rich-btn" title="富文本编辑" @click="openRich(row,l)">Aa</button>
                 </div>
               </td>
             </tr>
             <tr v-if="pagedCopies.length===0">
-              <td :colspan="currentProject.languages.length+2" class="empty-cell">无文案，点击「新增文案」或「导入」开始</td>
+              <td :colspan="copyTableColspan" class="empty-cell">{{ searchScope==='page' ? '无文案，点击「新增文案」或「导入」开始' : '无匹配文案' }}</td>
             </tr>
           </tbody>
         </table>
@@ -245,10 +252,10 @@
       </div>
 
       <!-- cross-project reuse hint -->
-      <div v-if="searchScope!=='page' && copySearch" class="reuse-banner">
+      <!-- <div v-if="searchScope!=='page' && copySearch" class="reuse-banner">
         正在跨{{ searchScope==='all'?'所有项目':'项目' }}搜索，命中的其他来源文案可一键
         <button class="link" @click="toast('已复制到当前页面（演示）')">复制复用</button> 到当前页面。
-      </div>
+      </div> -->
       </template>
     </main>
 
@@ -598,11 +605,10 @@
           <div v-if="dedupLoading" class="dedup-loading">🔍 正在所有项目中查询重复文案…</div>
           <template v-else>
             <div v-if="dedupGroups.length===0" class="empty">未发现重复文案 🎉</div>
-            <div class="dedup-summary" v-else>共发现 <b>{{ dedupGroups.length }}</b> 组重复文案</div>
-            <div v-for="(grp,gi) in dedupGroups" :key="grp.id" class="dedup-group">
-              <div class="dedup-group-head">重复组 {{ gi+1 }} <span class="muted sm">· {{ grp.rows.length }} 条</span></div>
-              <div class="table-wrap">
-                <table class="grid">
+            <template v-else>
+              <div class="dedup-summary">共发现 <b>{{ dedupGroups.length }}</b> 组重复文案</div>
+              <div class="table-wrap dedup-table-wrap">
+                <table class="grid dedup-table">
                   <thead>
                     <tr>
                       <th class="dd-key">Key</th>
@@ -613,24 +619,26 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="row in grp.rows" :key="row.id" :class="{'dd-own': row.isOwn}">
-                      <td class="dd-key"><code>{{ row.key }}</code></td>
-                      <td v-for="l in dedupLangs()" :key="l" class="lang-col"><span class="dd-val" :title="row.values[l]">{{ row.values[l] || '—' }}</span></td>
-                      <td class="dd-proj">
-                        {{ row.projectName }}
-                        <span v-if="row.isOwn" class="tag ok">本项目</span>
-                        <span v-else class="tag">其它项目</span>
-                      </td>
-                      <td class="dd-page"><span class="dd-chain" :title="row.pageChain">{{ row.pageChain }}</span></td>
-                      <td class="dd-op">
-                        <button class="btn xs" @click="openDedupCopy(row)">复制</button>
-                        <button v-if="row.isOwn && ownCountInGroup(grp)>1" class="btn xs danger" @click="confirmDedupDelete(grp,row)">删除</button>
-                      </td>
-                    </tr>
+                    <template v-for="(grp, gi) in dedupGroups" :key="grp.id">
+                      <tr v-for="row in grp.rows" :key="row.id" :class="dedupGroupTone(gi)">
+                        <td class="dd-key"><code>{{ row.key }}</code></td>
+                        <td v-for="l in dedupLangs()" :key="l" class="lang-col"><span class="dd-val" :title="row.values[l]">{{ row.values[l] || '—' }}</span></td>
+                        <td class="dd-proj">
+                          {{ row.projectName }}
+                          <span v-if="row.isOwn" class="tag ok">本项目</span>
+                          <span v-else class="tag">其它项目</span>
+                        </td>
+                        <td class="dd-page"><span class="dd-chain" :title="row.pageChain">{{ row.pageChain }}</span></td>
+                        <td class="dd-op">
+                          <button v-if="!row.isOwn" class="btn xs" @click="openDedupCopy(row, grp)">复制</button>
+                          <button v-if="row.isOwn && ownCountInGroup(grp)>1" class="btn xs danger" @click="confirmDedupDelete(grp,row)">删除</button>
+                        </td>
+                      </tr>
+                    </template>
                   </tbody>
                 </table>
               </div>
-            </div>
+            </template>
           </template>
         </div>
         <div class="modal-foot">
@@ -639,22 +647,25 @@
       </div>
     </div>
 
-    <!-- 查重结果 · 复制到页面 -->
-    <div v-if="showDedupCopy" class="overlay" @click.self="showDedupCopy=false">
+    <!-- 查重结果 · 选择覆盖目标 -->
+    <div v-if="showDedupOverwrite" class="overlay" @click.self="showDedupOverwrite=false">
       <div class="modal">
-        <div class="modal-head"><h3>复制文案到页面 <span class="muted sm">· {{ dedupCopyCtx && dedupCopyCtx.key }}</span></h3><button class="x" @click="showDedupCopy=false">×</button></div>
+        <div class="modal-head"><h3>覆盖本项目文案 <span class="muted sm">· {{ dedupOverwriteSource && (dedupOverwriteSource.values.en || dedupOverwriteSource.key) }}</span></h3><button class="x" @click="showDedupOverwrite=false">×</button></div>
         <div class="modal-body">
-          <label class="field"><span>目标页面（{{ dedupProject && dedupProject.name }}）</span>
-            <select v-model="dedupCopyTarget" class="tree-select">
-              <option v-for="o in projectPageOptions(dedupProject)" :key="o.id" :value="o.id">{{ o.label }}</option>
-            </select>
-          </label>
-          <p v-if="dedupCopyCtx && dedupCopyCtx.isOwn" class="muted sm">本项目文案：不能复制到其当前所属页面（{{ dedupCopyCtx.pageChain }}）。</p>
-          <p v-else class="muted sm">来自其它项目的文案，将复制到本项目所选页面。</p>
+          <p class="muted sm">将「{{ dedupOverwriteSource && dedupOverwriteSource.projectName }}」项目的文案内容覆盖到以下本项目文案，请勾选需要覆盖的条目：</p>
+          <div class="dedup-overwrite-list">
+            <label v-for="own in dedupOwnRowsForOverwrite()" :key="own.id" class="dedup-overwrite-item">
+              <input type="checkbox" :value="own.id" v-model="dedupOverwriteSelected" />
+              <div class="dedup-overwrite-meta">
+                <code>{{ own.key }}</code>
+                <span class="muted sm">{{ own.pageChain }}</span>
+              </div>
+            </label>
+          </div>
         </div>
         <div class="modal-foot">
-          <button class="btn ghost" @click="showDedupCopy=false">取消</button>
-          <button class="btn primary" @click="doDedupCopy">确认复制</button>
+          <button class="btn ghost" @click="showDedupOverwrite=false">取消</button>
+          <button class="btn primary" :disabled="!dedupOverwriteSelected.length" @click="doDedupOverwrite">确认覆盖</button>
         </div>
       </div>
     </div>
@@ -710,7 +721,7 @@
         <div class="modal-body"><p>{{ confirm.message }}</p></div>
         <div class="modal-foot">
           <button class="btn ghost" @click="confirm.show=false">取消</button>
-          <button class="btn danger" @click="confirm.ok()">确认删除</button>
+          <button class="btn" :class="confirm.danger ? 'danger' : 'primary'" @click="confirm.ok()">{{ confirm.okLabel || (confirm.danger ? '确认删除' : '确认') }}</button>
         </div>
       </div>
     </div>
