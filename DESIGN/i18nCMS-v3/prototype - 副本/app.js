@@ -34,70 +34,6 @@ function mkCopy(key, a, zh, ja) {
 function mkPage(name, screenshot, copies, children = []) {
   return { id: uid('pg'), name, key: name, screenshot, screenshotUrl: screenshot ? mockScreenshotUrl(name) : null, copies, children };
 }
-function mkItem(name, key, pages = [], copies = [], languages = ['en']) {
-  return {
-    id: uid('i'),
-    name,
-    key,
-    branch: `dev-${key}`,
-    pages,
-    copies,
-    status: 'active',
-    languages: [...languages],
-    deletedAt: null,
-    createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).slice(0, 16),
-  };
-}
-function normalizeItem(item, system) {
-  if (!item) return;
-  if (!item.status) item.status = 'active';
-  if (!item.languages) item.languages = [...(system?.languages || ['en'])];
-  if (item.deletedAt === undefined) item.deletedAt = null;
-}
-function normalizeSystem(system) {
-  if (!system) return;
-  if (system.deletedAt === undefined) system.deletedAt = null;
-}
-function normalizeSystemItems(system) {
-  normalizeSystem(system);
-  migrateSystemToItems(system);
-  (system.items || []).forEach(item => normalizeItem(item, system));
-}
-function isDeleted(entity) {
-  return !!(entity && entity.deletedAt);
-}
-function migrateSystemToItems(system) {
-  if (!system) return;
-  if (!system.key) {
-    system.key = slugFromSystemName(system.name) || 'system';
-  }
-  if (system.items) return;
-  const slug = (system.name || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 24) || 'default';
-  system.items = [mkItem(`${system.name} 项目`, slug, system.pages || [], system.copies || [], system.languages || ['en'])];
-  delete system.pages;
-  delete system.copies;
-}
-const ITEM_KEY_RE = /^[a-zA-Z0-9_-]+$/;
-const SYSTEM_NAME_RE = /^[a-zA-Z0-9]+$/;
-
-function slugFromSystemName(name) {
-  const raw = String(name || '').trim();
-  if (!raw) return '';
-  const segments = raw.match(/[a-zA-Z0-9]+/g) || [];
-  if (!segments.length) return '';
-  const parts = [];
-  segments.forEach(seg => {
-    seg
-      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-      .replace(/([A-Z])([A-Z][a-z])/g, '$1 $2')
-      .replace(/([a-zA-Z])([0-9])/g, '$1 $2')
-      .replace(/([0-9])([a-zA-Z])/g, '$1 $2')
-      .split(/\s+/)
-      .filter(Boolean)
-      .forEach(w => parts.push(w.toLowerCase()));
-  });
-  return parts.join('-').replace(/-+/g, '-').replace(/^-|-$/g, '');
-}
 function mockScreenshotUrl(name) {
   const label = String(name).replace(/_/g, ' ');
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844"><rect fill="#eef2ff" width="390" height="844"/><rect fill="#fff" x="20" y="60" width="350" height="724" rx="16"/><rect fill="#f7f9fd" x="40" y="100" width="310" height="48" rx="8"/><rect fill="#e7ecfb" x="40" y="168" width="220" height="16" rx="4"/><rect fill="#e7ecfb" x="40" y="196" width="280" height="16" rx="4"/><rect fill="#e7ecfb" x="40" y="224" width="180" height="16" rx="4"/><text x="195" y="520" text-anchor="middle" font-family="system-ui,sans-serif" font-size="22" fill="#4f6ef7">${label}</text><text x="195" y="552" text-anchor="middle" font-family="system-ui,sans-serif" font-size="13" fill="#8a94a8">分组截图预览</text></svg>`;
@@ -306,105 +242,7 @@ const PROJECTS = [
   },
 ];
 
-function enrichDemoProjects() {
-  const vesync = PROJECTS.find(p => p.name === 'VeSync App');
-  if (vesync?.items?.length === 1) {
-    const main = vesync.items[0];
-    const langs = vesync.languages;
-    Object.assign(main, { name: 'App 主端', key: 'app', branch: 'dev-app', status: 'active', createdAt: '2026-05-01 10:00' });
-    vesync.items.push(
-      Object.assign(mkItem('推送与通知', 'push', [
-        mkPage('push', false, [
-          mkCopy('Push_New_Message', 'You have a new message', '你有一条新消息', '新しいメッセージがあります'),
-          mkCopy('Push_Device_Alert', 'Device alert', '设备告警', 'デバイスアラート'),
-          mkCopy('Push_Promo_Start', 'Sale starts now', '促销已开始', 'セール開始'),
-        ]),
-        mkPage('notification', false, [
-          mkCopy('Notif_Allow', 'Allow notifications', '允许通知', '通知を許可'),
-          mkCopy('Notif_Settings', 'Notification settings', '通知设置', '通知設定'),
-        ]),
-      ], [], langs), { status: 'active', createdAt: '2026-06-18 15:20' }),
-      Object.assign(mkItem('WearOS 手表', 'wearos', [
-        mkPage('watch_face', false, [
-          mkCopy('Watch_Hello', 'Hello', '你好', 'こんにちは'),
-          mkCopy('Watch_Battery', 'Battery {percent}%', '电量 {percent}%', 'バッテリー {percent}%'),
-          mkCopy('Watch_Sync', 'Syncing...', '同步中...', '同期中...'),
-        ]),
-      ], [], langs), { status: 'closed', createdAt: '2026-03-12 09:30' }),
-      Object.assign(mkItem('小程序', 'mini-program', [
-        mkPage('common', false, [
-          mkCopy('MP_Loading', 'Loading', '加载中', '読み込み中'),
-          mkCopy('MP_Share', 'Share', '分享', '共有'),
-        ]),
-        mkPage('home', true, [
-          mkCopy('MP_Welcome', 'Welcome to VeSync', '欢迎使用 VeSync', 'VeSyncへようこそ'),
-          mkCopy('MP_Add_Device', 'Add device', '添加设备', 'デバイスを追加'),
-        ]),
-      ], [], ['en', 'zh-Hans']), { status: 'active', createdAt: '2026-07-02 11:00' }),
-    );
-  }
-
-  const website = PROJECTS.find(p => p.name === 'Official Website');
-  if (website?.items?.length === 1) {
-    const main = website.items[0];
-    const langs = website.languages;
-    Object.assign(main, { name: '官网主站', key: 'website', branch: 'dev-website', status: 'active', createdAt: '2026-04-20 10:00' });
-    website.items.push(
-      Object.assign(mkItem('夏季营销活动', 'summer-campaign', [
-        mkPage('campaign', true, [
-          mkCopy('Campaign_Title', { en: 'Summer Sale', 'zh-Hans': '夏日大促', 'zh-Hant': '夏日大促', ja: 'サマーセール' }),
-          mkCopy('Campaign_Cta', { en: 'Shop now', 'zh-Hans': '立即选购', 'zh-Hant': '立即選購', ja: '今すぐ購入' }),
-        ]),
-      ], [], langs.slice(0, 4)), { status: 'closed', createdAt: '2026-05-01 08:00' }),
-      Object.assign(mkItem('App 下载页', 'app-download', [
-        mkPage('download', false, [
-          mkCopy('Download_Title', { en: 'Download VeSync App', 'zh-Hans': '下载 VeSync App', 'zh-Hant': '下載 VeSync App', ja: 'VeSyncアプリをダウンロード' }),
-          mkCopy('Download_QR', { en: 'Scan QR code', 'zh-Hans': '扫描二维码', 'zh-Hant': '掃描二維碼', ja: 'QRコードをスキャン' }),
-        ]),
-      ], [], langs.slice(0, 4)), { status: 'active', createdAt: '2026-06-25 14:00' }),
-    );
-  }
-
-  const admin = PROJECTS.find(p => p.name === 'Admin Dashboard');
-  if (admin?.items?.length === 1) {
-    const main = admin.items[0];
-    Object.assign(main, { name: '后台主站', key: 'admin', branch: 'dev-admin', status: 'active', createdAt: '2026-05-15 09:00' });
-    admin.items.push(
-      Object.assign(mkItem('数据报表', 'reports', [
-        mkPage('reports', false, [
-          mkCopy('Report_Title', 'Reports', '报表'),
-          mkCopy('Report_Export', 'Export report', '导出报表'),
-          mkCopy('Report_Filter', 'Filter', '筛选'),
-        ]),
-      ], [], admin.languages), { status: 'active', createdAt: '2026-06-10 16:00' }),
-      Object.assign(mkItem('权限中心', 'rbac', [
-        mkPage('roles', false, [
-          mkCopy('Role_List', 'Roles', '角色列表'),
-          mkCopy('Perm_Grant', 'Grant permission', '授权'),
-        ]),
-      ], [], admin.languages), { status: 'closed', createdAt: '2026-04-01 11:30' }),
-    );
-  }
-
-  const marketing = PROJECTS.find(p => p.name === 'Marketing Snippets');
-  if (marketing?.items?.length === 1) {
-    const main = marketing.items[0];
-    const langs = marketing.languages;
-    Object.assign(main, { name: '营销短文案', key: 'marketing', branch: 'dev-marketing', status: 'active', createdAt: '2026-06-20 11:30' });
-    marketing.items.push(
-      Object.assign(mkItem('邮件模板', 'email-tpl', [
-        mkPage('email', false, [
-          mkCopy('Email_Subject', 'Your weekly digest', '本周精选', '今週のダイジェスト'),
-          mkCopy('Email_Unsubscribe', 'Unsubscribe', '退订', '配信停止'),
-        ]),
-      ], [], langs), { status: 'active', createdAt: '2026-07-10 10:00' }),
-    );
-  }
-}
-
-PROJECTS.forEach(p => { normalizeSystemItems(p); normalizeProjectVersions(p); });
-enrichDemoProjects();
-PROJECTS.forEach(p => { (p.items || []).forEach(item => normalizeItem(item, p)); });
+PROJECTS.forEach(normalizeProjectVersions);
 
 const app = createApp({
   provide() {
@@ -416,8 +254,7 @@ const app = createApp({
         editPage: (pg) => this.openEditPage(pg),
         deletePage: (pg) => this.deletePage(pg),
         previewScreenshot: (pg) => this.previewScreenshot(pg),
-        isEditable: () => this.isItemEditable,
-        isActive: (node) => this.currentPage && this.currentPage.id === node.id,
+        isEditable: () => this.isVersionEditable,
       },
     };
   },
@@ -428,9 +265,8 @@ const app = createApp({
       projects: PROJECTS,
       DRAFT_VERSION_ID,
       currentProject: null,
-      currentItem: null,
       currentPage: null,
-      currentVersion: '',
+      currentVersion: DRAFT_VERSION_ID,
 
       projectSearch: '',
       copySearch: '',
@@ -444,9 +280,7 @@ const app = createApp({
 
       // modals
       showProjectModal: false,
-      projectForm: { id: null, name: '', description: '', membersText: '' },
-      showTransferModal: false,
-      transferTarget: '',
+      projectForm: { id: null, name: '', description: '', languages: ['en'], membersText: '' },
       showPageModal: false,
       pageForm: { id: null, name: '', key: '', uploaded: false, parentId: null, parentName: '' },
       showCopies: false,
@@ -469,8 +303,8 @@ const app = createApp({
       showExportMenu: false,
       showExportScopePicker: false,
       exportScopePickerVersion: null,
-      showCreateItem: false,
-      itemForm: { name: '', key: '' },
+      showTagVersion: false,
+      tagForm: { name: '', note: '' },
       showDiff: false,
       diffMode: 'diff',
       diffVersion: null,
@@ -496,67 +330,39 @@ const app = createApp({
       showLangSettings: false,
       showScreenshotPreview: false,
       screenshotPreview: { url: '', title: '' },
-      confirm: { show: false, title: '', message: '', ok: () => { }, okLabel: '', danger: true },
-      _rollbackTarget: null,
+      confirm: { show: false, title: '', message: '', ok: () => {}, okLabel: '', danger: true },
       toastMsg: '',
     };
   },
   computed: {
     filteredProjects() {
       const q = this.projectSearch.trim().toLowerCase();
-      return this.projects.filter(p => !isDeleted(p) && (!q || p.name.toLowerCase().includes(q)));
-    },
-    activeSystemItems() {
-      if (!this.currentProject) return [];
-      return (this.currentProject.items || []).filter(i => !isDeleted(i));
+      return this.projects.filter(p => !q || p.name.toLowerCase().includes(q));
     },
     pageTreeRoots() {
-      if (!this.currentItem) return [this.projectCopyNode];
-      return [this.projectCopyNode, ...(this.activePages || [])];
+      if (!this.currentProject) return [this.projectCopyNode];
+      return [this.projectCopyNode, ...(this.currentProject.pages || [])];
     },
     projectCopyNode() {
-      if (!this.currentItem) return { id: '', name: '/', key: '', screenshot: false, copies: [], children: [], projectLevel: true };
-      if (!this.currentItem.copies) this.currentItem.copies = [];
+      if (!this.currentProject) return { id: '', name: '/', key: '', screenshot: false, copies: [], children: [], projectLevel: true };
+      if (!this.currentProject.copies) this.currentProject.copies = [];
       return {
-        id: 'projcopies_' + this.currentItem.id,
+        id: 'projcopies_' + this.currentProject.id,
         name: '/',
         key: '',
         screenshot: false,
-        copies: this.currentItem.copies,
+        copies: this.currentProject.copies,
         children: [],
         projectLevel: true,
       };
     },
-    activePages() {
-      return this.currentItem ? (this.currentItem.pages || []) : [];
-    },
-    activeCopies() {
-      return this.currentItem ? (this.currentItem.copies || []) : [];
-    },
     availableToAdd() {
-      if (!this.currentProject || !this.currentItem) return [];
-      const scope = this.currentProject.languages || [];
-      return this.allLanguages.filter(l => scope.includes(l.code) && !this.itemLanguages.includes(l.code));
-    },
-    itemLanguages() {
-      return this.currentItem ? (this.currentItem.languages || []) : [];
-    },
-    hasActiveItems() {
-      if (!this.currentProject) return false;
-      return (this.currentProject.items || []).some(i => !isDeleted(i) && i.status !== 'closed');
-    },
-    canRollback() {
-      if (!this.currentProject) return false;
-      return !this.hasActiveItems && (this.currentProject.versions || []).length >= 2;
-    },
-    rollbackDisabledTip() {
-      if (this.hasActiveItems) return '存在进行中的项目，不可回滚';
-      if ((this.currentProject?.versions || []).length < 2) return '至少需要两个 tag 才能回滚';
-      return '';
+      if (!this.currentProject) return [];
+      return this.allLanguages.filter(l => !this.currentProject.languages.includes(l.code));
     },
     pageOptions() {
-      if (!this.currentItem) return [];
-      return this.flattenPages(this.activePages).map(o => ({
+      if (!this.currentProject) return [];
+      return this.flattenPages(this.currentProject.pages).map(o => ({
         id: o.page.id,
         page: o.page,
         depth: o.depth,
@@ -564,23 +370,23 @@ const app = createApp({
       }));
     },
     moveTargets() {
-      if (!this.currentItem) return [];
-      return [{ id: '__project__', label: '📦 ' + this.currentItem.name + '（项目文案 · 直挂项目下）' }, ...this.pageOptions];
+      if (!this.currentProject) return [];
+      return [{ id: '__project__', label: '📦 ' + this.currentProject.name + '（系统文案 · 直挂系统下）' }, ...this.pageOptions];
     },
     pageSwitchOptions() {
-      if (!this.currentItem) return [];
-      const root = { id: this.projectCopyNode.id, depth: 0, projectLevel: true, label: '📦 ' + this.currentItem.name + '（项目级文案）' };
-      const pages = this.flattenPages(this.activePages).map(o => ({
+      if (!this.currentProject) return [];
+      const root = { id: this.projectCopyNode.id, depth: 0, projectLevel: true, label: '📦 ' + this.currentProject.name + '（系统级文案）' };
+      const pages = this.flattenPages(this.currentProject.pages).map(o => ({
         id: o.page.id,
         depth: o.depth + 1,
         projectLevel: false,
-        label: '　'.repeat(o.depth + 1) + '📄 ' + o.page.name,
+        label: '　'.repeat(o.depth + 1) + '📄 ' + o.page.name, //└ 
       }));
       return [root, ...pages];
     },
     currentPageKeyChain() {
-      if (!this.currentPage || this.currentPage.projectLevel || !this.currentItem) return [];
-      const path = this.findPagePath(this.currentPage.id, this.activePages) || [];
+      if (!this.currentPage || this.currentPage.projectLevel || !this.currentProject) return [];
+      const path = this.findPagePath(this.currentPage.id, this.currentProject.pages) || [];
       return path.map(p => (p.key || p.name || '').trim()).filter(Boolean);
     },
     currentPageKeyPrefix() {
@@ -596,23 +402,23 @@ const app = createApp({
       },
     },
     allExportCopies() {
-      if (!this.currentItem) return [];
-      return [...this.activeCopies, ...this.pageOptions.flatMap(o => o.page.copies)];
+      if (!this.currentProject) return [];
+      return [...((this.currentProject.copies) || []), ...this.pageOptions.flatMap(o => o.page.copies)];
     },
     filteredCopies() {
-      if (!this.currentPage || !this.currentItem) return [];
+      if (!this.currentPage || !this.currentProject) return [];
       const q = this.copySearch.trim().toLowerCase();
       const match = (c) => !q || c.key.toLowerCase().includes(q) ||
         Object.values(c.values).some(v => (v || '').toLowerCase().includes(q));
       if (this.searchScope === 'page') return this.currentPage.copies.filter(match);
       const pool = this.searchScope === 'project'
-        ? this.flattenItemCopies(this.currentItem)
-        : this.projects.filter(p => !isDeleted(p)).flatMap(p => (p.items || []).filter(i => !isDeleted(i)).flatMap(item => this.flattenItemCopies(item, p)));
+        ? this.flattenProjectCopies(this.currentProject)
+        : this.projects.flatMap(p => this.flattenProjectCopies(p));
       return pool.filter(match);
     },
     copyTableColspan() {
-      if (!this.currentItem) return 2;
-      let n = 2 + this.itemLanguages.length;
+      if (!this.currentProject) return 2;
+      let n = 2 + this.currentProject.languages.length;
       if (this.searchScope === 'project') n += 1;
       if (this.searchScope === 'all') n += 2;
       return n;
@@ -642,15 +448,15 @@ const app = createApp({
       return this.pagedCopies.length > 0 && this.pagedCopies.every(c => this.selectedCopies.includes(c.id));
     },
     selectedIncludesOtherProject() {
-      if (!this.selectedCopies.length || !this.currentItem || this.searchScope !== 'all') return false;
+      if (!this.selectedCopies.length || !this.currentProject || this.searchScope !== 'all') return false;
       const ids = new Set(this.selectedCopies);
       return this.projects
-        .filter(p => !isDeleted(p))
-        .flatMap(p => (p.items || []).filter(i => !isDeleted(i)).flatMap(item => this.flattenItemCopies(item, p)))
-        .some(r => ids.has(r.id) && r._itemId !== this.currentItem.id);
+        .flatMap(p => this.flattenProjectCopies(p))
+        .some(r => ids.has(r.id) && r._projectId !== this.currentProject.id);
     },
     exportDefaultLang() {
-      const langs = this.itemLanguages.length ? this.itemLanguages : (this.currentProject?.languages || []);
+      if (!this.currentProject) return 'en';
+      const langs = this.currentProject.languages;
       return langs.includes('en') ? 'en' : (langs[0] || 'en');
     },
     exportAllChecked() {
@@ -662,86 +468,53 @@ const app = createApp({
       if (!this.currentProject) return false;
       return this.allExportCopies.some(c => this.exportChecked[c.id]);
     },
-    isItemEditable() { return this.view === 'project' && !!this.currentItem && this.currentItem.status !== 'closed'; },
-    isItemActive() { return !!this.currentItem && this.currentItem.status !== 'closed'; },
-    canExport() { return this.view === 'project' && !!this.currentItem; },
+    isDraftVersion() {
+      return this.isDraftVersionId(this.currentVersion);
+    },
+    isViewingVersion() {
+      return !!this.currentProject && !this.isDraftVersionId(this.currentVersion);
+    },
+    activeVersion() {
+      if (!this.currentProject || this.isDraftVersionId(this.currentVersion)) return null;
+      return this.findVersionById(this.currentVersion);
+    },
+    isCurrentVersionLocked() {
+      const v = this.activeVersion;
+      return !!(v && v.locked === true);
+    },
+    isVersionEditable() {
+      if (this.isCurrentVersionLocked) return false;
+      return this.isDraftVersion || !!this.activeVersion;
+    },
+    canExport() { return this.isViewingVersion && !!this.activeVersion; },
+    canLockVersion() { return this.isViewingVersion && !!this.activeVersion && !this.isCurrentVersionLocked; },
     exportScopeLabel() { return this.exportScope === 'delta' ? '导出修改' : '导出全量'; },
-    nextTagName() {
-      const latest = this.currentProject?.versions?.[0]?.name || 'v0';
-      const n = parseInt(String(latest).replace(/^v/i, ''), 10);
-      return 'v' + ((isNaN(n) ? 0 : n) + 1);
-    },
-    latestVersion() {
-      return this.currentProject?.versions?.[0] || null;
-    },
-    versionTimeline() {
-      const list = [...(this.currentProject?.versions || [])];
-      return list.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
-    },
-    activeTag() {
-      if (!this.currentProject || !this.currentVersion) return null;
-      return this.currentProject.versions.find(v => String(v.id) === String(this.currentVersion)) || null;
-    },
-    previewSystemKey() {
-      if (this.projectForm.id) {
-        const p = this.projects.find(x => x.id === this.projectForm.id);
-        return p?.key || '';
-      }
-      return slugFromSystemName(this.projectForm.name);
-    },
-    editingProject() {
-      if (!this.projectForm.id) return null;
-      return this.projects.find(x => x.id === this.projectForm.id) || null;
-    },
-    transferAdminName() {
-      return (this.editingProject?.members || []).find(m => m.role === '系统管理员')?.name || '';
-    },
-    transferCandidates() {
-      return (this.editingProject?.members || []).filter(m => m.role !== '系统管理员');
-    },
   },
   watch: {
     copySearch() { this.copyPage = 1; },
     searchScope() { this.copyPage = 1; this.selectedCopies = []; },
     currentVersion(id) {
-      if (this.currentProject) this.currentProject._viewVersionId = String(id || '');
+      if (this.currentProject) this.currentProject._viewVersionId = String(id);
       this.validateCurrentVersion();
     },
     currentProject(p) {
       if (!p) return;
-      normalizeSystemItems(p);
       normalizeProjectVersions(p);
       const saved = p._viewVersionId;
-      if (saved != null && saved !== this.currentVersion) this.currentVersion = String(saved);
+      if (saved != null && saved !== this.currentVersion) {
+        this.currentVersion = this.isDraftVersionId(saved) ? DRAFT_VERSION_ID : String(saved);
+      }
       this.validateCurrentVersion();
     },
   },
   mounted() {
     const d = new URLSearchParams(location.search).get('demo');
-    const first = this.projects[0];
-    if (d === 'copies' || d === 'project') {
-      this.openSystem(first);
-      if (first.items?.[0]) this.openItem(first.items[0]);
-      const pages = first.items[0]?.pages || [];
-      if (pages[2]) this.openPage(pages[2]);
-    } else if (d === 'system' || d === 'pages') {
-      this.openSystem(first);
-    } else if (d === 'import') {
-      this.openSystem(first);
-      if (first.items?.[0]) {
-        this.openItem(first.items[0]);
-        const pages = first.items[0].pages || [];
-        if (pages[1]) this.openPage(pages[1]);
-        this.openImport();
-        this.pickLangFile(this.importLang || 'en');
-      }
-    } else if (d === 'export') {
-      this.openSystem(first);
-      if (first.items?.[0]) {
-        this.openItem(first.items[0]);
-        this.pickExportMode('full');
-      }
-    }
+    if (d === 'copies') { this.openProject(this.projects[0]); this.openPage(this.currentProject.pages[2]); }
+    else if (d === 'versions') { this.openProject(this.projects[0]); this.view = 'versions'; }
+    else if (d === 'pages') { this.openProject(this.projects[0]); }
+    else if (d === 'import') { this.openProject(this.projects[0]); this.openPage(this.currentProject.pages[1]); this.openImport(); this.pickLangFile(this.importLang || 'en'); }
+    else if (d === 'diff') { this.openProject(this.projects[0]); this.view = 'versions'; this.openRollback(this.currentProject.versions[1]); }
+    else if (d === 'export') { this.openProject(this.projects[0]); this.currentVersion = String(this.currentProject.versions[0]?.id || DRAFT_VERSION_ID); this.pickExportMode('full'); }
     this._onDocClick = (e) => {
       if (this.showExportMenu && !e.target.closest('.export-dropdown')) this.showExportMenu = false;
     };
@@ -751,42 +524,44 @@ const app = createApp({
     document.removeEventListener('click', this._onDocClick);
   },
   methods: {
-    versionReadonlyTip() { return '当前不可编辑'; },
+    versionReadonlyTip() {
+      return this.isCurrentVersionLocked
+        ? '当前版本已锁定，不可编辑'
+        : '当前为只读模式，请切换至草稿或未锁定版本';
+    },
     isDraftVersionId(id) {
       const v = String(id ?? '');
       return !v || v === DRAFT_VERSION_ID;
     },
     findVersionById(id) {
-      if (!this.currentProject || !id) return null;
+      if (!this.currentProject || this.isDraftVersionId(id)) return null;
       const vid = String(id);
       return this.currentProject.versions.find(v => String(v.id) === vid) || null;
     },
     validateCurrentVersion() {
       if (!this.currentProject) return;
-      if (this.findVersionById(this.currentVersion)) return;
-      this.currentVersion = this.currentProject.versions[0] ? String(this.currentProject.versions[0].id) : '';
+      if (this.isDraftVersionId(this.currentVersion)) {
+        if (this.currentVersion !== DRAFT_VERSION_ID) this.currentVersion = DRAFT_VERSION_ID;
+        return;
+      }
+      if (!this.findVersionById(this.currentVersion)) {
+        this.currentVersion = DRAFT_VERSION_ID;
+      }
     },
     resolveProjectViewVersionId(project) {
-      if (!project) return '';
+      if (!project) return DRAFT_VERSION_ID;
       const saved = project._viewVersionId;
-      if (saved && project.versions.some(v => String(v.id) === String(saved))) return String(saved);
-      return project.versions[0] ? String(project.versions[0].id) : '';
+      if (this.isDraftVersionId(saved)) return DRAFT_VERSION_ID;
+      return project.versions.some(v => String(v.id) === String(saved)) ? String(saved) : DRAFT_VERSION_ID;
     },
-    onVersionSelect() { this.validateCurrentVersion(); },
+    onVersionSelect() {
+      this.validateCurrentVersion();
+    },
     langLabel(code) { const l = this.allLanguages.find(x => x.code === code); return l ? l.label : code; },
     countCopiesIn(list) { return list.reduce((n, pg) => n + pg.copies.length + (pg.children ? this.countCopiesIn(pg.children) : 0), 0); },
-    countCopies(entity) {
-      if (!entity) return 0;
-      if (entity.items) return (entity.items || []).filter(i => !isDeleted(i)).reduce((n, item) => n + this.countCopies(item), 0);
-      return (entity.copies ? entity.copies.length : 0) + this.countCopiesIn(entity.pages || []);
-    },
+    countCopies(p) { return (p.copies ? p.copies.length : 0) + this.countCopiesIn(p.pages); },
     countPagesIn(list) { return list.reduce((n, pg) => n + 1 + (pg.children ? this.countPagesIn(pg.children) : 0), 0); },
-    countPages(entity) {
-      if (!entity) return 0;
-      if (entity.items) return (entity.items || []).filter(i => !isDeleted(i)).reduce((n, item) => n + this.countPages(item), 0);
-      return this.countPagesIn(entity.pages || []);
-    },
-    countItems(p) { return (p.items || []).filter(i => !isDeleted(i)).length; },
+    countPages(p) { return this.countPagesIn(p.pages || []); },
     toast(msg) { this.toastMsg = msg; clearTimeout(this._t); this._t = setTimeout(() => this.toastMsg = '', 2000); },
 
     // page tree helpers
@@ -795,7 +570,7 @@ const app = createApp({
       return acc;
     },
     findPageById(id, list) {
-      list = list || (this.currentItem ? this.activePages : []);
+      list = list || (this.currentProject ? this.currentProject.pages : []);
       for (const pg of list) {
         if (pg.id === id) return pg;
         if (pg.children && pg.children.length) { const f = this.findPageById(id, pg.children); if (f) return f; }
@@ -823,29 +598,28 @@ const app = createApp({
       return this.currentPageKeyPrefix;
     },
     copyRowEditable(row) {
-      if (!this.isItemEditable) return false;
+      if (!this.isVersionEditable) return false;
       if (this.searchScope !== 'all') return true;
-      return row._itemId === this.currentItem.id;
+      return row._projectId === this.currentProject.id;
     },
-    flattenItemCopies(item, system) {
-      if (!item) return [];
-      const sys = system || this.currentProject;
+    flattenProjectCopies(project) {
+      if (!project) return [];
       const rows = [];
-      const projPageId = 'projcopies_' + item.id;
-      (item.copies || []).forEach(c => {
-        rows.push(this.scopeCopyRow(c, item, sys, projPageId, '（项目级文案）', ''));
+      const projPageId = 'projcopies_' + project.id;
+      (project.copies || []).forEach(c => {
+        rows.push(this.scopeCopyRow(c, project, projPageId, '（系统级文案）', ''));
       });
       const walk = (pg, prefixKeys) => {
         const keys = [...prefixKeys, (pg.key || pg.name || '').trim()].filter(Boolean);
         const keyPrefix = keys.join('.');
-        const pageChain = this.pageChainDisplay(sys, item, pg.id);
-        pg.copies.forEach(c => rows.push(this.scopeCopyRow(c, item, sys, pg.id, pageChain, keyPrefix)));
+        const pageChain = this.pageChainDisplay(project, pg.id);
+        pg.copies.forEach(c => rows.push(this.scopeCopyRow(c, project, pg.id, pageChain, keyPrefix)));
         (pg.children || []).forEach(ch => walk(ch, keys));
       };
-      (item.pages || []).forEach(pg => walk(pg, []));
+      (project.pages || []).forEach(pg => walk(pg, []));
       return rows;
     },
-    scopeCopyRow(c, item, system, pageId, pageChain, keyPrefix) {
+    scopeCopyRow(c, project, pageId, pageChain, keyPrefix) {
       return {
         id: c.id,
         key: c.key,
@@ -853,10 +627,8 @@ const app = createApp({
         _pageId: pageId,
         _pageChain: pageChain,
         _keyPrefix: keyPrefix,
-        _itemId: item.id,
-        _itemName: item.name,
-        _projectId: system?.id,
-        _projectName: system?.name,
+        _projectId: project.id,
+        _projectName: project.name,
       };
     },
     goToPage(p) {
@@ -882,11 +654,11 @@ const app = createApp({
       const ta = document.createElement('textarea');
       ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
       document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); done && done(); } catch (e) { }
+      try { document.execCommand('copy'); done && done(); } catch (e) {}
       document.body.removeChild(ta);
     },
     removePageNode(id, list) {
-      list = list || this.activePages;
+      list = list || this.currentProject.pages;
       const i = list.findIndex(p => p.id === id);
       if (i !== -1) { list.splice(i, 1); return true; }
       for (const p of list) { if (p.children && this.removePageNode(id, p.children)) return true; }
@@ -894,47 +666,23 @@ const app = createApp({
     },
 
     // navigation
-    goProjects() { this.view = 'projects'; this.currentProject = null; this.currentItem = null; this.currentPage = null; this.currentVersion = ''; },
-    goToSystem() {
-      this.view = 'system';
-      this.currentItem = null;
+    goProjects() { this.view = 'projects'; this.currentProject = null; this.currentPage = null; this.currentVersion = DRAFT_VERSION_ID; },
+    goToPages() {
+      this.view = 'pages';
       this.currentPage = null;
       this.selectedCopies = [];
       this.editingKeyId = null;
       this.searchScope = 'page';
       this.copySearch = '';
     },
-    openVersions() {
-      if (!this.currentProject) return;
-      this.currentItem = null;
-      this.currentPage = null;
-      this.view = 'versions';
-    },
-    openSystem(p) {
-      if (isDeleted(p)) { this.toast('该系统已删除'); return; }
+    openProject(p) {
       this.currentProject = p;
-      normalizeSystemItems(p);
       normalizeProjectVersions(p);
       this.currentVersion = this.resolveProjectViewVersionId(p);
-      this.currentItem = null;
-      this.currentPage = null;
-      this.view = 'system';
+      this.goToPages();
       this.projectOverviewCollapsed = true;
-    },
-    openItem(item) {
-      if (!item || !this.currentProject || isDeleted(item)) return;
-      this.currentItem = item;
-      this.searchScope = 'page';
-      this.editingKeyId = null;
-      this.copyPage = 1;
-      this.selectedCopies = [];
-      this.copySearch = '';
-      this.view = 'project';
-      this.projectOverviewCollapsed = true;
-      this.openPage(this.projectCopyNode);
     },
     openPage(pg) {
-      if (!pg) return;
       this.searchScope = 'page';
       this.editingKeyId = null;
       this.copyPage = 1;
@@ -942,6 +690,7 @@ const app = createApp({
       this.copySearch = '';
       this.copyViewKey = pg.id + '_' + Date.now();
       this.currentPage = pg;
+      this.view = 'copies';
     },
     pageThumbUrl(pg) {
       if (!pg || !pg.screenshot || pg.projectLevel) return '';
@@ -958,245 +707,48 @@ const app = createApp({
     openProjectCopies() { this.openPage(this.projectCopyNode); },
 
     // project CRUD
-    openCreateProject() { this.projectForm = { id: null, name: '', description: '', membersText: 'Vision' }; this.showProjectModal = true; },
-    openEditProject(p) { this.projectForm = { id: p.id, name: p.name, description: p.description, membersText: p.members.map(m => m.name).join(', ') }; this.showProjectModal = true; },
-    defaultSystemLanguages() { return ALL_LANGUAGES.map(l => l.code); },
-    sanitizeSystemName() {
-      this.projectForm.name = this.projectForm.name.replace(/[^a-zA-Z0-9]/g, '');
-    },
+    openCreateProject() { this.projectForm = { id: null, name: '', description: '', languages: ['en'], membersText: 'Vision' }; this.showProjectModal = true; },
+    openEditProject(p) { this.projectForm = { id: p.id, name: p.name, description: p.description, languages: [...p.languages], membersText: p.members.map(m => m.name).join(', ') }; this.showProjectModal = true; },
     saveProject() {
       const f = this.projectForm;
-      const name = f.name.trim();
-      if (!name) { this.toast('请填写系统名称'); return; }
-      if (!SYSTEM_NAME_RE.test(name)) { this.toast('系统名称仅支持大小写字母与数字'); return; }
-      const names = f.membersText.split(',').map(s => s.trim()).filter(Boolean);
+      if (!f.name.trim()) { this.toast('请填写系统名称'); return; }
+      const members = f.membersText.split(',').map(s => s.trim()).filter(Boolean).map((name, i) => ({ name, role: i === 0 ? '系统管理员' : '系统成员' }));
       if (f.id) {
         const p = this.projects.find(x => x.id === f.id);
-        const currentAdmin = (p.members || []).find(m => m.role === '系统管理员')?.name;
-        const members = names.map(n => ({ name: n, role: n === currentAdmin ? '系统管理员' : '系统成员' }));
-        if (members.length && !members.some(m => m.role === '系统管理员')) members[0].role = '系统管理员';
-        Object.assign(p, { name, description: f.description, members });
+        Object.assign(p, { name: f.name, description: f.description, languages: f.languages.length ? f.languages : ['en'], members });
         this.toast('系统已更新');
       } else {
-        const members = names.map((n, i) => ({ name: n, role: i === 0 ? '系统管理员' : '系统成员' }));
-        const key = slugFromSystemName(name);
-        if (!key) { this.toast('无法根据系统名称生成 Key'); return; }
-        if (this.projects.some(p => p.key === key)) { this.toast(`系统 Key「${key}」已存在，请更换系统名称`); return; }
         const colors = ['#4f6ef7', '#19b576', '#f0a020', '#9b59f7', '#ef4d4d'];
-        const newSys = {
-          id: uid('p'), name, key, description: f.description || '—',
+        this.projects.unshift({
+          id: uid('p'), name: f.name, description: f.description || '—',
           color: colors[Math.floor(Math.random() * colors.length)],
-          languages: this.defaultSystemLanguages(), members,
-          versions: [], items: [],
-          deletedAt: null,
-          _viewVersionId: '',
-        };
-        this.projects.unshift(newSys);
-        this.showProjectModal = false;
-        this.openSystem(newSys);
-        this.toast('系统已创建，请继续新建项目');
-        this.openCreateItem();
-        return;
+          languages: f.languages.length ? f.languages : ['en'], members,
+          versions: [], pages: [{ id: uid('pg'), name: 'common', key: 'common', screenshot: false, copies: [], children: [] }],
+          _viewVersionId: DRAFT_VERSION_ID,
+        });
+        this.toast('系统已创建（默认含 common 分组）');
       }
       this.showProjectModal = false;
     },
-    openTransferAdmin() {
-      if (!this.projectForm.id) return;
-      if (!this.transferCandidates.length) {
-        this.toast('请先添加其他成员并保存后再移交');
-        return;
-      }
-      this.transferTarget = this.transferCandidates[0].name;
-      this.showTransferModal = true;
-    },
-    doTransferAdmin() {
-      const p = this.editingProject;
-      const target = this.transferTarget;
-      if (!p || !target) return;
-      const next = p.members.map(m => ({
-        name: m.name,
-        role: m.name === target ? '系统管理员' : '系统成员',
-      }));
-      next.sort((a, b) => (a.role === '系统管理员' ? 0 : 1) - (b.role === '系统管理员' ? 0 : 1));
-      p.members = next;
-      this.projectForm.membersText = next.map(m => m.name).join(', ');
-      this.showTransferModal = false;
-      this.toast(`已将系统管理员移交给 ${target}`);
-    },
     confirmDeleteProject(p) {
-      const target = p || this.currentProject;
-      if (!target || isDeleted(target)) return;
-      this.confirm = {
-        show: true,
-        title: '删除系统',
-        danger: true,
-        okLabel: '确认删除',
-        message: `确定删除「${target.name}」？删除后系统将不再显示，数据仍保留。`,
-        ok: () => {
-          target.deletedAt = new Date().toLocaleString('zh-CN', { hour12: false }).slice(0, 16);
-          if (this.currentProject && this.currentProject.id === target.id) this.goProjects();
-          this.confirm.show = false;
-          this.toast('系统已软删除');
-        },
-      };
+      this.confirm = { show: true, title: '删除系统', message: `确定删除「${p.name}」？系统及其全部文案将被硬删除，不可恢复。`, ok: () => { this.projects = this.projects.filter(x => x.id !== p.id); this.confirm.show = false; this.toast('系统已删除'); } };
     },
 
-    // item (项目) CRUD
-    openCreateItem() {
-      if (!this.currentProject) return;
-      this.itemForm = { name: '', key: '' };
-      this.showCreateItem = true;
-    },
-    saveCreateItem() {
-      const name = this.itemForm.name.trim();
-      const key = this.itemForm.key.trim();
-      if (!name) { this.toast('请填写项目名称'); return; }
-      if (!key) { this.toast('请填写项目 Key'); return; }
-      if (!ITEM_KEY_RE.test(key)) { this.toast('项目 Key 仅支持字母、数字、下划线和中划线'); return; }
-      if (!this.currentProject.items) this.currentProject.items = [];
-      if (this.currentProject.items.some(i => !isDeleted(i) && i.key === key)) { this.toast('项目 Key 已存在'); return; }
-      const item = mkItem(name, key, [], [], [...(this.currentProject.languages || ['en'])]);
-      this.currentProject.items.unshift(item);
-      this.showCreateItem = false;
-      this.toast(`项目已创建：基于 master 新建分支 ${item.branch}`);
-      this.openItem(item);
-    },
-    confirmDeleteItem(item) {
-      if (!item || !this.currentProject || isDeleted(item)) return;
-      this.confirm = {
-        show: true,
-        title: '删除项目',
-        danger: true,
-        okLabel: '确认删除',
-        message: `确定删除项目「${item.name}」？删除后项目将不再显示，开发分支 ${item.branch} 数据仍保留。`,
-        ok: () => {
-          item.deletedAt = new Date().toLocaleString('zh-CN', { hour12: false }).slice(0, 16);
-          if (this.currentItem && this.currentItem.id === item.id) this.goToSystem();
-          this.confirm.show = false;
-          this.toast('项目已软删除');
-        },
-      };
-    },
-    completeItem() {
-      if (!this.currentItem || this.currentItem.status === 'closed') return;
-      const item = this.currentItem;
-      this.confirm = {
-        show: true,
-        title: '项目结项',
-        danger: false,
-        okLabel: '确认结项',
-        message: `确定将项目「${item.name}」标记为已结项？结项后开发分支 ${item.branch} 将不可再编辑。`,
-        ok: () => {
-          item.status = 'closed';
-          this.confirm.show = false;
-          this.toast(`项目「${item.name}」已结项`);
-        },
-      };
-    },
-    itemStatusLabel(item) {
-      return item?.status === 'closed' ? '已结项' : '进行中';
-    },
-    publishItem() {
-      if (!this.currentItem || !this.currentProject || !this.isItemActive) return;
-      const tag = this.nextTagName;
-      const item = this.currentItem;
-      this.confirm = {
-        show: true,
-        title: '发布项目',
-        danger: false,
-        okLabel: '确认发布',
-        message: `将开发分支「${item.branch}」合并回 master，并基于 master 新建 tag「${tag}」？`,
-        ok: () => {
-          this.currentProject.versions.unshift({
-            id: uid('v'),
-            name: tag,
-            createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).slice(0, 16),
-            author: 'Vision',
-            note: `发布项目「${item.name}」`,
-            itemKey: item.key,
-          });
-          this.currentVersion = String(this.currentProject.versions[0].id);
-          this.confirm.show = false;
-          this.toast(`已发布：${item.branch} → master，新建 tag ${tag}`);
-        },
-      };
-    },
-    rollbackItem() {
-      if (!this.currentProject) return;
-      if (!this.canRollback) {
-        this.toast(this.rollbackDisabledTip || '当前不可回滚');
-        return;
-      }
-      const versions = this.currentProject.versions || [];
-      const latest = versions[0];
-      const previous = versions[1];
-      this.diffMode = 'rollback';
-      this.diffVersion = latest;
-      this.diffData = this.mockDiff();
-      this.showDiff = true;
-      this._rollbackTarget = previous;
-    },
-    doRollback() {
-      const prev = this._rollbackTarget;
-      const latest = this.currentProject.versions[0];
-      if (prev && latest) {
-        this.currentProject.versions.shift();
-        if (String(this.currentVersion) === String(latest.id)) {
-          this.currentVersion = String(prev.id);
-        }
-        this.toast(`master 已从 tag「${latest.name}」回滚到 tag「${prev.name}」`);
-      }
-      this.showDiff = false;
-      this._rollbackTarget = null;
-    },
-
-    // language (项目级 · 开发分支)
-    addLanguage() {
-      if (!this.addLangCode || !this.currentItem) return;
-      if (!this.isItemActive) { this.toast('已结项项目不可修改语种'); return; }
-      this.currentItem.languages.push(this.addLangCode);
-      (this.currentItem.copies || []).forEach(c => { c.values[this.addLangCode] = ''; });
-      this.walkItemPages(this.currentItem, pg => pg.copies.forEach(c => { c.values[this.addLangCode] = ''; }));
-      this.addLangCode = '';
-      this.showAddLang = false;
-      this.toast(`已在开发分支 ${this.currentItem.branch} 新增语种`);
-    },
+    // language
+    addLanguage() { if (!this.addLangCode) return; this.currentProject.languages.push(this.addLangCode); this.currentProject.pages.forEach(pg => pg.copies.forEach(c => c.values[this.addLangCode] = '')); this.addLangCode = ''; this.showAddLang = false; this.toast('语种已新增'); },
     removeLanguage(code) {
-      if (!this.currentItem) return;
-      if (!this.isItemActive) { this.toast('已结项项目不可修改语种'); return; }
-      if (this.currentItem.languages.length <= 1) { this.toast('至少保留一个语种'); return; }
-      this.confirm = {
-        show: true,
-        title: '删除语种',
-        message: `确定在开发分支「${this.currentItem.branch}」删除「${this.langLabel(code)}」？该语种下本项目全部文案将被删除。`,
-        ok: () => {
-          this.currentItem.languages = this.currentItem.languages.filter(l => l !== code);
-          (this.currentItem.copies || []).forEach(c => delete c.values[code]);
-          this.walkItemPages(this.currentItem, pg => pg.copies.forEach(c => delete c.values[code]));
-          this.confirm.show = false;
-          this.toast('语种已从开发分支删除');
-        },
-      };
-    },
-    walkItemPages(item, fn) {
-      const walk = (list) => {
-        (list || []).forEach(pg => {
-          fn(pg);
-          if (pg.children && pg.children.length) walk(pg.children);
-        });
-      };
-      walk(item.pages || []);
+      if (this.currentProject.languages.length <= 1) { this.toast('至少保留一个语种'); return; }
+      this.confirm = { show: true, title: '删除语种', message: `删除「${this.langLabel(code)}」后，该语种下所有文案将被删除。`, ok: () => { this.currentProject.languages = this.currentProject.languages.filter(l => l !== code); this.currentProject.pages.forEach(pg => pg.copies.forEach(c => delete c.values[code])); this.confirm.show = false; this.toast('语种已删除'); } };
     },
 
     // page CRUD
     openCreatePage(parent) {
-      if (!this.isItemEditable) { this.toast(this.versionReadonlyTip()); return; }
+      if (!this.isVersionEditable) { this.toast(this.versionReadonlyTip()); return; }
       this.pageForm = { id: null, name: '', key: '', uploaded: false, parentId: parent ? parent.id : null, parentName: parent ? parent.name : '' };
       this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true;
     },
     openEditPage(pg) {
-      if (!this.isItemEditable) { this.toast(this.versionReadonlyTip()); return; } this.pageForm = { id: pg.id, name: pg.name, key: pg.key || '', uploaded: pg.screenshot, parentId: null, parentName: '' }; this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true;
-    },
+      if (!this.isVersionEditable) { this.toast(this.versionReadonlyTip()); return; } this.pageForm = { id: pg.id, name: pg.name, key: pg.key || '', uploaded: pg.screenshot, parentId: null, parentName: '' }; this.ocrResult = []; this.ocrLoading = false; this.showPageModal = true; },
     closePageModal() { this.showPageModal = false; },
     openCopies(pg) { this.copiesModalPage = pg; this.showCopies = true; },
     manageCopiesFromModal() { const pg = this.copiesModalPage; this.showCopies = false; this.openPage(pg); },
@@ -1212,7 +764,7 @@ const app = createApp({
       }, 900);
     },
     savePage() {
-      if (!this.isItemEditable) return;
+      if (!this.isVersionEditable) return;
       if (!this.pageForm.name.trim()) { this.toast('请填写分组名称'); return; }
       if (!this.pageForm.key.trim()) { this.toast('请填写分组 Key'); return; }
       const copies = this.ocrResult.filter(o => o.pick).map(o => mkCopy(this.genKey(o.text), o.text, '', ''));
@@ -1235,7 +787,7 @@ const app = createApp({
         this.showPageModal = false;
         this.toast(copies.length ? `已在「${parent.name}」下新增子分组，录入 ${copies.length} 条文案` : `已在「${parent.name}」下新增子分组`);
       } else {
-        this.activePages.push(newPage);
+        this.currentProject.pages.push(newPage);
         this.showPageModal = false;
         this.toast(copies.length ? `顶层分组已创建，录入 ${copies.length} 条文案` : '顶层分组已创建');
       }
@@ -1246,10 +798,10 @@ const app = createApp({
       const extra = childCount ? `及其 ${childCount} 个子分组` : '';
       this.confirm = {
         show: true, title: '删除分组',
-        message: `确定删除分组「${pg.name}」${extra}（共 ${copyCount} 条文案）？`,
+        message: `确定删除分组「${pg.name}」${extra}（共 ${copyCount} 条文案）？此操作不可恢复。`,
         ok: () => {
           this.removePageNode(pg.id);
-          if (this.currentPage && this.currentPage.id === pg.id) this.openPage(this.projectCopyNode);
+          if (this.currentPage && this.currentPage.id === pg.id) { this.currentPage = null; this.view = 'pages'; }
           this.confirm.show = false; this.toast('分组已删除');
         },
       };
@@ -1259,14 +811,14 @@ const app = createApp({
     genKey(text) {
       let k = (text || '').slice(0, 16).replace(/[^\w\s]|_/g, '').trim().replace(/\s+/g, '_');
       if (!k) k = 'key';
-      const exists = this.activePages.some(pg => pg.copies.some(c => c.key === k));
+      const exists = this.currentProject.pages.some(pg => pg.copies.some(c => c.key === k));
       if (exists) k = `${k}_${Math.random().toString(36).slice(2, 4)}`;
       return k;
     },
     addCopyRow() {
-      if (!this.isItemEditable) return;
+      if (!this.isVersionEditable) return;
       const row = { id: uid('c'), key: '', values: {} };
-      this.currentItem.languages.forEach(l => row.values[l] = '');
+      this.currentProject.languages.forEach(l => row.values[l] = '');
       this.currentPage.copies.unshift(row);
       this.copyPage = 1;
       this.toast('新增空行，输入英文后将自动生成 Key');
@@ -1278,26 +830,23 @@ const app = createApp({
     },
     bulkDelete() {
       if (this.selectedIncludesOtherProject) return;
-      this.confirm = {
-        show: true, title: '批量删除', message: `确定删除选中的 ${this.selectedCopies.length} 条文案？`, ok: () => {
-          const ids = new Set(this.selectedCopies);
-          if (this.searchScope === 'page') {
-            for (let i = this.currentPage.copies.length - 1; i >= 0; i--) {
-              if (ids.has(this.currentPage.copies[i].id)) this.currentPage.copies.splice(i, 1);
-            }
-          } else {
-            const pool = this.searchScope === 'project'
-              ? this.flattenItemCopies(this.currentItem)
-              : this.projects.filter(p => !isDeleted(p)).flatMap(p => (p.items || []).filter(i => !isDeleted(i)).flatMap(item => this.flattenItemCopies(item, p)));
-            pool.filter(r => ids.has(r.id)).forEach(r => {
-              const sys = this.projects.find(p => p.id === r._projectId);
-              const item = (sys?.items || []).find(i => i.id === r._itemId);
-              if (item) this.removeCopyFromItem(item, r.id, r._pageId);
-            });
+      this.confirm = { show: true, title: '批量删除', message: `确定删除选中的 ${this.selectedCopies.length} 条文案？（硬删除）`, ok: () => {
+        const ids = new Set(this.selectedCopies);
+        if (this.searchScope === 'page') {
+          for (let i = this.currentPage.copies.length - 1; i >= 0; i--) {
+            if (ids.has(this.currentPage.copies[i].id)) this.currentPage.copies.splice(i, 1);
           }
-          this.selectedCopies = []; this.confirm.show = false; this.toast('已批量删除');
+        } else {
+          const pool = this.searchScope === 'project'
+            ? this.flattenProjectCopies(this.currentProject)
+            : this.projects.flatMap(p => this.flattenProjectCopies(p));
+          pool.filter(r => ids.has(r.id)).forEach(r => {
+            const proj = this.projects.find(p => p.id === r._projectId);
+            this.removeCopyFromProject(proj, r.id, r._pageId);
+          });
         }
-      };
+        this.selectedCopies = []; this.confirm.show = false; this.toast('已批量删除');
+      } };
     },
     toggleAll(e) {
       if (e.target.checked) { this.pagedCopies.forEach(c => { if (!this.selectedCopies.includes(c.id)) this.selectedCopies.push(c.id); }); }
@@ -1310,12 +859,12 @@ const app = createApp({
 
     // import
     openImport() {
-      if (!this.isItemEditable) return;
+      if (!this.isVersionEditable) return;
       this.importLoaded = false; this.importPreview = [];
       this.importFormat = 'JSON';
       this.importFiles = {};
       this.dragLang = '';
-      this.importLang = this.itemLanguages.includes('en') ? 'en' : (this.itemLanguages[0] || '');
+      this.importLang = this.currentProject.languages.includes('en') ? 'en' : (this.currentProject.languages[0] || '');
       this.showImport = true;
     },
     selectImportFormat(f) { this.importFormat = f; this.importLoaded = false; this.importFiles = {}; },
@@ -1352,19 +901,15 @@ const app = createApp({
     },
     buildImportPreview() {
       this.importLoaded = true;
-      const pages = this.activePages;
+      const pages = this.currentProject.pages;
       this.importPreview = [
-        {
-          page: (pages[0]?.name || 'common'), items: [
-            { key: 'New_Banner_Title', value: 'Summer Sale', type: 'add', pick: true },
-            { key: 'Sign_In', value: 'Log in', type: 'upd', pick: true },
-          ]
-        },
-        {
-          page: (pages[1]?.name || 'home'), items: [
-            { key: 'Add_Device', value: 'Add a device', type: 'upd', pick: true },
-          ]
-        },
+        { page: (pages[0]?.name || 'common'), items: [
+          { key: 'New_Banner_Title', value: 'Summer Sale', type: 'add', pick: true },
+          { key: 'Sign_In', value: 'Log in', type: 'upd', pick: true },
+        ] },
+        { page: (pages[1]?.name || 'home'), items: [
+          { key: 'Add_Device', value: 'Add a device', type: 'upd', pick: true },
+        ] },
       ];
     },
     doImport() {
@@ -1388,8 +933,13 @@ const app = createApp({
       this.showExportScopePicker = true;
     },
     confirmExportScope(scope) {
+      const v = this.exportScopePickerVersion;
       this.showExportScopePicker = false;
       this.exportScopePickerVersion = null;
+      if (v) {
+        this.currentVersion = String(v.id);
+        this.view = 'pages';
+      }
       this.openExport(scope);
     },
     openExport(scope = 'full') {
@@ -1414,14 +964,64 @@ const app = createApp({
       const scopeLabel = this.exportScopeLabel;
       this.showExport = false;
       if (this.exportFormat === 'JSON') {
-        const langs = this.itemLanguages.length;
+        const langs = this.currentProject.languages.length;
         this.toast(`已${scopeLabel} ${n} 条文案 · JSON（每语种 1 个文件，共 ${langs} 个）（演示）`);
       } else {
         this.toast(`已${scopeLabel} ${n} 条文案 · Excel（演示）`);
       }
     },
 
-    // tag / publish / rollback
+    // version
+    lockCurrentVersion() {
+      const v = this.activeVersion;
+      if (!v || v.locked === true) return;
+      this.lockVersion(v);
+    },
+    lockVersion(v) {
+      if (!v || v.locked === true) return;
+      this.confirm = {
+        show: true,
+        title: '锁定版本',
+        danger: false,
+        okLabel: '确认锁定',
+        message: `确定锁定版本「${v.name}」？锁定后该版本将不可再修改。`,
+        ok: () => {
+          v.locked = true;
+          this.confirm.show = false;
+          this.toast(`版本 ${v.name} 已锁定`);
+        },
+      };
+    },
+    deleteVersion(v) {
+      if (!v || v.locked === true) return;
+      this.confirm = {
+        show: true,
+        title: '删除版本',
+        danger: true,
+        okLabel: '确认删除',
+        message: `确定删除版本「${v.name}」？此操作不可恢复。`,
+        ok: () => {
+          const id = String(v.id);
+          this.currentProject.versions = this.currentProject.versions.filter(x => x.id !== v.id);
+          if (String(this.currentVersion) === id) this.currentVersion = DRAFT_VERSION_ID;
+          this.confirm.show = false;
+          this.toast(`版本 ${v.name} 已删除`);
+        },
+      };
+    },
+    openTagVersion() {
+      if (!this.isDraftVersion) return;
+      const next = (this.currentProject.versions[0]?.name || 'v0').replace('v', '');
+      this.tagForm = { name: 'v' + (parseInt(next) + 1), note: '' };
+      this.showTagVersion = true;
+    },
+    saveTagVersion() {
+      this.currentProject.versions.unshift({ id: uid('v'), name: this.tagForm.name, createdAt: new Date().toLocaleString('zh-CN', { hour12: false }).slice(0, 16), author: 'Vision', note: this.tagForm.note || '—', locked: false });
+      this.showTagVersion = false;
+      this.toast(`已新建版本 ${this.tagForm.name}（快照已存档）`);
+    },
+    openDiff(v) { this.diffMode = 'diff'; this.diffVersion = v; this.diffData = this.mockDiff(); this.showDiff = true; },
+    openRollback(v) { this.diffMode = 'rollback'; this.diffVersion = v; this.diffData = this.mockDiff(); this.showDiff = true; },
     mockDiff() {
       return [
         { key: 'Welcome_Back', old: 'Welcome back', new: 'Hello again', type: 'upd' },
@@ -1430,17 +1030,21 @@ const app = createApp({
         { key: 'Sign_In', old: 'Sign in', new: 'Log in', type: 'upd' },
       ];
     },
+    viewVersion(v) {
+      this.currentVersion = String(v.id);
+      this.goToPages();
+      this.toast(`正在查看 ${v.name}${v.locked ? '（已锁定 · 只读）' : '（可编辑）'}`);
+    },
+    doRollback() { this.showDiff = false; this.toast(`已回滚到 ${this.diffVersion.name}（按 id 增删改）`); },
 
     // migrate / copy
-    defaultMoveTarget() {
-      return this.activePages[0] ? this.activePages[0].id : '__project__';
-    },
+    defaultMoveTarget() { return this.currentProject.pages[0] ? this.currentProject.pages[0].id : '__project__'; },
     openMigrate() { if (this.selectedIncludesOtherProject) return; this.moveMode = 'migrate'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     openCopyTo() { this.moveMode = 'copy'; this.moveCount = this.selectedCopies.length; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     quickCopyTo(row) { this.moveMode = 'copy'; this.moveCount = 1; this._singleRow = row; this.moveTarget = this.defaultMoveTarget(); this.showMove = true; },
     doMove() {
       const targetName = this.moveTarget === '__project__'
-        ? `${this.currentItem.name} · 项目文案`
+        ? `${this.currentProject.name} · 系统文案`
         : (this.findPageById(this.moveTarget)?.name || '分组');
       const verb = this.moveMode === 'migrate' ? '迁移' : '复制';
       this.showMove = false; this.selectedCopies = []; this._singleRow = null;
@@ -1449,41 +1053,41 @@ const app = createApp({
 
     // ============ 文案查重 ============
     // 给定系统，返回其分组的树级选项（含各级分组 Key 链），用于复制目标下拉
-    projectPageOptions(project, item) {
-      if (!project || !item) return [];
+    projectPageOptions(project) {
+      if (!project) return [];
       const walk = (list, depth, prefixKeys) => {
         let acc = [];
         (list || []).forEach(pg => {
           const keys = [...prefixKeys, (pg.key || pg.name || '').trim()].filter(Boolean);
-          acc.push({ id: pg.id, depth, name: pg.name, chain: keys.join('.'), label: '　'.repeat(depth) + '📄 ' + pg.name });
+          acc.push({ id: pg.id, depth, name: pg.name, chain: keys.join('.') , label: '　'.repeat(depth) + '📄 ' + pg.name });
           if (pg.children && pg.children.length) acc = acc.concat(walk(pg.children, depth + 1, keys));
         });
         return acc;
       };
-      const root = { id: 'projcopies_' + item.id, depth: 0, name: '项目级文案', chain: '', label: '📦 ' + item.name + '（项目级文案）' };
-      return [root, ...walk(item.pages, 1, [])];
+      const root = { id: 'projcopies_' + project.id, depth: 0, name: '系统级文案', chain: '', label: '📦 ' + project.name + '（系统级文案）' };
+      return [root, ...walk(project.pages, 1, [])];
     },
-    pageChainDisplay(project, item, pageId) {
-      if (!project || !item) return '';
-      if (('projcopies_' + item.id) === pageId) return '（项目级文案）';
-      const path = this.findPagePath(pageId, item.pages) || [];
+    // 某个分组在其所在系统内的链式展示（分组 / 子分组，不含系统名）
+    pageChainDisplay(project, pageId) {
+      if (!project) return '';
+      if (('projcopies_' + project.id) === pageId) return '（系统级文案）';
+      const path = this.findPagePath(pageId, project.pages) || [];
       return path.map(p => p.name).join(' / ');
     },
+    // 定位某条文案在系统中的第一个所属分组（用于构造 demo 行）
     locateCopy(project, key) {
-      for (const item of (project.items || [])) {
-        if (isDeleted(item)) continue;
-        const walk = (pg) => {
-          const c = pg.copies.find(x => x.key === key);
-          if (c) return { copy: c, pageId: pg.id, item };
-          for (const ch of (pg.children || [])) { const f = walk(ch); if (f) return f; }
-          return null;
-        };
-        for (const pg of (item.pages || [])) { const f = walk(pg); if (f) return f; }
-        const pc = (item.copies || []).find(x => x.key === key);
-        if (pc) return { copy: pc, pageId: 'projcopies_' + item.id, item };
-      }
+      const walk = (pg) => {
+        const c = pg.copies.find(x => x.key === key);
+        if (c) return { copy: c, pageId: pg.id };
+        for (const ch of (pg.children || [])) { const f = walk(ch); if (f) return f; }
+        return null;
+      };
+      for (const pg of (project.pages || [])) { const f = walk(pg); if (f) return f; }
+      const pc = (project.copies || []).find(x => x.key === key);
+      if (pc) return { copy: pc, pageId: 'projcopies_' + project.id };
       return null;
     },
+    // 构造一行 demo：来自 project 的某条文案，可覆盖英文值使同组一致
     dedupRow(project, key, isOwn, enOverride) {
       const found = this.locateCopy(project, key);
       if (!found) return null;
@@ -1496,10 +1100,8 @@ const app = createApp({
         values,
         projectId: project.id,
         projectName: project.name,
-        itemId: found.item.id,
-        itemName: found.item.name,
         pageId: found.pageId,
-        pageChain: this.pageChainDisplay(project, found.item, found.pageId),
+        pageChain: this.pageChainDisplay(project, found.pageId),
         isOwn,
       };
     },
@@ -1582,12 +1184,8 @@ const app = createApp({
     },
     firstCopyKey(project) {
       const walk = (pg) => { if (pg.copies[0]) return pg.copies[0].key; for (const ch of (pg.children || [])) { const f = walk(ch); if (f) return f; } return null; };
-      for (const item of (project.items || [])) {
-        if (isDeleted(item)) continue;
-        for (const pg of (item.pages || [])) { const f = walk(pg); if (f) return f; }
-        if (item.copies && item.copies[0]) return item.copies[0].key;
-      }
-      return null;
+      for (const pg of (project.pages || [])) { const f = walk(pg); if (f) return f; }
+      return (project.copies && project.copies[0]) ? project.copies[0].key : null;
     },
     // 语种列 = 本系统所有语种
     dedupLangs() {
@@ -1603,23 +1201,23 @@ const app = createApp({
       if (!this.dedupOverwriteGroup) return [];
       return this.dedupOverwriteGroup.rows.filter(r => r.isOwn);
     },
-    findCopyInItem(item, copyId, pageId) {
-      if (!item) return null;
-      if (('projcopies_' + item.id) === pageId) {
-        return (item.copies || []).find(c => c.id === copyId) || null;
+    findCopyInProject(project, copyId, pageId) {
+      if (!project) return null;
+      if (('projcopies_' + project.id) === pageId) {
+        return (project.copies || []).find(c => c.id === copyId) || null;
       }
       const walk = (pg) => {
         if (pg.id === pageId) return pg.copies.find(c => c.id === copyId) || null;
         for (const ch of (pg.children || [])) { const f = walk(ch); if (f) return f; }
         return null;
       };
-      for (const pg of (item.pages || [])) { const f = walk(pg); if (f) return f; }
+      for (const pg of (project.pages || [])) { const f = walk(pg); if (f) return f; }
       return null;
     },
-    removeCopyFromItem(item, copyId, pageId) {
-      if (!item) return false;
-      if (('projcopies_' + item.id) === pageId) {
-        const list = item.copies || [];
+    removeCopyFromProject(project, copyId, pageId) {
+      if (!project) return false;
+      if (('projcopies_' + project.id) === pageId) {
+        const list = project.copies || [];
         const i = list.findIndex(c => c.id === copyId);
         if (i !== -1) { list.splice(i, 1); return true; }
         return false;
@@ -1633,7 +1231,7 @@ const app = createApp({
         for (const ch of (pg.children || [])) { if (walk(ch)) return true; }
         return false;
       };
-      for (const pg of (item.pages || [])) { if (walk(pg)) return true; }
+      for (const pg of (project.pages || [])) { if (walk(pg)) return true; }
       return false;
     },
     applyDedupOverwrite(sourceRow, targetRows) {
@@ -1641,8 +1239,7 @@ const app = createApp({
       if (!project || !sourceRow) return;
       const langs = project.languages;
       targetRows.forEach(tr => {
-        const item = (project.items || []).find(i => i.id === tr.itemId);
-        const copy = item ? this.findCopyInItem(item, tr.copyId, tr.pageId) : null;
+        const copy = this.findCopyInProject(project, tr.copyId, tr.pageId);
         if (copy) langs.forEach(l => { copy.values[l] = sourceRow.values[l] ?? ''; });
         langs.forEach(l => { tr.values[l] = sourceRow.values[l] ?? ''; });
       });
@@ -1691,10 +1288,9 @@ const app = createApp({
         title: '删除文案',
         danger: true,
         okLabel: '确认删除',
-        message: `确定删除「${row.key}」（${row.projectName} / ${row.pageChain}）？`,
+        message: `确定删除「${row.key}」（${row.projectName} / ${row.pageChain}）？该文案将被硬删除，不可恢复。`,
         ok: () => {
-          const item = (this.dedupProject.items || []).find(i => i.id === row.itemId);
-          if (item) this.removeCopyFromItem(item, row.copyId, row.pageId);
+          this.removeCopyFromProject(this.dedupProject, row.copyId, row.pageId);
           group.rows = group.rows.filter(r => r.id !== row.id);
           this.dedupGroups = this.dedupGroups.filter(g => g.rows.length > 1);
           this.confirm.show = false;
@@ -1722,17 +1318,24 @@ app.component('page-tree-node', {
   },
   template: `
     <div class="ptree-item">
-      <div class="ptree-row" :class="{'project-level': node.projectLevel, active: tree.isActive(node)}" @click="tree.openPage(node)">
-        <div class="ptree-main" :style="{paddingLeft:(depth*16+8)+'px'}">
-          <button v-if="hasChildren" class="ptree-toggle" @click.stop="open=!open">{{ open ? '▾' : '▸' }}</button>
-          <span v-else class="ptree-toggle ghost"></span>
-          <span class="ptree-name" :title="node.name">{{ node.name }}</span>
+      <div class="ptree-row" :class="{'project-level': node.projectLevel}" :style="{paddingLeft:(depth*24+12)+'px'}" @click="tree.openPage(node)">
+        <button v-if="hasChildren" class="ptree-toggle" @click.stop="open=!open">{{ open ? '▾' : '▸' }}</button>
+        <span v-else class="ptree-toggle ghost"></span>
+        <span v-if="!node.projectLevel" class="ptree-thumb" :class="{noimg:!node.screenshot, previewable:node.screenshot}" :title="node.screenshot ? '点击查看大图' : '无截图'" @click.stop="node.screenshot && tree.previewScreenshot(node)">
+          <img v-if="node.screenshot && node.screenshotUrl" :src="node.screenshotUrl" :alt="node.name + ' 截图'" />
+          <template v-else>{{ node.screenshot ? '🖼️' : '–' }}</template>
+        </span>
+        <span v-else class="ptree-thumb placeholder" aria-hidden="true"></span>
+        <div class="ptree-info">
+          <span class="ptree-name">{{ node.name }}</span>
         </div>
+        <span class="ptree-count"><b>{{ node.copies.length }}</b> 文案</span>
         <div v-if="!node.projectLevel && tree.isEditable()" class="ptree-actions" @click.stop>
-          <button class="icon-btn sm" title="新增子分组" @click="tree.addChild(node)">＋</button>
+          <button class="btn xs" title="在此分组下新增子分组" @click="tree.addChild(node)">＋ 子分组</button>
           <button class="icon-btn sm" title="编辑分组" @click="tree.editPage(node)">✏️</button>
           <button class="icon-btn sm danger" title="删除分组" @click="tree.deletePage(node)">🗑️</button>
         </div>
+        <div v-else class="ptree-actions placeholder" aria-hidden="true"></div>
       </div>
       <div v-if="hasChildren && open" class="ptree-children">
         <page-tree-node v-for="c in node.children" :key="c.id" :node="c" :depth="depth+1" :parent-key="fullKey" :lang-label="langLabel" />
